@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    { "id": "luna-low", "model": "gpt-5.6-luna", "reasoningEffort": "low" },
+    { "id": "luna-medium", "model": "gpt-5.6-luna", "reasoningEffort": "medium" },
+    { "id": "luna-high", "model": "gpt-5.6-luna", "reasoningEffort": "high" },
+    { "id": "terra-medium", "model": "gpt-5.6-terra", "reasoningEffort": "medium" },
+    { "id": "sol-medium", "model": "gpt-5.6-sol", "reasoningEffort": "medium" },
+    { "id": "sol-high", "model": "gpt-5.6-sol", "reasoningEffort": "high" }
+  ]
+}

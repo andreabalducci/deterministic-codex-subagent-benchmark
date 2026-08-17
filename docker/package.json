@@ -1,0 +1,8 @@
+{
+  "name": "codex-benchmark-generator",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "@openai/codex": "0.147.0"
+  }
+}

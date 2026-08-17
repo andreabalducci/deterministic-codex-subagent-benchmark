@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CandidateAssemblyPath)' == ''">
+    <ProjectReference Include="../Cache.Core/Cache.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(CandidateAssemblyPath)' != ''">
+    <Reference Include="Cache.Core">
+      <HintPath>$(CandidateAssemblyPath)</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

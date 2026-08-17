@@ -1,0 +1,6 @@
+**
+!docker/
+!docker/evaluator.Dockerfile
+!docker/generator.Dockerfile
+!docker/package.json
+!docker/package-lock.json

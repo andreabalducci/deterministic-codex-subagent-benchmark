@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/run-result.schema.json",
+  "type": "object",
+  "required": [
+    "schemaVersion", "runId", "fixtureId", "fixtureManifestHash", "candidateHash",
+    "promptHash", "model", "reasoningEffort", "fastMode", "machineId", "platform",
+    "provenance", "backend", "evaluatorImage", "generatorImage", "isolation", "repeatCount",
+    "integrityViolations", "policyViolations", "manifestErrors", "tests", "status",
+    "durationSeconds"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "runId": { "type": "string", "pattern": "^(?:[0-9a-f]{16}|verify-[a-z0-9-]+)$" },
+    "fixtureId": { "const": "async-cache-v1" },
+    "fixtureManifestHash": { "type": ["string", "null"] },
+    "candidateHash": { "type": ["string", "null"] },
+    "promptHash": { "type": "string" },
+    "model": { "type": "string" },
+    "reasoningEffort": { "type": "string" },
+    "fastMode": { "type": "boolean" },
+    "machineId": { "type": "string" },
+    "platform": { "type": "object" },
+    "provenance": { "type": "object" },
+    "backend": { "enum": ["native", "docker"] },
+    "evaluatorImage": { "type": ["object", "null"] },
+    "generatorImage": { "type": ["object", "null"] },
+    "isolation": { "type": "string" },
+    "repeatCount": { "type": "integer", "minimum": 1 },
+    "integrityViolations": { "type": "array", "items": { "type": "string" } },
+    "policyViolations": { "type": "array", "items": { "type": "string" } },
+    "manifestErrors": { "type": "array", "items": { "type": "string" } },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "attempts", "hadTimeout", "confirmedTimeout"],
+        "properties": {
+          "name": { "type": "string" },
+          "hadTimeout": { "type": "boolean" },
+          "confirmedTimeout": { "type": "boolean" },
+          "attempts": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "required": [
+                "command", "exitCode", "stdout", "stderr", "timedOut",
+                "launcherFailure", "outputLimitExceeded", "durationSeconds"
+              ],
+              "properties": {
+                "command": { "type": "array", "items": { "type": "string" } },
+                "exitCode": { "type": ["integer", "null"] },
+                "stdout": { "type": "string" },
+                "stderr": { "type": "string" },
+                "timedOut": { "type": "boolean" },
+                "launcherFailure": { "type": "boolean" },
+                "outputLimitExceeded": { "type": "boolean" },
+                "durationSeconds": { "type": "number", "minimum": 0 }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "status": {
+      "enum": ["PASS", "CANDIDATE_FAILURE", "INFRA_FAILURE", "INDETERMINATE_TIMEOUT"]
+    },
+    "durationSeconds": { "type": "number", "minimum": 0 },
+    "planHash": { "type": "string" },
+    "trial": { "type": "integer", "minimum": 0 },
+    "orderPosition": { "type": "integer", "minimum": 0 },
+    "generationDurationSeconds": { "type": "number", "minimum": 0 }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,20 @@
+{
+  "files": {
+    "TASK.md": "8714e74510d439b053120aa67b7ffdd02a405031368a1829fffb2f436bebfbe9",
+    "hidden/Cache.HiddenTests/Cache.HiddenTests.csproj": "4f1198b2417c98ea0ec3d45afc785a68e81c0ee26308d8a9f7fd2e0d42cd9bfd",
+    "hidden/Cache.HiddenTests/Program.cs": "644807258b048c43b869073b55e9723624f919c742489eed58eed47f05908b93",
+    "mutants/constructor-allows-zero-ttl.cs": "8b826d32e02dc46c5e7bbd8491bce821f3dc68605dff8a33762700884a68a03e",
+    "mutants/failure-remains-cached.cs": "16b4da817eb0c004f30a7ef3df13d3923485bf733ba53313a911e12d34068e59",
+    "mutants/invalidation-noop.cs": "f5ac84969c4d2b5f94c0eeda595d8cedc0c7acdfeb2a9c2bbdcd48d400f254db",
+    "mutants/ttl-boundary-inclusive.cs": "12e4d9c200a3c75a692cdee076ae687bb81f5a7ec0441cfc750298182c70c9c0",
+    "mutants/ttl-starts-before-load.cs": "06bf6ca97722a596ed4a51c5e42dbd25bc2aa88882c6e19852e20fa4c4d26955",
+    "mutants/waiter-cancellation-evicts.cs": "f8ee20b366a13bf206cb4acb6ede7385b90a52e73f8d02f85fd2dc7d767cccf0",
+    "reference/AsyncExpiringCache.cs": "40bca291b28f9387e5f654ee5892db6551dbab6e973ccf922c0d1a53f1c6d53d",
+    "starter/Cache.Core/AsyncExpiringCache.cs": "b4a29e20460382545654d21ca2081147037f44eb16d4286a6a215603da37041d",
+    "starter/Cache.Core/Cache.Core.csproj": "3472fccce5613343d3b55f6c2bbc48cbfd3de01f9cf32fd8607b8ac3a7e26395",
+    "starter/Cache.PublicTests/Cache.PublicTests.csproj": "96ff2376a9971ad003b82e3a497812349ed503459415390a854d8006a7b0e0da",
+    "starter/Cache.PublicTests/Program.cs": "e999d1ba59a3fc37bfaa33d719129a241dee596f0a4a831a9ecbab25ca0efc29"
+  },
+  "fixtureId": "async-cache-v1",
+  "schemaVersion": 1
+}
