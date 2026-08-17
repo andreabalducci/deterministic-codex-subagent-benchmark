@@ -236,6 +236,8 @@ def repository_provenance() -> dict[str, Any]:
         ROOT / "docker" / "generator.Dockerfile",
         ROOT / "docker" / "package.json",
         ROOT / "docker" / "package-lock.json",
+        ROOT / "skills" / "orchestrate" / "SKILL.md",
+        ROOT / "skills" / "orchestrate" / "agents" / "openai.yaml",
         MANIFEST,
     ]
     commit = None

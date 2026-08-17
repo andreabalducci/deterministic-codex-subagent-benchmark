@@ -28,8 +28,24 @@ fixtures/async-cache-v1/
 docker/          pinned generator and evaluator images
 runs/            ignored plans, keys, workspaces, logs, and results
 schemas/         result contract
+skills/          bundled, installable orchestration skill
 harness.py       planning, generation, evaluation, and aggregation
 ```
+
+## Bundled orchestration skill
+
+The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. It keeps the benchmark and its recommended multi-agent operating model versioned together.
+
+Install it for Codex:
+
+```bash
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills/orchestrate"
+cp -R skills/orchestrate/. "${CODEX_HOME:-$HOME/.codex}/skills/orchestrate/"
+```
+
+Restart Codex after installation, then invoke it explicitly with `$orchestrate` or allow implicit selection for substantial multi-agent work. The skill includes UI metadata and has no external tool dependencies.
+
+This is an expanded adaptation of Eric Provencher's original [`orchestrate` skill](https://github.com/provencher/codex-skills/tree/main/orchestrate), distributed under its included MIT license. The routing profile in this repository adds model-specific guidance, Fast mode clarification, context-isolation rules, and coordinator-side verification informed by this benchmark design.
 
 ## Prerequisites
 
