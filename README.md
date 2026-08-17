@@ -152,3 +152,7 @@ gh workflow run verify.yml -f repeat=20
 - Keep this repository private from candidate authors because it contains the hidden-test source. For a public benchmark, move hidden tests into a separate private evaluator service.
 - The generator uses a host bind mount without a disk quota and its restricted logs may still contain model-emitted sensitive text. Hostile generation requires a quota-backed volume or disposable VM plus automated redaction.
 - Never modify a published fixture in place. Create a new version and regenerate its manifest.
+
+## License
+
+The benchmark is released under the [MIT License](LICENSE). The bundled `orchestrate` skill is an adaptation of Eric Provencher's MIT-licensed work and retains its upstream copyright notice in [`skills/orchestrate/LICENSE`](skills/orchestrate/LICENSE).
