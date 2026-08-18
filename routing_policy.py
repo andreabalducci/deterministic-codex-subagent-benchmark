@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any, Mapping
@@ -23,16 +22,14 @@ DEFAULT_ARTIFACT = ROOT / "skills" / "orchestrate" / "routing-policy.json"
 DEFAULT_SCHEMA = ROOT / "schemas" / "routing-policy.schema.json"
 DEFAULT_MATRIX = ROOT / "matrix.json"
 DEFAULT_SKILL = ROOT / "skills" / "orchestrate" / "SKILL.md"
+DEFAULT_TEMPLATE = ROOT / "skills" / "orchestrate" / "SKILL.template.md"
 EXPECTED_CONFIGURATION_COST_ORDER = [
     "luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high",
 ]
-BEGIN_MARKER = "<!-- BEGIN GENERATED ROUTING"
-END_MARKER = "<!-- END GENERATED ROUTING -->"
+ROUTING_PLACEHOLDER = "{{ROUTING_DEFAULTS}}"
 FAST_MODE_TEXT = (
-    "Fast mode is a user/session-level throughput and credit-usage setting. It is not a "
-    "`spawn_agent` parameter, is not required for Luna, and must never be inferred from a "
-    "model or reasoning-effort selection. Say Fast mode is enabled only when the user or "
-    "session state explicitly establishes that fact."
+    "Fast mode is session-level, not a `spawn_agent` parameter. Do not infer it from "
+    "model or reasoning effort; report it enabled only when session state confirms it."
 )
 
 
@@ -357,7 +354,6 @@ def resolve_route(
 
 
 def generated_block(policy: dict[str, Any]) -> str:
-    digest = canonical_sha256(policy)
     rows = "\n".join(
         f"| `{route['id']}` | {route['summary']} | `{route['selectedConfigurationId']}`: `{route['model']}`, "
         f"`reasoning_effort: \"{route['reasoningEffort']}\"` |"
@@ -366,57 +362,24 @@ def generated_block(policy: dict[str, Any]) -> str:
     coordinator = policy["coordinatorDefaults"][0]
     return f"""## Routing defaults
 
-{BEGIN_MARKER}
-policyVersion={policy['policyVersion']}
-routingArtifactCanonicalSha256={digest}
-status={policy['status']}
--->
-
-These are working defaults, not universal model-quality claims. Apply them only after deciding that delegation materially helps.
+Status: `{policy['status']}`. Delegate only when parallelism materially helps.
 
 | Route | Use when | Default |
 | --- | --- | --- |
 {rows}
 
-The separate live-coordinator session hypothesis is `{coordinator['model']}` with
-`reasoning_effort: "{coordinator['reasoningEffort']}"` while the experiment freezes leaf
-workers independently. This is a session-start choice: `spawn_agent` cannot change the
-model of the already-running parent coordinator. Its evidence status is
-`{coordinator['claimStrength']}` and it must never promote the spawned-worker `sol-medium` row.
+Coordinator hypothesis: `{coordinator['model']}` / `{coordinator['reasoningEffort']}` at session start; spawning cannot change the parent model.
 
-First classify the task: if multiple task classes match, choose the highest safety rank, then the most specific match, then the lowest precedence number. If uncertainty leaves a higher-risk class plausible, select that class; unknown potentially high-risk traits route to `ambiguous-cross-cutting-high-risk`.
-
-Then use that task class's evidence-selected cheapest sufficient configuration. A promoted row must be backed by a replayed machine-verifiable analysis that records this exact configuration as the cheapest sufficient selection. If it is unavailable, try only its declared cost-increasing availability fallback configurations in order. Never silently substitute an unlisted configuration. If no fallback is available, do not delegate; keep the work with the coordinator or ask for direction.
-
-{FAST_MODE_TEXT}
-
-Evidence status and route-level references are recorded in `routing-policy.json`.
-
-{END_MARKER}"""
+- Classify first. Break ties by safety rank, specificity, then precedence; uncertainty routes upward in risk.
+- Use the selected cheapest-sufficient configuration. Try only costlier fallbacks from `routing-policy.json`; otherwise keep the work with the coordinator.
+- Treat a row as evidence-backed only when `routing-policy.json` says so.
+- {FAST_MODE_TEXT}"""
 
 
-def render_skill(skill_text: str, policy: dict[str, Any]) -> str:
-    block = generated_block(policy)
-    if BEGIN_MARKER in skill_text:
-        if skill_text.count(BEGIN_MARKER) != 1 or skill_text.count(END_MARKER) != 1:
-            raise ValueError("SKILL.md must contain exactly one generated routing block")
-        pattern = re.compile(
-            r"## Routing defaults\n\n<!-- BEGIN GENERATED ROUTING.*?"
-            + re.escape(END_MARKER),
-            re.DOTALL,
-        )
-    else:
-        if skill_text.count("## Current routing hypotheses") != 1:
-            raise ValueError("Expected exactly one legacy routing block in SKILL.md")
-        pattern = re.compile(
-            r"## Current routing hypotheses\n\n.*?"
-            r"Fast mode is .*?model or reasoning effort was set\.",
-            re.DOTALL,
-        )
-    rendered, count = pattern.subn(block, skill_text, count=1)
-    if count != 1:
-        raise ValueError("Expected exactly one routing block in SKILL.md")
-    return rendered
+def render_skill(template_text: str, policy: dict[str, Any]) -> str:
+    if template_text.count(ROUTING_PLACEHOLDER) != 1:
+        raise ValueError("SKILL.template.md must contain exactly one routing placeholder")
+    return template_text.replace(ROUTING_PLACEHOLDER, generated_block(policy))
 
 
 def parse_evidence_paths(values: list[str]) -> dict[str, Path]:
@@ -435,6 +398,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--schema", type=Path, default=DEFAULT_SCHEMA)
     parser.add_argument("--matrix", type=Path, default=DEFAULT_MATRIX)
     parser.add_argument("--skill", type=Path, default=DEFAULT_SKILL)
+    parser.add_argument("--template", type=Path, default=DEFAULT_TEMPLATE)
     parser.add_argument("--evidence", action="append", default=[], metavar="ID=PATH")
     parser.add_argument("--construct-readiness", type=Path)
     mode = parser.add_mutually_exclusive_group()
@@ -453,8 +417,8 @@ def main() -> int:
         evidence_paths=parse_evidence_paths(args.evidence),
         construct_readiness_path=args.construct_readiness,
     )
-    current = args.skill.read_text(encoding="utf-8")
-    rendered = render_skill(current, policy)
+    current = args.skill.read_text(encoding="utf-8") if args.skill.is_file() else ""
+    rendered = render_skill(args.template.read_text(encoding="utf-8"), policy)
     if args.check:
         if rendered != current:
             print("SKILL.md routing block is out of date", file=sys.stderr)
@@ -462,7 +426,7 @@ def main() -> int:
         print(f"Routing policy is synchronized ({canonical_sha256(policy)})")
         return 0
     if args.write:
-        args.skill.write_text(rendered, encoding="utf-8")
+        harness.atomic_write(args.skill, rendered.encode("utf-8"), replace=True)
         print(args.skill)
         return 0
     print(generated_block(policy))

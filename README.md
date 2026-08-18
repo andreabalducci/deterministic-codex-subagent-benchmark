@@ -78,6 +78,7 @@ docker/          pinned generator and evaluator images
 runs/            ignored plans, keys, workspaces, logs, and results
 schemas/         result contract
 skills/          bundled, installable orchestration skill
+  orchestrate/SKILL.template.md  maintained source template; not installed as instructions
 harness.py       planning, generation, evaluation, and aggregation
 routing_campaign.py  immutable six-family maximum envelope and comparative analysis
 routing_sequential.py deterministic cheapest-sufficient state machine and terminal analysis
@@ -227,7 +228,7 @@ generation; fake-generator tests exercise the complete result path.
 
 ## Bundled orchestration skill
 
-The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. It keeps the benchmark and its recommended multi-agent operating model versioned together.
+The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` is a clean generated artifact; `SKILL.template.md` contains the maintenance placeholder, and `routing_policy.py --check` reproduces the installed file byte-for-byte from the template plus `routing-policy.json`.
 
 Install it for Codex:
 

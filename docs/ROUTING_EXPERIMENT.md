@@ -363,7 +363,7 @@ The policy validator must reject `evidence-backed` when:
 - the bundle does not cover the claimed family and coordinator/worker estimand;
 - the preregistered decision is not `SUPPORTED`;
 - a fixture, protocol, analysis, or score freeze changed after publication;
-- the generated `SKILL.md` section differs from the canonical policy artifact.
+- the clean generated `SKILL.md` differs from `SKILL.template.md` rendered with the canonical policy artifact.
 
 Until these gates pass, the skill must identify routes as provisional
 hypotheses. This is an integrity constraint, not merely documentation wording.

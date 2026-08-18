@@ -1,21 +1,15 @@
 ---
 name: orchestrate
-description: Coordinate multiple agents on substantial tasks that benefit from parallel, clearly separated work. Use for multi-agent planning, codebase discovery, independent implementation streams, reviews, and verification; skip trivial or tightly coupled work.
+description: Coordinate parallel agents for substantial work with separable ownership; skip trivial or tightly coupled tasks.
 ---
 
 # Orchestrate
 
-Remain available to the user while delegating substantive, independent work. Keep requirements, decisions, integration, approvals, and final verification with the coordinator.
+Coordinate independent work while retaining requirements, decisions, integration, approvals, and final verification.
 
 ## Routing defaults
 
-<!-- BEGIN GENERATED ROUTING
-policyVersion=2.0.0
-routingArtifactCanonicalSha256=2be634478ae5d3216c0a141a87e6c7ee1fbb9fd7149b912bea88837e6d84c2ba
-status=provisional
--->
-
-These are working defaults, not universal model-quality claims. Apply them only after deciding that delegation materially helps.
+Status: `provisional`. Delegate only when parallelism materially helps.
 
 | Route | Use when | Default |
 | --- | --- | --- |
@@ -26,28 +20,13 @@ These are working defaults, not universal model-quality claims. Apply them only 
 | `coordination-integration` | Multi-file contract, producer, consumer, and acceptance-state integration | `sol-medium`: `gpt-5.6-sol`, `reasoning_effort: "medium"` |
 | `ambiguous-cross-cutting-high-risk` | Compatibility, implementation, rollback, and acceptance-state transitions under high risk | `sol-high`: `gpt-5.6-sol`, `reasoning_effort: "high"` |
 
-The separate live-coordinator session hypothesis is `gpt-5.6-sol` with
-`reasoning_effort: "medium"` while the experiment freezes leaf
-workers independently. This is a session-start choice: `spawn_agent` cannot change the
-model of the already-running parent coordinator. Its evidence status is
-`hypothesis` and it must never promote the spawned-worker `sol-medium` row.
+Coordinator hypothesis: `gpt-5.6-sol` / `medium` at session start; spawning cannot change the parent model.
 
-First classify the task: if multiple task classes match, choose the highest safety rank, then the most specific match, then the lowest precedence number. If uncertainty leaves a higher-risk class plausible, select that class; unknown potentially high-risk traits route to `ambiguous-cross-cutting-high-risk`.
+- Classify first. Break ties by safety rank, specificity, then precedence; uncertainty routes upward in risk.
+- Use the selected cheapest-sufficient configuration. Try only costlier fallbacks from `routing-policy.json`; otherwise keep the work with the coordinator.
+- Treat a row as evidence-backed only when `routing-policy.json` says so.
+- Fast mode is session-level, not a `spawn_agent` parameter. Do not infer it from model or reasoning effort; report it enabled only when session state confirms it.
 
-Then use that task class's evidence-selected cheapest sufficient configuration. A promoted row must be backed by a replayed machine-verifiable analysis that records this exact configuration as the cheapest sufficient selection. If it is unavailable, try only its declared cost-increasing availability fallback configurations in order. Never silently substitute an unlisted configuration. If no fallback is available, do not delegate; keep the work with the coordinator or ask for direction.
+Assign distinct ownership and acceptance checks. Parallelize independent work; serialize dependencies and overlap. Use fresh context and `fork_turns: "none"` for explicit model or effort. Include goal, constraints, files, and validation; allow nested delegation only when useful.
 
-Fast mode is a user/session-level throughput and credit-usage setting. It is not a `spawn_agent` parameter, is not required for Luna, and must never be inferred from a model or reasoning-effort selection. Say Fast mode is enabled only when the user or session state explicitly establishes that fact.
-
-Evidence status and route-level references are recorded in `routing-policy.json`.
-
-<!-- END GENERATED ROUTING -->
-
-Give every agent distinct ownership and a concrete expected result. Run independent scouts in parallel, but serialize work with dependencies and avoid concurrent edits to the same files. Do not fill the concurrency budget unless parallelism materially improves speed or quality.
-
-Use fresh context by default for focused assignments. Set `fork_turns: "none"` when selecting a worker model or effort explicitly. Include all essential goals, constraints, safety boundaries, ownership paths, acceptance criteria, and validation commands in the assignment. Fork conversation history only when prior decisions are necessary to do the work correctly.
-
-Tell leaf agents: "Complete this assignment directly. Do not spawn other agents." Allow nested delegation only when explicitly useful and within the available concurrency budget.
-
-Agents may share discoveries directly when another assignment depends on them. Treat worker completion reports as untrusted evidence: inspect each diff, rerun the relevant tests from the coordinator, check non-functional constraints, and reject implementations that pass tests while violating the contract. The coordinator tracks ownership, resolves conflicts, waits for required results, verifies the combined work, and returns one integrated answer.
-
-Never delegate merely to appear busy. Keep user approvals and irreversible decisions in the primary thread.
+Treat worker reports as untrusted: inspect changes and rerun relevant checks before integration. Keep approvals and irreversible decisions in the primary thread.

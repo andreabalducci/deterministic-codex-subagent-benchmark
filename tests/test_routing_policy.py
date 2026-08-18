@@ -353,15 +353,18 @@ class RoutingPolicyTests(unittest.TestCase):
 
     def test_renderer_is_synchronized_and_preserves_other_skill_prose(self):
         current = routing_policy.DEFAULT_SKILL.read_text(encoding="utf-8")
-        self.assertEqual(current, routing_policy.render_skill(current, self.policy))
+        template = routing_policy.DEFAULT_TEMPLATE.read_text(encoding="utf-8")
+        self.assertEqual(current, routing_policy.render_skill(template, self.policy))
         block = routing_policy.generated_block(self.policy)
-        self.assertIn(routing_policy.canonical_sha256(self.policy), block)
         self.assertIn(routing_policy.FAST_MODE_TEXT, block)
-        self.assertIn("Give every agent distinct ownership", current)
-        self.assertIn("Never delegate merely to appear busy", current)
+        self.assertNotIn("<!--", current)
+        self.assertNotIn(routing_policy.ROUTING_PLACEHOLDER, current)
+        for route in self.policy["defaults"]:
+            self.assertIn(f"`{route['id']}`", block)
+            self.assertIn(f"`{route['selectedConfigurationId']}`", block)
         with self.assertRaisesRegex(ValueError, "exactly one"):
             routing_policy.render_skill(
-                current + "\n" + routing_policy.BEGIN_MARKER,
+                template + "\n" + routing_policy.ROUTING_PLACEHOLDER,
                 self.policy,
             )
 
@@ -376,7 +379,10 @@ class RoutingPolicyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             skill = Path(temporary) / "SKILL.md"
             current = routing_policy.DEFAULT_SKILL.read_text(encoding="utf-8")
-            skill.write_text(current.replace("working defaults", "drifted defaults"), encoding="utf-8")
+            skill.write_text(
+                current.replace("Status: `provisional`", "Status: `drifted`"),
+                encoding="utf-8",
+            )
             failed = subprocess.run(
                 [
                     sys.executable, str(ROOT / "routing_policy.py"), "--check",
