@@ -23,7 +23,7 @@ class RoutingTaskTests(unittest.TestCase):
     def test_calibration_references_pass_and_mutants_fail(self):
         report = routing_tasks.calibrate()
         self.assertTrue(report["passed"])
-        self.assertEqual(294, len(report["cases"]))
+        self.assertEqual(560, len(report["cases"]))
         self.assertEqual({"PASS", "FAIL"}, {case["actual"] for case in report["cases"]})
         self.assertEqual(
             84,
@@ -33,6 +33,14 @@ class RoutingTaskTests(unittest.TestCase):
             42,
             sum(case["case"] == "schema-extra-mutant" for case in report["cases"]),
         )
+        self.assertEqual(
+            266,
+            sum(case["case"] == "criterion-mutant" for case in report["cases"]),
+        )
+        self.assertTrue(all(
+            case.get("criterionId")
+            for case in report["cases"] if case["case"] == "criterion-mutant"
+        ))
 
     def test_docker_calibration_artifact_binds_catalog_and_image(self):
         report = {"passed": True, "cases": [{"case": "reference"}]}

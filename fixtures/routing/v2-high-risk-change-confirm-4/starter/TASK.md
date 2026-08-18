@@ -1,18 +1,24 @@
-# high-risk-04: Pull-request workflow hardening
+# Pull-request workflow hardening: controlled-change assignment
 
-## Objective
+Construct a compatibility-preserving migration brief; unrelated cleanup must remain outside the change.
 
-Produce only `answer.json`. Plan a narrowly scoped high-risk change from the deterministic repository and work-item snapshots. The seeded defect is intentionally cross-cutting, but unrelated cleanup is a distractor.
+Use only `repo.snapshot.json` and `WORK_ITEM.md`. The deterministic signal to
+explain is `pr-preview.yml checks out fork code while holding cloud credentials`. `Issue template wording` is intentionally unrelated. This is a
+planning/evidence task for a compact repository-artifacts snapshot; do not
+claim that code was changed, deployed, or observed in production.
 
-## Required artifact
+Return only `answer.json`. Its exact sections are:
 
-Return exactly `summary`, `riskAssessment`, `changePlan`, `rollback`, and `acceptance`:
+- `summary`: a bounded description of the proposed repair;
+- `riskAssessment`: risk stratum, seeded defect, blast radius, compatibility
+  constraints, and disposition of the distractor;
+- `changePlan`: approved path scope and regression-first ordered steps;
+- `rollback`: deterministic trigger, safe actions, and the compatibility state
+  that must survive reversal;
+- `acceptance`: only the authorized offline command, required evidence
+  artifacts, and a final-review condition tied to defect, rollback, and
+  compatibility proof.
 
-- identify the exact seeded defect, realistic blast radius, compatibility constraint, distractor disposition, and the work item's risk stratum;
-- constrain changed paths to the approved implementation/migration/test scope;
-- lead with a regression, apply the smallest compatible guard, and rehearse rollback;
-- state a deterministic rollback trigger, safe action, and retained compatibility boundary;
-- list only the authorized offline acceptance command and required evidence artifacts;
-- make final review contingent on defect, rollback, and compatibility evidence, without claiming this one fixture proves broad high-risk family coverage.
-
-Do not repair the distractor, invent production evidence, broaden the change, delete compatibility state, or replace the rollback with a forward-only migration.
+Keep frozen boundaries unchanged. Do not widen the approved paths, replace
+rollback with a forward-only migration, repair the distractor, or manufacture
+operational evidence.

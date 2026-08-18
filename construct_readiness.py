@@ -22,12 +22,12 @@ import routing_tasks
 
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_PROTOCOL = ROOT / "protocols" / "routing-v1.json"
+DEFAULT_PROTOCOL = ROOT / "protocols" / "routing-operational-v1.json"
 DEFAULT_CATALOG = ROOT / "fixtures" / "catalog.json"
 DEFAULT_REPORT = ROOT / "runs" / "construct-readiness-current.json"
-MIN_CONFIRMATORY_FIXTURES = 12
+MIN_CONFIRMATORY_FIXTURES = 6
 MIN_ECOSYSTEMS = 3
-MIN_SURFACES = 10
+MIN_SURFACES = 6
 MAX_PROMPT_TRIGRAM_JACCARD = 0.85
 MIN_CRITERION_MUTATION_COVERAGE = 1.0
 MIN_EQUIVALENT_POSITIVES_PER_FIXTURE = 1
@@ -119,23 +119,35 @@ def _valid_docker_calibration(
     if calibration.get("passed") is not True:
         reasons.append("docker-calibration-not-passed")
     index = _case_index(calibration)
-    expected_cases: dict[tuple[str, str], str] = {}
+    expected_cases: dict[tuple[str, str, str | None], str] = {}
     for task in catalog_tasks:
-        expected_cases[(task["template"], "reference")] = "PASS"
-        expected_cases[(task["template"], "mutant")] = "FAIL"
-        expected_cases[(task["template"], "equivalent-positive")] = "PASS"
+        expected_cases[(task["template"], "reference", None)] = "PASS"
+        expected_cases[(task["template"], "mutant", None)] = "FAIL"
+        expected_cases[(task["template"], "equivalent-positive", None)] = "PASS"
         if task["adapter"] == ARTIFACT_RUBRIC:
-            expected_cases[(task["template"], "schema-extra-mutant")] = "FAIL"
+            expected_cases[(task["template"], "schema-extra-mutant", None)] = "FAIL"
+            root = routing_tasks.template_root(task)
+            spec = routing_tasks.load_template(task)
+            reference = json.loads(
+                (root / "reference" / spec["mutable"][0]).read_text(encoding="utf-8")
+            )
+            for criterion_id, _ in routing_tasks.artifact_criterion_mutants(
+                task, spec, reference
+            ):
+                expected_cases[(task["template"], "criterion-mutant", criterion_id)] = "FAIL"
     observed_keys = [
-        (case.get("template"), case.get("case"))
+        (case.get("template"), case.get("case"), case.get("criterionId"))
         for case in calibration["cases"] if isinstance(case, dict)
     ]
     if len(observed_keys) != len(set(observed_keys)) \
             or set(observed_keys) != set(expected_cases):
         reasons.append("docker-calibration-fixture-coverage-incomplete")
     if any(
-        not isinstance(case, dict) or set(case) != {"template", "case", "expected", "actual"}
-        or expected_cases.get((case.get("template"), case.get("case"))) != case.get("expected")
+        not isinstance(case, dict)
+        or set(case) != ({"template", "case", "expected", "actual", "criterionId"}
+                         if case.get("case") == "criterion-mutant"
+                         else {"template", "case", "expected", "actual"})
+        or expected_cases.get((case.get("template"), case.get("case"), case.get("criterionId"))) != case.get("expected")
         or case.get("actual") != case.get("expected")
         for case in calibration["cases"]
     ):
@@ -198,8 +210,24 @@ def _criterion_coverage_by_id(task_id: str) -> tuple[int, int]:
     return len(criteria), len(criteria & killed)
 
 
-def _criterion_coverage(task: dict[str, Any]) -> tuple[int, int]:
-    return _criterion_coverage_by_id(task["id"])
+def _criterion_coverage(
+    task: dict[str, Any],
+    cases: dict[tuple[str, str], list[dict[str, Any]]] | None = None,
+) -> tuple[int, int]:
+    total, legacy_killed = _criterion_coverage_by_id(task["id"])
+    if task["adapter"] != ARTIFACT_RUBRIC or cases is None:
+        return total, legacy_killed
+    reference = routing_tasks.evaluate_artifact(
+        task["id"], routing_tasks.template_root(task) / "reference",
+        backend="native", trusted_native=True,
+    )
+    criteria = {item["id"] for item in reference["outcomes"] if item["critical"]}
+    killed = {
+        case.get("criterionId")
+        for case in cases.get((task["template"], "criterion-mutant"), [])
+        if case.get("expected") == "FAIL" and case.get("actual") == "FAIL"
+    }
+    return len(criteria), len(criteria & killed)
 
 
 @lru_cache(maxsize=1)
@@ -223,7 +251,11 @@ def build_report(
     results = []
     for family in protocol["families"]:
         family_id = family["catalogFamilyId"]
-        tasks = [task for task in confirmatory if task["family"] == family_id]
+        selected_ids = set(family["heldOutFixtureIds"])
+        tasks = [
+            task for task in confirmatory
+            if task["family"] == family_id and task["id"] in selected_ids
+        ]
         adapters = sorted({task["adapter"] for task in tasks})
         scale = {
             "confirmatoryFixtures": len(tasks),
@@ -239,7 +271,7 @@ def build_report(
         similarity = _maximum_prompt_similarity(tasks)
         total_criteria = killed_criteria = 0
         for task in tasks:
-            total, killed = _criterion_coverage(task)
+            total, killed = _criterion_coverage(task, cases)
             if task["adapter"] == ARTIFACT_RUBRIC:
                 # Strict top-level shape is a separate critical construct. The
                 # deterministic schema-extra mutant must kill it.

@@ -461,6 +461,53 @@ def artifact_outcomes(
     raise ValueError(f"artifact rubric is unsupported for family {task['family']}")
 
 
+def artifact_criterion_mutants(
+    task: dict[str, Any], spec: dict[str, Any], reference: dict[str, Any]
+) -> list[tuple[str, dict[str, Any]]]:
+    """Create one deterministic semantic mutant for every critical rubric criterion."""
+    mutations: list[tuple[str, tuple[str, ...], Any]]
+    if task["family"] == "read-heavy-analysis":
+        _, findings, evidence, exclusions = spec["rubric"]
+        mutations = [
+            (findings, (findings,), []),
+            (evidence, (evidence,), []),
+            (exclusions, (exclusions,), ["unrelated assertion"]),
+        ]
+    elif task["family"] == "coordination-integration":
+        mutations = [
+            ("workPlan.workers", ("workPlan", "workers"), []),
+            ("workPlan.frozenDependencies", ("workPlan", "frozenDependencies"), ["unrelated"]),
+            ("workPlan.conflictChecks", ("workPlan", "conflictChecks"), ["unrelated"]),
+            ("integration.mergeOrder", ("integration", "mergeOrder"), []),
+            ("integration.acceptanceCommands", ("integration", "acceptanceCommands"), []),
+            ("integration.handoffs", ("integration", "handoffs"), []),
+            ("integration.evidenceBoundary", ("integration", "evidenceBoundary"), "unrelated"),
+        ]
+    elif task["family"] == "high-risk-change":
+        mutations = [
+            ("riskAssessment", ("riskAssessment",), {}),
+            ("changePlan.scope", ("changePlan", "scope"), []),
+            ("changePlan.steps", ("changePlan", "steps"), []),
+            ("rollback.trigger", ("rollback", "trigger"), "unrelated"),
+            ("rollback.actions", ("rollback", "actions"), []),
+            ("rollback.compatibility", ("rollback", "compatibility"), "unrelated"),
+            ("acceptance.commands", ("acceptance", "commands"), []),
+            ("acceptance.artifacts", ("acceptance", "artifacts"), []),
+            ("acceptance.finalReview", ("acceptance", "finalReview"), "unrelated"),
+        ]
+    else:
+        return []
+    generated = []
+    for criterion_id, path, replacement in mutations:
+        mutant = json.loads(json.dumps(reference))
+        cursor = mutant
+        for component in path[:-1]:
+            cursor = cursor[component]
+        cursor[path[-1]] = replacement
+        generated.append((criterion_id, mutant))
+    return generated
+
+
 def evaluate_artifact(
     task_id: str,
     candidate: Path,
@@ -650,6 +697,29 @@ def calibrate(task_id: str | None = None, *, backend: str = "native") -> dict[st
                     "template": representative["template"], "case": "schema-extra-mutant",
                     "expected": "FAIL", "actual": actual,
                 })
+            reference_value = json.loads(
+                (root / "reference" / load_template(representative)["mutable"][0])
+                .read_text(encoding="utf-8")
+            )
+            for criterion_id, mutant_value in artifact_criterion_mutants(
+                representative, load_template(representative), reference_value
+            ):
+                with tempfile.TemporaryDirectory(prefix="routing-criterion-mutant-") as temporary:
+                    mutant = Path(temporary) / "candidate"
+                    shutil.copytree(root / "reference", mutant)
+                    relative = load_template(representative)["mutable"][0]
+                    (mutant / relative).write_text(
+                        json.dumps(mutant_value, indent=2) + "\n", encoding="utf-8"
+                    )
+                    actual = evaluate_artifact(
+                        representative["id"], mutant, catalog=catalog,
+                        backend=backend, trusted_native=True,
+                    )["status"]
+                    cases.append({
+                        "template": representative["template"],
+                        "case": "criterion-mutant", "criterionId": criterion_id,
+                        "expected": "FAIL", "actual": actual,
+                    })
     return {"schemaVersion": 3, "passed": all(case["expected"] == case["actual"] for case in cases), "cases": cases}
 
 

@@ -19,7 +19,8 @@
         "required": ["template", "case", "expected", "actual"],
         "properties": {
           "template": {"type": "string", "minLength": 1},
-          "case": {"enum": ["reference", "mutant", "equivalent-positive", "schema-extra-mutant"]},
+          "case": {"enum": ["reference", "mutant", "equivalent-positive", "schema-extra-mutant", "criterion-mutant"]},
+          "criterionId": {"type": "string", "minLength": 1},
           "expected": {"enum": ["PASS", "FAIL"]},
           "actual": {"enum": ["PASS", "FAIL"]}
         }

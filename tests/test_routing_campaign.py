@@ -19,6 +19,9 @@ class RoutingCampaignTests(unittest.TestCase):
         cls.frozen_protocol = json.loads(
             (ROOT / "protocols" / "routing-v1.json").read_text(encoding="utf-8")
         )
+        cls.operational_protocol = json.loads(
+            (ROOT / "protocols" / "routing-operational-v1.json").read_text(encoding="utf-8")
+        )
 
     def small_protocol(self):
         protocol = copy.deepcopy(self.frozen_protocol)
@@ -32,9 +35,12 @@ class RoutingCampaignTests(unittest.TestCase):
                 f"{family['id']}-fixture-b",
                 f"{family['id']}-fixture-c",
                 f"{family['id']}-fixture-d",
+                f"{family['id']}-fixture-e",
+                f"{family['id']}-fixture-f",
             ]
             family["heldOutFixtureEcosystems"] = [
-                "dotnet", "react-typescript", "python", "repository-artifacts"
+                "dotnet", "react-typescript", "python", "repository-artifacts",
+                "dotnet", "react-typescript"
             ]
         routing.validate_protocol(protocol)
         return protocol
@@ -107,6 +113,19 @@ class RoutingCampaignTests(unittest.TestCase):
         self.assertEqual(6, len(protocol["families"]))
         self.assertTrue(all(len(family["heldOutFixtureIds"]) == 12 for family in protocol["families"]))
 
+    def test_operational_protocol_is_default_and_has_648_jobs(self):
+        protocol = routing.validate_protocol(copy.deepcopy(self.operational_protocol))
+        plan = self.plan(protocol)
+        self.assertEqual(routing.DEFAULT_PROTOCOL.name, "routing-operational-v1.json")
+        self.assertEqual(648, len(plan["jobs"]))
+        self.assertEqual(3, protocol["replicatesPerFixture"])
+        self.assertTrue(all(len(family["heldOutFixtureIds"]) == 6 for family in protocol["families"]))
+        routing.validate_protocol_sources(
+            protocol,
+            routing.load_json(ROOT / "matrix.json"),
+            routing.load_json(ROOT / "fixtures" / "catalog.json"),
+        )
+
     def test_protocol_rejects_empty_fixture_catalog_and_extra_fields(self):
         protocol = self.small_protocol()
         protocol["families"][0]["heldOutFixtureIds"] = []
@@ -174,7 +193,7 @@ class RoutingCampaignTests(unittest.TestCase):
         self.assertTrue(all(item["robustness"]["passed"] for item in first["families"]))
         self.assertTrue(all(len(item["robustness"]["machines"]) == 1 for item in first["families"]))
         self.assertTrue(all(len(item["robustness"]["ecosystems"]) == 4 for item in first["families"]))
-        self.assertTrue(all(len(item["robustness"]["leaveOneFixtureOut"]) == 4 for item in first["families"]))
+        self.assertTrue(all(len(item["robustness"]["leaveOneFixtureOut"]) == 6 for item in first["families"]))
         self.assertEqual(
             protocol["familywiseAlpha"] / 42,
             first["multiplicity"]["simultaneousTailAlpha"],

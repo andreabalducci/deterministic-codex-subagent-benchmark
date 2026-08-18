@@ -14,20 +14,20 @@
     "coordination-09", "coordination-10", "coordination-11", "coordination-12"
   ],
   "sourceBinding": {
-    "catalogHash": "19eff8a234412d620abeaba137771bd7cff684b064d4fd24012f513a2f9ba677",
+    "catalogHash": "791815875177753f42d4e4c71fc3fd606dab058c8ad183e832aec714bda0ad5e",
     "fixtureManifestHashes": {
-      "coordination-01": "dfcd2ff16764dd543d1d2b6ca87ae6061847f0c1e6d859a1cd4fa84ba6c80069",
-      "coordination-02": "2f953c0104330325a4b4150ef66ba8d7ee3411412f9d57de21a45db46d49e9b7",
-      "coordination-03": "3f733d1dcbf08c68740e224d6abe9a7348942fb20be3e8766417b5a9a9e3bbbc",
-      "coordination-04": "af763a71e6837a21707938d3282e521f80d81db8890226f68c8d5d349b4b204e",
-      "coordination-05": "941c67cae1212133b7801e177c97c02e230fbb267b3a090a665486e2648e0b29",
-      "coordination-06": "ce722c1b264b81db291f102b02b802732b441fbe178b1ae90009e760c12d4b0a",
-      "coordination-07": "ddacd18dd301bc41a13454cac941d1f8495ffd0517a220c5ad99e7cc52ad2bab",
-      "coordination-08": "d52c89257d134cdacfb8a15f3d5d54608b8babf29b78c9d07f3ef613094e751f",
-      "coordination-09": "9713a4c237c4d09459097aa1a5b09f328198cf66588a963af6ec308612c1c851",
-      "coordination-10": "24e0abeb7532590399180874d2d44c982f5af3a74954cd5955b045921687d6d2",
-      "coordination-11": "66a518e5b50be88f1965eb518bac2e87382b8c3e4fc3ce8f53eb08a119f7c19c",
-      "coordination-12": "99c30595391d893d5e063f1cccfa892fb17660a1ecba48376c8d5ed4bcd773c0"
+      "coordination-01": "73d26606e7cc548744a0a66b364fbcf5812eeabad42c6a75dd4287d9c1087faf",
+      "coordination-02": "2d9aaca7f70db37dc84663cec95a152e36e3544d737f2c543014af965034bf39",
+      "coordination-03": "f6c96ceba314d4d70118fab0d478679ffb080a1edeb997e5e9795377785293f9",
+      "coordination-04": "0d21e7677a547c9ade932fef01850e81faff07c239dae2a593cbc35e734ee4f2",
+      "coordination-05": "c568cb7e69c5eb35714cff799131b64383f028ef4679830e9169750aa64c45e2",
+      "coordination-06": "95187c2a7da26eeb5c7a84c12757a3e8c216a2322b2c25881284d964a36107e4",
+      "coordination-07": "6467317949c02dfb809311ecb667f61b713b778d8c627e22f5b728a001c62a25",
+      "coordination-08": "e6657d69b65715573ad0fccde08ae3ec8677dcd752a1685bbbe44d5b93870add",
+      "coordination-09": "7985ba6c398764e1c9fe451b87fe5e50843a0d4ce2a232b52f7ceeeeed3cb4af",
+      "coordination-10": "b4e4694955586130a27348e801df8a1cfc8ea5c39b323556819c612dda47bb37",
+      "coordination-11": "47cf18d8f26ce0a66e3d894edebdef0b981e52dd1af71585ad9c916dc8443453",
+      "coordination-12": "610435ca6146e92bbd50b441bcbb86d700b47beaa285494dda633986ce0333ab"
     }
   },
   "coordinatorTreatments": [

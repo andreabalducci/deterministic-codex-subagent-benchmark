@@ -162,12 +162,11 @@ python3 routing_campaign.py plan \
   --output runs/routing-plan.json
 ```
 
-The current checked-in report is deliberately ineligible. In particular,
-`coordination-integration` and `high-risk-change` exceed the prompt-similarity
-threshold; all three rubric families lack full critical-criterion mutant
-coverage and blinded adjudication. These failures prevent a narrow artifact
-benchmark from being presented as evidence for broad real-world coordination,
-security, concurrency, or migration claims.
+The current checked-in report is deliberately ineligible because the three
+rubric families still require a real blinded human adjudication. Criterion-level
+mutation coverage and prompt-similarity gates are satisfied. This remaining gate
+prevents deterministic rubric proxies from being presented as validated human
+quality judgments.
 
 ## Independent samples
 
@@ -175,13 +174,14 @@ An independent sample is a new model generation in a fresh ephemeral session
 and workspace. Re-running an evaluator against one generated artifact is a
 stability check, not another model sample.
 
-The confirmatory target is nine generations for every
-fixture/treatment combination, across at least three machines. For six families,
-twelve fixtures, nine generations, and six treatments this is 3,888 worker
-generations. Development pilots and coordinator experiments are additional.
-
-A smaller campaign is exploratory. Its policy rows remain `hypothesis` or
-`inconclusive`, irrespective of rank order.
+The default operational protocol uses six fixtures per family and three fresh
+generations per fixture across three machines. With six treatments and six
+families this is 648 generations, with every Williams order represented once
+per family on every machine. The six unused confirmatory fixtures per family are
+reserved. The extended protocol uses all twelve fixtures and nine generations,
+for 3,888 total, when operational bounds are inconclusive or publication-grade
+precision is required. A row is promoted only by the preregistered gates; rank
+order alone is never evidence.
 
 ## Primary and secondary metrics
 

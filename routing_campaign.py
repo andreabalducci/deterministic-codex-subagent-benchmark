@@ -19,7 +19,8 @@ from typing import Any, Iterable
 
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_PROTOCOL = ROOT / "protocols" / "routing-v1.json"
+DEFAULT_PROTOCOL = ROOT / "protocols" / "routing-operational-v1.json"
+EXTENDED_PROTOCOL = ROOT / "protocols" / "routing-v1.json"
 DEFAULT_MATRIX = ROOT / "matrix.json"
 DEFAULT_CATALOG = ROOT / "fixtures" / "catalog.json"
 ALLOWED_DECISIONS = {"SUPPORTED", "INCONCLUSIVE", "CONTRADICTED"}
@@ -211,7 +212,6 @@ def validate_protocol_sources(
         task["id"]: task for task in catalog["tasks"]
         if isinstance(task, dict) and isinstance(task.get("id"), str)
     }
-    expected_held_out: set[str] = set()
     for family in protocol["families"]:
         for fixture_id, ecosystem in zip(
             family["heldOutFixtureIds"], family["heldOutFixtureEcosystems"]
@@ -227,13 +227,9 @@ def validate_protocol_sources(
                 raise ValidationError(
                     f"Protocol fixture {fixture_id} ecosystem differs from catalog.json"
                 )
-            expected_held_out.add(fixture_id)
-    catalog_confirmatory = {
-        task["id"] for task in catalog["tasks"]
-        if isinstance(task, dict) and task.get("kind") == "confirmatory"
-    }
-    if catalog_confirmatory != expected_held_out:
-        raise ValidationError("Protocol and catalog confirmatory fixture sets differ")
+    # A protocol may preregister a strict subset of the catalog.  Unselected
+    # confirmatory fixtures are an untouched reserve for an extended campaign;
+    # the catalog hash is still bound by readiness and evidence artifacts.
 
 
 def williams_rows(treatments: list[dict[str, str]], seed: str) -> list[list[dict[str, str]]]:

@@ -6,7 +6,7 @@ The planned campaign treats the six configurations as complete treatments. The m
 
 ## Evidence status
 
-The worker and coordinator protocols, 84 routing fixtures, runners, analysis, and evidence publisher are implemented, but no complete comparative campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any of the six routing rows in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. The pinned Docker calibration passes all 294 cases, and the construct-readiness report clears the three deterministic implementation families. It still fails closed for all three rubric families because critical-criterion mutation coverage and blinded adjudication are incomplete; coordination and high-risk prompts also exceed the near-duplication threshold. The full paid campaign and broad policy promotion are therefore intentionally blocked.
+The worker and coordinator protocols, 84 routing fixtures, runners, analysis, and evidence publisher are implemented, but no complete comparative campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any of the six routing rows in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. The pinned Docker calibration exercises 560 reference, negative, semantic-equivalence, strict-schema, and criterion-specific cases. Prompt diversity and criterion mutation coverage now meet their technical gates; the three rubric families remain blocked until a real blinded human adjudication is supplied. The paid campaign and broad policy promotion are therefore intentionally blocked.
 
 Keep these states distinct:
 
@@ -357,7 +357,7 @@ The command refuses incomplete or unresolved cohorts. It emits the frozen plan, 
 ## Routing campaign required for routing claims
 
 The repository now contains 84 unique v2 fixtures: two development and twelve
-confirmatory fixtures for each of six families. Calibration checks 294 outcomes:
+confirmatory fixtures for each of six families. Calibration checks 560 outcomes:
 references, negative mutants, semantic-equivalence positives for JSON/artifact
 tasks, and strict-schema mutants for artifact tasks. Mechanical JSON is compared
 semantically, while artifact scoring uses deterministic field predicates,
@@ -367,8 +367,14 @@ worker-authored coordination artifacts remain explicitly distinct from the
 live-coordinator experiment. These facts establish evaluator readiness, not a
 routing winner.
 
-The frozen worker campaign contains 3,888 independent generations. Generate its
-opaque plan with a private HMAC key:
+The default operational worker campaign contains 648 independent generations:
+six preregistered fixtures per family, three fresh generations per fixture, six
+treatments, and six families. This is the smallest profile that keeps all six
+Williams orders balanced on each of three machines. The remaining six fixtures
+per family are reserved. The extended `protocols/routing-v1.json` profile keeps
+all twelve fixtures and nine generations (3,888 total) for confirmation when the
+operational result is inconclusive or publication-grade precision is required.
+Generate an opaque plan with a private HMAC key:
 
 ```bash
 python3 routing_campaign.py plan \

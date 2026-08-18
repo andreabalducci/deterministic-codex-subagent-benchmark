@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "recordKind": "routing-protocol",
+  "protocolId": "routing-operational-v1-narrow-six-family",
+  "runtimeManifestHash": "ac62c6f0a5708d74511d842d1d86827354a0085100213ae4a032ed9c3c70b5de",
+  "seed": "routing-operational-v1-plan-20260818",
+  "bootstrapSeed": "routing-operational-v1-bootstrap-20260818",
+  "bootstrapSamples": 5000,
+  "familywiseAlpha": 0.05,
+  "robustness": {
+    "maximumQualityFloorShortfall": 0.1,
+    "maximumDecisionGainShortfall": 0.05,
+    "maximumFixtureCandidateRateRange": 0.75,
+    "maximumFixtureDecisionGainRange": 0.75
+  },
+  "replicatesPerFixture": 3,
+  "machines": ["machine-a", "machine-b", "machine-c"],
+  "matrix": [
+    {"id": "luna-low", "model": "gpt-5.6-luna", "reasoningEffort": "low"},
+    {"id": "luna-medium", "model": "gpt-5.6-luna", "reasoningEffort": "medium"},
+    {"id": "luna-high", "model": "gpt-5.6-luna", "reasoningEffort": "high"},
+    {"id": "terra-medium", "model": "gpt-5.6-terra", "reasoningEffort": "medium"},
+    {"id": "sol-medium", "model": "gpt-5.6-sol", "reasoningEffort": "medium"},
+    {"id": "sol-high", "model": "gpt-5.6-sol", "reasoningEffort": "high"}
+  ],
+  "families": [
+    {
+      "id": "mechanical-repository-work",
+      "catalogFamilyId": "mechanical",
+      "label": "Exact mechanical repository operations",
+      "candidateId": "luna-low",
+      "heldOutFixtureIds": [
+        "mechanical-01", "mechanical-02", "mechanical-03", "mechanical-04",
+        "mechanical-05", "mechanical-06"
+      ],
+      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "python", "repository-artifacts", "dotnet", "react-typescript"],
+      "absoluteQualityFloor": 0.8,
+      "nonInferiorityMargin": 0.1,
+      "recommendationType": "economy",
+      "decisionComparatorId": "luna-medium",
+      "minimumDecisionGain": 0.15
+    },
+    {
+      "id": "bounded-mapping-and-patch",
+      "catalogFamilyId": "bounded-mapping-patch",
+      "label": "Bounded code mapping and low-risk patches",
+      "candidateId": "luna-medium",
+      "heldOutFixtureIds": [
+        "bounded-patch-01", "bounded-patch-02", "bounded-patch-03", "bounded-patch-04",
+        "bounded-patch-05", "bounded-patch-06"
+      ],
+      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "python", "repository-artifacts", "dotnet", "react-typescript"],
+      "absoluteQualityFloor": 0.85,
+      "nonInferiorityMargin": 0.1,
+      "recommendationType": "capability",
+      "decisionComparatorId": "luna-low",
+      "minimumDecisionGain": 0.1
+    },
+    {
+      "id": "isolated-implementation-debugging",
+      "catalogFamilyId": "isolated-implementation",
+      "label": "Isolated implementation and deterministic debugging",
+      "candidateId": "luna-high",
+      "heldOutFixtureIds": [
+        "isolated-debug-01", "isolated-debug-02", "isolated-debug-03", "isolated-debug-04",
+        "isolated-debug-05", "isolated-debug-06"
+      ],
+      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "python", "repository-artifacts", "dotnet", "react-typescript"],
+      "absoluteQualityFloor": 0.85,
+      "nonInferiorityMargin": 0.1,
+      "recommendationType": "capability",
+      "decisionComparatorId": "luna-medium",
+      "minimumDecisionGain": 0.1
+    },
+    {
+      "id": "read-heavy-exploration-synthesis",
+      "catalogFamilyId": "read-heavy-analysis",
+      "label": "Read-heavy exploration, review, triage, and synthesis",
+      "candidateId": "terra-medium",
+      "heldOutFixtureIds": [
+        "read-heavy-01", "read-heavy-02", "read-heavy-03", "read-heavy-04",
+        "read-heavy-05", "read-heavy-06"
+      ],
+      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "python", "repository-artifacts", "dotnet", "react-typescript"],
+      "absoluteQualityFloor": 0.8,
+      "nonInferiorityMargin": 0.1,
+      "recommendationType": "capability",
+      "decisionComparatorId": "luna-high",
+      "minimumDecisionGain": 0.1
+    },
+    {
+      "id": "coordination-integration",
+      "catalogFamilyId": "coordination-integration",
+      "label": "Worker-authored decomposition and integration plans",
+      "candidateId": "sol-medium",
+      "heldOutFixtureIds": [
+        "coordination-01", "coordination-02", "coordination-03", "coordination-04",
+        "coordination-05", "coordination-06"
+      ],
+      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "python", "repository-artifacts", "dotnet", "react-typescript"],
+      "absoluteQualityFloor": 0.85,
+      "nonInferiorityMargin": 0.1,
+      "recommendationType": "capability",
+      "decisionComparatorId": "terra-medium",
+      "minimumDecisionGain": 0.1
+    },
+    {
+      "id": "ambiguous-cross-cutting-high-risk",
+      "catalogFamilyId": "high-risk-change",
+      "label": "Structured high-risk change and rollback plans",
+      "candidateId": "sol-high",
+      "heldOutFixtureIds": [
+        "high-risk-01", "high-risk-02", "high-risk-03", "high-risk-04",
+        "high-risk-05", "high-risk-06"
+      ],
+      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "python", "repository-artifacts", "dotnet", "react-typescript"],
+      "absoluteQualityFloor": 0.9,
+      "nonInferiorityMargin": 0.1,
+      "recommendationType": "capability",
+      "decisionComparatorId": "sol-medium",
+      "minimumDecisionGain": 0.1
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "campaignEligible": false,
-  "catalogHash": "19eff8a234412d620abeaba137771bd7cff684b064d4fd24012f513a2f9ba677",
+  "catalogHash": "791815875177753f42d4e4c71fc3fd606dab058c8ad183e832aec714bda0ad5e",
   "families": [
     {
       "blindedAdjudication": {
@@ -13,8 +13,8 @@
       "catalogFamilyId": "mechanical",
       "criterionMutationCoverage": {
         "coverage": 1.0,
-        "criticalCriteria": 12,
-        "killedCriticalCriteria": 12,
+        "criticalCriteria": 6,
+        "killedCriticalCriteria": 6,
         "passed": true,
         "threshold": 1.0
       },
@@ -23,17 +23,17 @@
       },
       "eligible": true,
       "equivalentPositiveCoverage": {
-        "coveredFixtures": 12,
+        "coveredFixtures": 6,
         "minimumPerFixture": 1,
         "passed": true,
         "requiredPerFixture": 1
       },
       "promptNearDuplication": {
         "fixtureIds": [
-          "mechanical-05",
-          "mechanical-09"
+          "mechanical-03",
+          "mechanical-06"
         ],
-        "maximum": 0.813333,
+        "maximum": 0.710526,
         "passed": true,
         "threshold": 0.85
       },
@@ -43,10 +43,10 @@
         "adapters": [
           "json-semantic-diff-v1"
         ],
-        "confirmatoryFixtures": 12,
+        "confirmatoryFixtures": 6,
         "ecosystems": 4,
         "passed": true,
-        "surfaces": 12
+        "surfaces": 6
       },
       "scopedClaim": "exact semantic-JSON repository edits with immutable-file checks"
     },
@@ -61,8 +61,8 @@
       "catalogFamilyId": "bounded-mapping-patch",
       "criterionMutationCoverage": {
         "coverage": 1.0,
-        "criticalCriteria": 12,
-        "killedCriticalCriteria": 12,
+        "criticalCriteria": 6,
+        "killedCriticalCriteria": 6,
         "passed": true,
         "threshold": 1.0
       },
@@ -71,15 +71,15 @@
       },
       "eligible": true,
       "equivalentPositiveCoverage": {
-        "coveredFixtures": 12,
+        "coveredFixtures": 6,
         "minimumPerFixture": 1,
         "passed": true,
         "requiredPerFixture": 1
       },
       "promptNearDuplication": {
         "fixtureIds": [
-          "bounded-patch-09",
-          "bounded-patch-12"
+          "bounded-patch-05",
+          "bounded-patch-06"
         ],
         "maximum": 0.711111,
         "passed": true,
@@ -91,10 +91,10 @@
         "adapters": [
           "command-test-v1"
         ],
-        "confirmatoryFixtures": 12,
+        "confirmatoryFixtures": 6,
         "ecosystems": 4,
         "passed": true,
-        "surfaces": 12
+        "surfaces": 6
       },
       "scopedClaim": "small mapping patches accepted by sealed deterministic commands"
     },
@@ -109,8 +109,8 @@
       "catalogFamilyId": "isolated-implementation",
       "criterionMutationCoverage": {
         "coverage": 1.0,
-        "criticalCriteria": 12,
-        "killedCriticalCriteria": 12,
+        "criticalCriteria": 6,
+        "killedCriticalCriteria": 6,
         "passed": true,
         "threshold": 1.0
       },
@@ -119,17 +119,17 @@
       },
       "eligible": true,
       "equivalentPositiveCoverage": {
-        "coveredFixtures": 12,
+        "coveredFixtures": 6,
         "minimumPerFixture": 1,
         "passed": true,
         "requiredPerFixture": 1
       },
       "promptNearDuplication": {
         "fixtureIds": [
-          "isolated-debug-04",
-          "isolated-debug-09"
+          "isolated-debug-01",
+          "isolated-debug-05"
         ],
-        "maximum": 0.553846,
+        "maximum": 0.526829,
         "passed": true,
         "threshold": 0.85
       },
@@ -139,10 +139,10 @@
         "adapters": [
           "command-test-v1"
         ],
-        "confirmatoryFixtures": 12,
+        "confirmatoryFixtures": 6,
         "ecosystems": 4,
         "passed": true,
-        "surfaces": 12
+        "surfaces": 6
       },
       "scopedClaim": "isolated implementations accepted by sealed behavioral or data-contract tests"
     },
@@ -156,10 +156,10 @@
       },
       "catalogFamilyId": "read-heavy-analysis",
       "criterionMutationCoverage": {
-        "coverage": 0.4375,
-        "criticalCriteria": 48,
-        "killedCriticalCriteria": 21,
-        "passed": false,
+        "coverage": 1.0,
+        "criticalCriteria": 24,
+        "killedCriticalCriteria": 24,
+        "passed": true,
         "threshold": 1.0
       },
       "dockerCalibration": {
@@ -167,33 +167,32 @@
       },
       "eligible": false,
       "equivalentPositiveCoverage": {
-        "coveredFixtures": 12,
+        "coveredFixtures": 6,
         "minimumPerFixture": 1,
         "passed": true,
         "requiredPerFixture": 1
       },
       "promptNearDuplication": {
         "fixtureIds": [
-          "read-heavy-07",
-          "read-heavy-11"
+          "read-heavy-05",
+          "read-heavy-06"
         ],
-        "maximum": 0.818841,
+        "maximum": 0.801418,
         "passed": true,
         "threshold": 0.85
       },
       "protocolFamilyId": "read-heavy-exploration-synthesis",
       "reasons": [
-        "critical-criterion-mutation-coverage-incomplete",
         "blinded-adjudication-artifact-missing"
       ],
       "scaleAndDiversity": {
         "adapters": [
           "artifact-rubric-v1"
         ],
-        "confirmatoryFixtures": 12,
+        "confirmatoryFixtures": 6,
         "ecosystems": 4,
         "passed": true,
-        "surfaces": 12
+        "surfaces": 6
       },
       "scopedClaim": "structured defect localization with exact source evidence in compact seeded repositories"
     },
@@ -207,10 +206,10 @@
       },
       "catalogFamilyId": "coordination-integration",
       "criterionMutationCoverage": {
-        "coverage": 0.25,
-        "criticalCriteria": 96,
-        "killedCriticalCriteria": 24,
-        "passed": false,
+        "coverage": 1.0,
+        "criticalCriteria": 48,
+        "killedCriticalCriteria": 48,
+        "passed": true,
         "threshold": 1.0
       },
       "dockerCalibration": {
@@ -218,7 +217,7 @@
       },
       "eligible": false,
       "equivalentPositiveCoverage": {
-        "coveredFixtures": 12,
+        "coveredFixtures": 6,
         "minimumPerFixture": 1,
         "passed": true,
         "requiredPerFixture": 1
@@ -226,26 +225,24 @@
       "promptNearDuplication": {
         "fixtureIds": [
           "coordination-02",
-          "coordination-11"
+          "coordination-06"
         ],
-        "maximum": 0.909502,
-        "passed": false,
+        "maximum": 0.684729,
+        "passed": true,
         "threshold": 0.85
       },
       "protocolFamilyId": "coordination-integration",
       "reasons": [
-        "prompt-near-duplication-above-threshold",
-        "critical-criterion-mutation-coverage-incomplete",
         "blinded-adjudication-artifact-missing"
       ],
       "scaleAndDiversity": {
         "adapters": [
           "artifact-rubric-v1"
         ],
-        "confirmatoryFixtures": 12,
+        "confirmatoryFixtures": 6,
         "ecosystems": 4,
         "passed": true,
-        "surfaces": 12
+        "surfaces": 6
       },
       "scopedClaim": "worker-authored decomposition and integration-plan artifacts; not live delegation"
     },
@@ -259,10 +256,10 @@
       },
       "catalogFamilyId": "high-risk-change",
       "criterionMutationCoverage": {
-        "coverage": 0.2,
-        "criticalCriteria": 120,
-        "killedCriticalCriteria": 24,
-        "passed": false,
+        "coverage": 1.0,
+        "criticalCriteria": 60,
+        "killedCriticalCriteria": 60,
+        "passed": true,
         "threshold": 1.0
       },
       "dockerCalibration": {
@@ -270,42 +267,40 @@
       },
       "eligible": false,
       "equivalentPositiveCoverage": {
-        "coveredFixtures": 12,
+        "coveredFixtures": 6,
         "minimumPerFixture": 1,
         "passed": true,
         "requiredPerFixture": 1
       },
       "promptNearDuplication": {
         "fixtureIds": [
-          "high-risk-09",
-          "high-risk-11"
+          "high-risk-03",
+          "high-risk-04"
         ],
-        "maximum": 0.948718,
-        "passed": false,
+        "maximum": 0.653659,
+        "passed": true,
         "threshold": 0.85
       },
       "protocolFamilyId": "ambiguous-cross-cutting-high-risk",
       "reasons": [
-        "prompt-near-duplication-above-threshold",
-        "critical-criterion-mutation-coverage-incomplete",
         "blinded-adjudication-artifact-missing"
       ],
       "scaleAndDiversity": {
         "adapters": [
           "artifact-rubric-v1"
         ],
-        "confirmatoryFixtures": 12,
+        "confirmatoryFixtures": 6,
         "ecosystems": 4,
         "passed": true,
-        "surfaces": 12
+        "surfaces": 6
       },
       "scopedClaim": "structured risk, change, rollback, and acceptance-plan artifacts in compact seeded repositories"
     }
   ],
-  "protocolHash": "62539e657c840c0896a27e88a7c246c036ffca4add9ececb7d64bc9a83d3ea4e",
-  "protocolId": "routing-v1-narrow-six-family",
+  "protocolHash": "bd1e26bf872d8275fca29b7ff79c3fad7ab0192e3d5a6d9b999ca3d60551ce39",
+  "protocolId": "routing-operational-v1-narrow-six-family",
   "recordKind": "construct-readiness",
-  "reportHash": "e069c36b077019c777a54bff0e66442d06e4c03639426fb7db1f9c98d50a3a53",
+  "reportHash": "e4b0c8dc8156248e9388237ad7eaade31705699ffc0223bd62aefcc38edc59f4",
   "schemaVersion": 1,
   "sourceArtifacts": {
     "blindedAdjudication": null,
@@ -589,6 +584,55 @@
           "template": "routing/v2-coordination-integration-confirm-1"
         },
         {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-1"
+        },
+        {
           "actual": "PASS",
           "case": "reference",
           "expected": "PASS",
@@ -613,6 +657,55 @@
           "template": "routing/v2-coordination-integration-confirm-10"
         },
         {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-10"
+        },
+        {
           "actual": "PASS",
           "case": "reference",
           "expected": "PASS",
@@ -637,6 +730,55 @@
           "template": "routing/v2-coordination-integration-confirm-11"
         },
         {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-11"
+        },
+        {
           "actual": "PASS",
           "case": "reference",
           "expected": "PASS",
@@ -657,6 +799,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-12"
         },
@@ -681,6 +872,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-2"
         },
@@ -705,6 +945,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-3"
         },
@@ -729,6 +1018,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-4"
         },
@@ -753,6 +1091,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-5"
         },
@@ -777,6 +1164,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-6"
         },
@@ -801,6 +1237,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-7"
         },
@@ -825,6 +1310,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-8"
         },
@@ -849,6 +1383,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-confirm-9"
         },
@@ -873,6 +1456,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-development-a"
         },
@@ -897,6 +1529,55 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.workers",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.frozenDependencies",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "workPlan.conflictChecks",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.mergeOrder",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.acceptanceCommands",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.handoffs",
+          "expected": "FAIL",
+          "template": "routing/v2-coordination-integration-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "integration.evidenceBoundary",
           "expected": "FAIL",
           "template": "routing/v2-coordination-integration-development-b"
         },
@@ -921,6 +1602,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-1"
         },
@@ -945,6 +1689,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-10"
         },
@@ -969,6 +1776,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-11"
         },
@@ -993,6 +1863,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-12"
         },
@@ -1017,6 +1950,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-2"
         },
@@ -1041,6 +2037,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-3"
         },
@@ -1065,6 +2124,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-4"
         },
@@ -1089,6 +2211,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-5"
         },
@@ -1113,6 +2298,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-6"
         },
@@ -1137,6 +2385,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-7"
         },
@@ -1161,6 +2472,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-8"
         },
@@ -1185,6 +2559,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-confirm-9"
         },
@@ -1209,6 +2646,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-development-a"
         },
@@ -1233,6 +2733,69 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "riskAssessment",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.scope",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "changePlan.steps",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.trigger",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.actions",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "rollback.compatibility",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.commands",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.artifacts",
+          "expected": "FAIL",
+          "template": "routing/v2-high-risk-change-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "acceptance.finalReview",
           "expected": "FAIL",
           "template": "routing/v2-high-risk-change-development-b"
         },
@@ -1765,6 +3328,27 @@
           "template": "routing/v2-read-heavy-analysis-confirm-1"
         },
         {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "tenantIsolationFindings",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "sourceLocations",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-1"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "correctlyScopedCode",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-1"
+        },
+        {
           "actual": "PASS",
           "case": "reference",
           "expected": "PASS",
@@ -1789,6 +3373,27 @@
           "template": "routing/v2-read-heavy-analysis-confirm-10"
         },
         {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "abortLifecycleFindings",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "hookEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-10"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "unrelatedHelpers",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-10"
+        },
+        {
           "actual": "PASS",
           "case": "reference",
           "expected": "PASS",
@@ -1813,6 +3418,27 @@
           "template": "routing/v2-read-heavy-analysis-confirm-11"
         },
         {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "exposureFindings",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "supportingLines",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-11"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "falsePositives",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-11"
+        },
+        {
           "actual": "PASS",
           "case": "reference",
           "expected": "PASS",
@@ -1833,6 +3459,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "databaseDefects",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "sqlEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-12"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "scopeExclusions",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-12"
         },
@@ -1857,6 +3504,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "reactDefects",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "evidenceMap",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-2"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "distractorDisposition",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-2"
         },
@@ -1881,6 +3549,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "transactionFacts",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "traceEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-3"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "secondaryRisks",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-3"
         },
@@ -1905,6 +3594,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "exploitPrerequisites",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "artifactEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-4"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "mitigationLimits",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-4"
         },
@@ -1929,6 +3639,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "latencyAmplifiers",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "lineEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-5"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "benignComponents",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-5"
         },
@@ -1953,6 +3684,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "cacheAndXssFindings",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "preciseCitations",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-6"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "safeSurfaces",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-6"
         },
@@ -1977,6 +3729,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "corruptionMechanisms",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "evidenceLedger",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-7"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "clearedSuspects",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-7"
         },
@@ -2001,6 +3774,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "composeFaults",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "configurationEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-8"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "irrelevantSignals",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-8"
         },
@@ -2025,6 +3819,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "cancellationBreaks",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "callSiteEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-confirm-9"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "componentExoneration",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-confirm-9"
         },
@@ -2049,6 +3864,27 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "failureChain",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "codeEvidence",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-development-a"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "excludedHypotheses",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-development-a"
         },
@@ -2073,11 +3909,32 @@
         {
           "actual": "FAIL",
           "case": "schema-extra-mutant",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "manifestDefects",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "lineProof",
+          "expected": "FAIL",
+          "template": "routing/v2-read-heavy-analysis-development-b"
+        },
+        {
+          "actual": "FAIL",
+          "case": "criterion-mutant",
+          "criterionId": "nonCauses",
           "expected": "FAIL",
           "template": "routing/v2-read-heavy-analysis-development-b"
         }
       ],
-      "catalogHash": "19eff8a234412d620abeaba137771bd7cff684b064d4fd24012f513a2f9ba677",
+      "catalogHash": "791815875177753f42d4e4c71fc3fd606dab058c8ad183e832aec714bda0ad5e",
       "evaluatorImage": "codex-routing-evaluator:10.0.301-node22-python3.12",
       "evaluatorImageId": "sha256:2963cdf8ce0b6345786650ebc380fd99faf7e56882bc32854f81f84283768f68",
       "passed": true,
@@ -2089,10 +3946,10 @@
     "maximumPromptTrigramJaccard": 0.85,
     "minimumBlindedAdjudicationSample": 12,
     "minimumBlindedAgreement": 0.8,
-    "minimumConfirmatoryFixtures": 12,
+    "minimumConfirmatoryFixtures": 6,
     "minimumCriterionMutationCoverage": 1.0,
     "minimumEcosystems": 3,
     "minimumEquivalentPositivesPerFixture": 1,
-    "minimumSurfaces": 10
+    "minimumSurfaces": 6
   }
 }

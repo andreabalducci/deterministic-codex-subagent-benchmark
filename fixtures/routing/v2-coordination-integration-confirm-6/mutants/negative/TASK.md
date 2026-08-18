@@ -1,24 +1,23 @@
-# coordination-06: Cart promotion type consolidation
+# Cart promotion type consolidation: integration assignment
 
-## Role and evidence boundary
+Produce a preflight integration record: boundaries first, then owner order, transferred evidence, and checks.
 
-Produce only `answer.json`. This fixture scores the quality of a worker-authored coordination and integration artifact. It does **not** ask you to spawn workers and must not claim that a live coordinator delegated, monitored, or merged anything.
+The repository evidence is split between `repo.snapshot.json` and `WORK_ITEM.md`.
+For this react-typescript scenario, the dependency shape is `packages/promo-types -> services/cart-client -> apps/store/cart`.
+The item `Footer copyright year` is a deliberate non-goal. Do not spawn agents: this task
+measures the quality of the written decomposition, not live delegation.
 
-## Repository/work-item snapshot
+Write only `answer.json`, with exactly these top-level keys:
 
-Read `repo.snapshot.json` and `WORK_ITEM.md`. The snapshot represents multiple synthetic repository files. Treat every listed path and constraint as frozen evidence. The topology is `packages/promo-types -> services/cart-client -> apps/store/cart`.
+1. `summary` — identify the integration and state that conclusions are limited
+   to the supplied snapshot.
+2. `workPlan` — give three ordered `workers` with exclusive `owns` paths and
+   concrete `actions`; also record `frozenDependencies` and `conflictChecks`.
+3. `integration` — provide owner-id `mergeOrder`, the single authorized
+   `acceptanceCommands` entry, boundary-specific `handoffs`, and an
+   `evidenceBoundary` that does not claim execution occurred.
 
-## Required artifact
-
-Return a JSON object with exactly `summary`, `workPlan`, and `integration`:
-
-- `summary`: one sentence naming the integration and its evidence limitation.
-- `workPlan.workers`: three ordered worker records. Each needs an id, exclusive owned paths, and concrete actions.
-- `workPlan.frozenDependencies`: the precise contract-freeze gate.
-- `workPlan.conflictChecks`: identify the seeded conflict and explicitly reject the distractor.
-- `integration.mergeOrder`: dependency-safe owner ids, not file names.
-- `integration.acceptanceCommands`: only the offline command authorized by the work item.
-- `integration.handoffs`: producer/consumer evidence transferred at each boundary.
-- `integration.evidenceBoundary`: explicitly limit claims to the authored artifact.
-
-Use the owner ids and wording supported by the two snapshot files. Do not widen scope, assign one path to two owners, reorder a consumer before its dependency, add commands, or treat the distractor as work.
+Respect the owner ids, dependency direction, frozen contract, seeded conflict,
+and authorized command in `WORK_ITEM.md`. Reject the non-goal explicitly. A path
+cannot have two owners, a consumer cannot precede its producer, and invented
+commands or runtime results invalidate the artifact.

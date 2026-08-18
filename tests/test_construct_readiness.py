@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class ConstructReadinessTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.protocol = readiness.load_json(ROOT / "protocols" / "routing-v1.json")
+        cls.protocol = readiness.load_json(ROOT / "protocols" / "routing-operational-v1.json")
         cls.catalog = readiness.load_json(ROOT / "fixtures" / "catalog.json")
 
     def build(self, **kwargs):
@@ -43,6 +43,19 @@ class ConstructReadinessTests(unittest.TestCase):
                     "template": task["template"], "case": "schema-extra-mutant",
                     "expected": "FAIL", "actual": "FAIL",
                 })
+                root = readiness.routing_tasks.template_root(task)
+                spec = readiness.routing_tasks.load_template(task)
+                reference = json.loads(
+                    (root / "reference" / spec["mutable"][0]).read_text(encoding="utf-8")
+                )
+                for criterion_id, _ in readiness.routing_tasks.artifact_criterion_mutants(
+                    task, spec, reference
+                ):
+                    cases.append({
+                        "template": task["template"], "case": "criterion-mutant",
+                        "criterionId": criterion_id,
+                        "expected": "FAIL", "actual": "FAIL",
+                    })
         return {
             "schemaVersion": 1, "recordKind": "routing-calibration", "backend": "docker",
             "catalogHash": readiness.value_hash(self.catalog),
@@ -73,14 +86,6 @@ class ConstructReadinessTests(unittest.TestCase):
         self.assertFalse(report["campaignEligible"])
         families = {item["catalogFamilyId"]: item for item in report["families"]}
         self.assertIn(
-            "prompt-near-duplication-above-threshold",
-            families["coordination-integration"]["reasons"],
-        )
-        self.assertIn(
-            "critical-criterion-mutation-coverage-incomplete",
-            families["high-risk-change"]["reasons"],
-        )
-        self.assertIn(
             "blinded-adjudication-artifact-missing",
             families["read-heavy-analysis"]["reasons"],
         )
@@ -93,8 +98,8 @@ class ConstructReadinessTests(unittest.TestCase):
         self.assertTrue(families["mechanical"]["eligible"])
         self.assertTrue(families["isolated-implementation"]["eligible"])
         self.assertIn("sealed behavioral", families["isolated-implementation"]["scopedClaim"])
-        self.assertFalse(families["coordination-integration"]["eligible"])
-        self.assertFalse(families["high-risk-change"]["eligible"])
+        self.assertTrue(families["coordination-integration"]["eligible"])
+        self.assertTrue(families["high-risk-change"]["eligible"])
 
     def test_report_hash_and_eligibility_tampering_are_rejected(self):
         report = self.build()

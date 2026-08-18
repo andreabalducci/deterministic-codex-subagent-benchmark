@@ -38,6 +38,7 @@ jobs:
       - name: Validate worker and coordinator protocols
         run: |
           python routing_campaign.py validate
+          python routing_campaign.py validate --protocol protocols/routing-v1.json
           python coordinator_campaign.py validate
       - name: Verify the generated routing policy
         run: python routing_policy.py --check
