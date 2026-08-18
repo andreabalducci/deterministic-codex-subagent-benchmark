@@ -64,18 +64,19 @@ class ConstructReadinessTests(unittest.TestCase):
         }
 
     def adjudication(self):
-        return {
-            "schemaVersion": 1, "recordKind": "blinded-adjudication", "blinded": True,
-            "protocolHash": readiness.value_hash(self.protocol),
-            "catalogHash": readiness.value_hash(self.catalog), "raterCount": 2,
-            "assignmentHash": "b" * 64, "ratingsHash": "c" * 64,
-            "families": [{
-                "catalogFamilyId": family, "sampleSize": 12,
-                "agreement": 0.9, "unresolvedDisagreements": 0,
-            } for family in (
-                "read-heavy-analysis", "coordination-integration", "high-risk-change"
-            )],
-        }
+        assignment, reveal = readiness.blinded_adjudication.prepare(
+            self.protocol, self.catalog, b"0123456789abcdef0123456789abcdef"
+        )
+        expected = {item["caseId"]: item["automatedAccepted"] for item in reveal["cases"]}
+        ratings = []
+        for rater in ("rater-a", "rater-b"):
+            record = readiness.blinded_adjudication.rating_template(assignment, rater)
+            for item in record["ratings"]:
+                item["accepted"] = expected[item["caseId"]]
+            ratings.append(record)
+        return readiness.blinded_adjudication.aggregate(
+            self.protocol, self.catalog, assignment, reveal, ratings
+        )
 
     def test_current_report_fails_closed_with_explicit_broad_family_reasons(self):
         report = readiness.load_json(ROOT / "runs" / "construct-readiness-current.json")

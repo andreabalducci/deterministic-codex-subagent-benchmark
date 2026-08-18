@@ -58,6 +58,7 @@ routing_tasks.py     v2 task materialization and sealed evaluation
 routing_runner.py    one-job Codex generation and provenance capture
 routing_preflight.py authenticated model/effort/Fast capability check
 construct_readiness.py construct-validity report and paid-campaign gate
+blinded_adjudication.py blinded packet, independent ratings, and replayable adjudication
 routing_evidence.py  canonical evidence publisher and replay verifier
 coordinator_campaign.py  deterministic live-coordinator plan
 coordinator_runner.py    traced live delegation and integration runner
@@ -84,6 +85,38 @@ rubric-scored artifacts. `routing_campaign.py plan` requires this report and
 refuses every ineligible family. The current diagnostic report is
 `runs/construct-readiness-current.json`; it is evidence of a blocked campaign,
 not an authorization artifact.
+
+Prepare the remaining human-adjudication evidence without exposing evaluator
+labels to either reviewer. Keep the key and reveal private until both rating
+files are complete, and use pseudonymous rater IDs:
+
+```bash
+python3 blinded_adjudication.py prepare \
+  --key-file /secure/adjudication.key \
+  --assignment runs/adjudication-assignment.json \
+  --reveal runs/adjudication-reveal.json
+
+python3 blinded_adjudication.py rating-template \
+  --assignment runs/adjudication-assignment.json \
+  --rater-id rater-a --output runs/rating-a.json
+python3 blinded_adjudication.py rating-template \
+  --assignment runs/adjudication-assignment.json \
+  --rater-id rater-b --output runs/rating-b.json
+
+python3 blinded_adjudication.py aggregate \
+  --assignment runs/adjudication-assignment.json \
+  --reveal runs/adjudication-reveal.json \
+  --rating runs/rating-a.json --rating runs/rating-b.json \
+  --output runs/routing-blinded-adjudication.json
+python3 blinded_adjudication.py check runs/routing-blinded-adjudication.json
+```
+
+Each reviewer sets every `accepted` field independently to `true` or `false`
+after inspecting the task, starter snapshot, and candidate artifact. The
+aggregator rejects incomplete or duplicate raters and reports any human-human
+or human-evaluator disagreement as unresolved. The construct-readiness gate
+requires zero unresolved cases; synthetic or agent-authored ratings are not a
+substitute for the two human reviews.
 
 After producing a private HMAC-keyed routing plan, execute its assigned jobs
 with a dedicated credential (this command incurs one model generation):

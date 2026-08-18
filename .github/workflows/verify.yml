@@ -33,6 +33,8 @@ jobs:
           dotnet-version: 10.0.301
       - name: Validate the routing fixture catalog
         run: python routing_tasks.py catalog-validate
+      - name: Validate adjudication CLI syntax
+        run: python -m py_compile blinded_adjudication.py
       - name: Calibrate routing evaluators
         run: python routing_tasks.py calibrate --all --backend native
       - name: Validate worker and coordinator protocols

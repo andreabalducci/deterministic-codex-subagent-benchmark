@@ -152,6 +152,15 @@ python3 construct_readiness.py report \
 The command exits non-zero while any family is ineligible but still writes the
 full reasons. The planner then requires the passing report:
 
+The blinded adjudication is produced with `blinded_adjudication.py`: `prepare`
+creates an assignment containing no source labels or automated outcomes and a
+separate mode-0600 reveal; `rating-template` creates one complete decision form
+per human reviewer; `aggregate` requires two distinct complete reviewers and
+emits a replayable schema-v2 artifact. The verifier reconstructs all 36 sampled
+reference/mutant artifacts from the frozen catalog. Any reviewer disagreement
+or unanimous human verdict that differs from the deterministic evaluator is an
+unresolved case and blocks readiness.
+
 ```bash
 python3 routing_campaign.py plan \
   --construct-readiness runs/routing-construct-readiness.json \

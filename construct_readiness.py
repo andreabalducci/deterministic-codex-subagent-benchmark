@@ -19,6 +19,7 @@ from typing import Any
 
 import routing_campaign
 import routing_tasks
+import blinded_adjudication
 
 
 ROOT = Path(__file__).resolve().parent
@@ -156,25 +157,25 @@ def _valid_docker_calibration(
 
 
 def _adjudication_by_family(
-    adjudication: Any, protocol_hash: str, catalog_hash: str
+    adjudication: Any, protocol: dict[str, Any], catalog: dict[str, Any]
 ) -> tuple[dict[str, dict[str, Any]], list[str]]:
     if not isinstance(adjudication, dict):
         return {}, ["blinded-adjudication-artifact-missing"]
-    required = {
-        "schemaVersion", "recordKind", "blinded", "protocolHash", "catalogHash",
-        "raterCount", "assignmentHash", "ratingsHash", "families",
-    }
-    if set(adjudication) != required or adjudication.get("schemaVersion") != 1 \
+    if adjudication.get("schemaVersion") != 2 \
             or adjudication.get("recordKind") != "blinded-adjudication" \
             or adjudication.get("blinded") is not True:
         return {}, ["blinded-adjudication-artifact-invalid"]
+    try:
+        blinded_adjudication.validate_artifact(adjudication, protocol, catalog)
+    except (blinded_adjudication.AdjudicationError, KeyError, TypeError, ValueError):
+        return {}, ["blinded-adjudication-artifact-does-not-reproduce"]
     reasons: list[str] = []
-    if adjudication.get("protocolHash") != protocol_hash \
-            or adjudication.get("catalogHash") != catalog_hash:
+    if adjudication.get("protocolHash") != value_hash(protocol) \
+            or adjudication.get("catalogHash") != value_hash(catalog):
         reasons.append("blinded-adjudication-hash-mismatch")
     if not isinstance(adjudication.get("raterCount"), int) or adjudication["raterCount"] < 2:
         reasons.append("blinded-adjudication-insufficient-raters")
-    for field in ("assignmentHash", "ratingsHash"):
+    for field in ("assignmentHash", "revealHash", "ratingsHash"):
         if not isinstance(adjudication.get(field), str) \
                 or not re.fullmatch(r"[0-9a-f]{64}", adjudication[field]):
             reasons.append("blinded-adjudication-provenance-invalid")
@@ -246,7 +247,7 @@ def build_report(
         calibration, catalog_hash, catalog["tasks"]
     )
     adjudication_index, adjudication_reasons = _adjudication_by_family(
-        adjudication, protocol_hash, catalog_hash
+        adjudication, protocol, catalog
     )
     results = []
     for family in protocol["families"]:
