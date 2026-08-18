@@ -1,4 +1,5 @@
 using Cache.Core;
+using System.Reflection;
 
 var tests = new (string Name, Func<Task> Run)[]
 {
@@ -10,36 +11,22 @@ var tests = new (string Name, Func<Task> Run)[]
     ("one cancelled waiter does not cancel shared load", CancelledWaiterIsIsolated),
     ("all waiters may cancel while successful load remains cached", AbandonedLoadIsCached),
     ("invalidation supersedes an older in-flight generation", InvalidateInFlight),
+    ("public API contract", PublicApiContract),
 };
 
-const int TestTimeoutSeconds = 5;
 var failures = 0;
-var timedOut = false;
 foreach (var (name, run) in tests)
 {
     try
     {
-        var test = run();
-        ObserveFault(test);
-        await test.WaitAsync(TimeSpan.FromSeconds(TestTimeoutSeconds));
+        await run();
         Console.WriteLine($"PASS {name}");
-    }
-    catch (TimeoutException)
-    {
-        failures++;
-        timedOut = true;
-        Console.WriteLine($"FAIL {name}: TimeoutException: exceeded the {TestTimeoutSeconds}-second test timeout");
     }
     catch (Exception exception)
     {
         failures++;
         Console.WriteLine($"FAIL {name}: {exception.GetType().Name}: {exception.Message}");
     }
-
-    // A timed-out test may still have an uncancellable candidate task in flight. Every
-    // test currently owns its state, but candidate implementations may use static state;
-    // do not start another behavior while that orphaned task could affect it.
-    if (timedOut) break;
 }
 
 if (failures == 0) Console.WriteLine("CODEX_BENCH_HIDDEN_PASS_V1");
@@ -147,6 +134,7 @@ static async Task FailureIsRetried()
     }
 
     await ThrowsAsync<InvalidOperationException>(() => cache.GetAsync("key", Factory).AsTask());
+    True(!cache.Invalidate("key"));
     Equal(7, await cache.GetAsync("key", Factory));
     Equal(2, calls);
 }
@@ -229,6 +217,63 @@ static async Task InvalidateInFlight()
     Equal(2, calls);
 }
 
+static Task PublicApiContract()
+{
+    var type = typeof(AsyncExpiringCache<,>);
+    True(type.IsPublic);
+    True(type.IsSealed);
+    True(type.IsGenericTypeDefinition);
+    Equal("Cache.Core.AsyncExpiringCache`2", type.FullName);
+    var exportedTypes = type.Assembly.GetExportedTypes();
+    Equal(1, exportedTypes.Length);
+    Equal(type, exportedTypes[0]);
+
+    var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+    Equal(1, constructors.Length);
+    var constructorParameters = constructors[0].GetParameters();
+    Equal(2, constructorParameters.Length);
+    Equal(typeof(TimeProvider), constructorParameters[0].ParameterType);
+    Equal("timeProvider", constructorParameters[0].Name);
+    Equal(typeof(TimeSpan), constructorParameters[1].ParameterType);
+    Equal("timeToLive", constructorParameters[1].Name);
+
+    Equal(0, type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Length);
+    Equal(0, type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Length);
+    Equal(0, type.GetEvents(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Length);
+    var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
+    Equal(2, methods.Length);
+    True(methods.All(method => !method.IsStatic));
+    var getAsync = methods.Single(method => method.Name == "GetAsync");
+    var invalidate = methods.Single(method => method.Name == "Invalidate");
+    var typeArguments = type.GetGenericArguments();
+    var expectedValueTask = typeof(ValueTask<>).MakeGenericType(typeArguments[1]);
+    Equal(expectedValueTask, getAsync.ReturnType);
+    var getParameters = getAsync.GetParameters();
+    Equal(3, getParameters.Length);
+    Equal(typeArguments[0], getParameters[0].ParameterType);
+    Equal("key", getParameters[0].Name);
+    Equal(
+        typeof(Func<,,>).MakeGenericType(
+            typeArguments[0],
+            typeof(CancellationToken),
+            expectedValueTask),
+        getParameters[1].ParameterType);
+    Equal("factory", getParameters[1].Name);
+    Equal(typeof(CancellationToken), getParameters[2].ParameterType);
+    Equal("cancellationToken", getParameters[2].Name);
+    True(getParameters[2].IsOptional);
+    True(getParameters[2].HasDefaultValue);
+    // ECMA-335 cannot encode an arbitrary struct constant; C# emits `default` for this
+    // optional value as a null metadata constant, which reflection exposes as null.
+    True(getParameters[2].DefaultValue is null);
+    Equal(typeof(bool), invalidate.ReturnType);
+    var invalidateParameters = invalidate.GetParameters();
+    Equal(1, invalidateParameters.Length);
+    Equal(typeArguments[0], invalidateParameters[0].ParameterType);
+    Equal("key", invalidateParameters[0].Name);
+    return Task.CompletedTask;
+}
+
 static AsyncExpiringCache<TKey, TValue> NewCache<TKey, TValue>() where TKey : notnull =>
     new(TimeProvider.System, TimeSpan.FromMinutes(5));
 
@@ -255,15 +300,6 @@ static async Task ThrowsAsync<TException>(Func<Task> action) where TException : 
     try { await action(); }
     catch (TException) { return; }
     throw new InvalidOperationException($"Expected {typeof(TException).Name}");
-}
-
-static void ObserveFault(Task task)
-{
-    _ = task.ContinueWith(
-        completed => _ = completed.Exception,
-        CancellationToken.None,
-        TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
-        TaskScheduler.Default);
 }
 
 sealed class ManualTimeProvider(DateTimeOffset utcNow) : TimeProvider

@@ -29,7 +29,7 @@ class HarnessTests(unittest.TestCase):
             "recordKind": "campaign",
             "runId": job["runId"],
             "fixtureId": harness.FIXTURE_ID,
-            "fixtureManifestHash": harness.sha256_file(harness.MANIFEST),
+            "fixtureManifestHash": harness.json_file_hash(harness.MANIFEST),
             "candidateHash": "c" * 64,
             "promptHash": harness.sha256_bytes(harness.AGENT_PROMPT.encode("utf-8")),
             "model": job["model"],
@@ -38,21 +38,36 @@ class HarnessTests(unittest.TestCase):
             "status": status,
             "failureKind": None if status == "PASS" else failure_kind,
             "tests": [],
-            "planHash": harness.sha256_file(plan_path),
+            "planHash": harness.json_file_hash(plan_path),
             "trial": job["trial"],
             "orderPosition": job["orderPosition"],
-            "provenance": {"gitCommit": None, "files": {}, "sdkVersion": "10.0.301"},
+            "provenance": harness.repository_provenance(),
             "durationSeconds": 1.0,
             "generationDurationSeconds": 2.0,
             "repeatCount": 1,
             "backend": "docker",
-            "evaluatorImage": {},
-            "generatorImage": {},
+            "evaluatorImage": self.image_info(
+                harness.EVALUATOR_IMAGE, "docker/evaluator.Dockerfile"
+            ),
+            "generatorImage": self.image_info(
+                harness.GENERATOR_IMAGE, "docker/generator.Dockerfile"
+            ),
             "isolation": "container-strong",
             "integrityViolations": [],
             "policyViolations": [],
             "manifestErrors": [],
             "platform": {"system": "test", "release": "test", "machine": "test", "python": "3.12"},
+        }
+
+    @staticmethod
+    def image_info(tag, dockerfile):
+        return {
+            "tag": tag,
+            "id": "sha256:" + "a" * 64,
+            "repoDigests": [],
+            "os": "linux",
+            "architecture": "amd64",
+            "specHash": harness.image_spec_hash(dockerfile),
         }
 
     def test_plan_is_balanced_by_position_over_complete_cycle(self):
@@ -96,6 +111,31 @@ class HarnessTests(unittest.TestCase):
     def test_duplicate_machine_labels_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "unique"):
             harness.make_plan(12, "duplicate", ["same", "same"], self.id_key)
+
+    def test_plan_validation_rejects_seed_matrix_and_order_tampering(self):
+        plan = harness.make_plan(6, "bound-seed", ["machine-a"], self.id_key)
+        mutations = []
+        changed_seed = json.loads(json.dumps(plan))
+        changed_seed["seed"] = "different-seed"
+        mutations.append(changed_seed)
+        changed_model = json.loads(json.dumps(plan))
+        changed_model["jobs"][0]["model"] = "fake-model"
+        mutations.append(changed_model)
+        changed_order = json.loads(json.dumps(plan))
+        changed_order["jobs"][0], changed_order["jobs"][1] = (
+            changed_order["jobs"][1], changed_order["jobs"][0]
+        )
+        mutations.append(changed_order)
+        changed_machine = json.loads(json.dumps(plan))
+        changed_machine["jobs"][0]["machineId"] = "unplanned"
+        mutations.append(changed_machine)
+        extra_field = json.loads(json.dumps(plan))
+        extra_field["unexpected"] = True
+        mutations.append(extra_field)
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                with self.assertRaises(ValueError):
+                    harness.validate_plan(mutation)
 
     def test_williams_rows_balance_direct_predecessors(self):
         rows = harness.williams_rows(harness.load_matrix(), "carryover")
@@ -279,6 +319,19 @@ class HarnessTests(unittest.TestCase):
             self.assertTrue(any("module initializer" in value for value in violations))
             self.assertTrue(any("process termination" in value for value in violations))
 
+    def test_network_clients_and_additional_blocking_waits_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary) / "candidate"
+            harness.materialize(destination)
+            implementation = destination / "Cache.Core" / "AsyncExpiringCache.cs"
+            implementation.write_text(
+                "class X { void M() { _ = new HttpClient(); Task.WaitAll(); Monitor.Wait(this); } }",
+                encoding="utf-8",
+            )
+            violations = harness.policy_violations(destination)
+            self.assertTrue(any("network client" in value for value in violations))
+            self.assertTrue(any("blocking synchronization" in value for value in violations))
+
     def test_untrusted_native_evaluation_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             destination = Path(temporary) / "candidate"
@@ -371,7 +424,7 @@ class HarnessTests(unittest.TestCase):
             ({**base, "outputLimitExceeded": True},
              ("CANDIDATE_FAILURE", "generation-output-limit")),
             ({**base, "exitCode": 1},
-             ("CANDIDATE_FAILURE", "generation-exit")),
+             ("INFRA_FAILURE", "generation-unavailable")),
             (base, None),
         ]
         for metadata, expected in cases:
@@ -434,6 +487,55 @@ class HarnessTests(unittest.TestCase):
             self.assertEqual(6, group["plannedRuns"])
             self.assertEqual(1 / 6, group["passRate"])
 
+    def test_generation_only_failure_does_not_contaminate_evaluation_latency(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            plan = harness.make_plan(6, "duration", ["machine-a"], self.id_key)
+            plan_path = root / "plan.json"
+            harness.save_json(plan_path, plan)
+            jobs = [job for job in plan["jobs"] if job["id"] == "luna-low"][:2]
+            evaluated = self.campaign_result(jobs[0], plan_path)
+            evaluated["durationSeconds"] = 1.0
+            evaluated["generationDurationSeconds"] = 4.0
+            generation_only = self.campaign_result(
+                jobs[1], plan_path, failure_kind="generation-exit"
+            )
+            generation_only["durationSeconds"] = None
+            generation_only["generationDurationSeconds"] = 2.0
+            paths = []
+            for index, result in enumerate((evaluated, generation_only)):
+                path = root / f"result-{index}.json"
+                harness.save_json(path, result)
+                paths.append(path)
+            summary = harness.aggregate(paths, plan_path, allow_incomplete=True)
+            group = summary["groups"]["gpt-5.6-luna:low"]
+            self.assertEqual(1.0, group["medianEvaluationSeconds"])
+            self.assertEqual(3.0, group["medianGenerationSeconds"])
+
+    def test_aggregate_rejects_stale_provenance_and_per_machine_image_drift(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            plan = harness.make_plan(6, "environment", ["machine-a"], self.id_key)
+            plan_path = root / "plan.json"
+            harness.save_json(plan_path, plan)
+            first = self.campaign_result(plan["jobs"][0], plan_path)
+            stale = json.loads(json.dumps(first))
+            stale["provenance"]["gitCommit"] = "stale"
+            stale_path = root / "stale.json"
+            harness.save_json(stale_path, stale)
+            with self.assertRaisesRegex(ValueError, "provenance"):
+                harness.aggregate([stale_path], plan_path, allow_incomplete=True)
+
+            second = self.campaign_result(plan["jobs"][1], plan_path)
+            second["evaluatorImage"]["id"] = "sha256:" + "b" * 64
+            paths = []
+            for index, result in enumerate((first, second)):
+                path = root / f"image-{index}.json"
+                harness.save_json(path, result)
+                paths.append(path)
+            with self.assertRaisesRegex(ValueError, "Image identity changed"):
+                harness.aggregate(paths, plan_path, allow_incomplete=True)
+
     def test_publish_bundle_redacts_hidden_output_and_includes_audit_hashes(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -482,6 +584,18 @@ class HarnessTests(unittest.TestCase):
             inconsistent["outcomes"][0]["failureKind"] = None
             with self.assertRaisesRegex(ValueError, "aggregate does not match"):
                 harness.validate_evidence_bundle(inconsistent)
+            invented_kind = json.loads(json.dumps(bundle))
+            invented_kind["outcomes"][0]["failureKind"] = "invented-kind"
+            with self.assertRaises(ValueError):
+                harness.validate_evidence_bundle(invented_kind)
+            invalid_duration = json.loads(json.dumps(bundle))
+            invalid_duration["outcomes"][0]["durationSeconds"] = None
+            with self.assertRaisesRegex(ValueError, "anyOf"):
+                harness.validate_evidence_bundle(invalid_duration)
+            unlinked_manifest = json.loads(json.dumps(bundle))
+            unlinked_manifest["outcomes"][0]["fixtureManifestHash"] = "f" * 64
+            with self.assertRaisesRegex(ValueError, "manifest link"):
+                harness.validate_evidence_bundle(unlinked_manifest)
             published = next(outcome for outcome in bundle["outcomes"] if outcome["tests"])
             self.assertEqual(
                 [
@@ -697,7 +811,10 @@ class HarnessTests(unittest.TestCase):
                 backend="native", repeat=1,
                 campaign_metadata={
                     "planHash": "a" * 64, "trial": 0, "orderPosition": 0,
-                    "generationDurationSeconds": 1.0, "generatorImage": {},
+                    "generationDurationSeconds": 1.0,
+                    "generatorImage": self.image_info(
+                        harness.GENERATOR_IMAGE, "docker/generator.Dockerfile"
+                    ),
                 },
                 status=status, failure_kind=kind,
             )
@@ -715,8 +832,11 @@ class HarnessTests(unittest.TestCase):
             harness.materialize(candidate)
             log = Path(temporary) / "generation.jsonl"
             log.write_text(
-                '{"item": {"item_type": "command_execution", "exit_code": 0}}\n'
-                '{"item": {"item_type": "command_execution", "exit_code": 1}}\n',
+                '{"type":"thread.started"}\n'
+                '{"type":"turn.started"}\n'
+                '{"type":"item.completed","item":{"type":"command_execution","exit_code":0}}\n'
+                '{"type":"item.completed","item":{"type":"command_execution","exit_code":1}}\n'
+                '{"type":"turn.completed"}\n',
                 encoding="utf-8",
             )
             self.assertEqual(1, harness.generation_command_successes(log))
@@ -727,7 +847,13 @@ class HarnessTests(unittest.TestCase):
             # No command evidence means a generator fault, which must stay loud rather than
             # score the untouched starter as the model's answer.
             silent = Path(temporary) / "silent.jsonl"
-            silent.write_text('{"item": {"item_type": "agent_message"}}\n', encoding="utf-8")
+            silent.write_text(
+                '{"type":"thread.started"}\n'
+                '{"type":"turn.started"}\n'
+                '{"type":"item.completed","item":{"type":"agent_message"}}\n'
+                '{"type":"turn.completed"}\n',
+                encoding="utf-8",
+            )
             self.assertEqual(
                 ("INFRA_FAILURE", "generation-inert"),
                 harness.generation_failure_kind(self.clean_generation(), candidate, silent),
@@ -738,6 +864,53 @@ class HarnessTests(unittest.TestCase):
                     self.clean_generation(), candidate, Path(temporary) / "absent.jsonl"
                 ),
             )
+
+    def test_nonzero_generation_requires_a_completed_turn_before_scoring(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate = Path(temporary) / "candidate"
+            harness.materialize(candidate)
+            metadata = {
+                "launcherFailure": False, "timedOut": False,
+                "outputLimitExceeded": False, "exitCode": 1,
+            }
+            completed = Path(temporary) / "completed.jsonl"
+            completed.write_text(
+                '{"type":"thread.started"}\n'
+                '{"type":"turn.started"}\n'
+                '{"type":"item.completed","item":{"type":"command_execution","exit_code":0}}\n'
+                '{"type":"turn.completed"}\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                ("CANDIDATE_FAILURE", "generation-exit"),
+                harness.generation_failure_kind(metadata, candidate, completed),
+            )
+            response_only = Path(temporary) / "response-only.jsonl"
+            response_only.write_text(
+                '{"type":"thread.started"}\n'
+                '{"type":"turn.started"}\n'
+                '{"type":"turn.completed"}\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                ("INFRA_FAILURE", "generation-unavailable"),
+                harness.generation_failure_kind(metadata, candidate, response_only),
+            )
+            failed = Path(temporary) / "failed.jsonl"
+            failed.write_text(
+                '{"type":"thread.started"}\n'
+                '{"type":"turn.started"}\n'
+                '{"type":"item.completed","item":{"type":"command_execution","exit_code":0}}\n'
+                '{"type":"turn.failed"}\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                ("INFRA_FAILURE", "generation-unavailable"),
+                harness.generation_failure_kind(metadata, candidate, failed),
+            )
+            malformed = Path(temporary) / "malformed.jsonl"
+            malformed.write_text('{not-json}\n', encoding="utf-8")
+            self.assertFalse(harness.generation_log_evidence(malformed)["valid"])
 
     def test_integrity_violation_is_not_disguised_as_a_generator_fault(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -973,8 +1146,12 @@ class HarnessTests(unittest.TestCase):
             "generationDurationSeconds": 1.0,
             "repeatCount": 1,
             "backend": "docker",
-            "evaluatorImage": {},
-            "generatorImage": {},
+            "evaluatorImage": self.image_info(
+                harness.EVALUATOR_IMAGE, "docker/evaluator.Dockerfile"
+            ),
+            "generatorImage": self.image_info(
+                harness.GENERATOR_IMAGE, "docker/generator.Dockerfile"
+            ),
             "durationSeconds": 1.0,
             "isolation": "container-strong",
             "integrityViolations": [],

@@ -75,11 +75,11 @@ public sealed class AsyncExpiringCache<TKey, TValue> where TKey : notnull
         {
             lock (slot.Gate)
             {
+                // The failed generation clears its load but leaves an empty
+                // dictionary entry behind, so Invalidate reports a false
+                // tombstone as an existing cache entry.
                 if (ReferenceEquals(slot.Loading, source.Task))
-                {
                     slot.Loading = null;
-                    _entries.TryRemove(new KeyValuePair<TKey, Slot>(key, slot));
-                }
             }
             source.TrySetException(exception);
         }
