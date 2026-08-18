@@ -40,15 +40,25 @@ jobs:
           name: verification-native
           path: runs/verification-native.json
 
-  codex-cli-flag-compatibility:
+  generator-container:
     timeout-minutes: 20
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
       - name: Build the pinned generator image
         run: docker build --file docker/generator.Dockerfile --tag codex-bench-generator:0.147.0 .
+      - name: Probe the generator container without a credential or a model request
+        run: python harness.py check-generator --output runs/generator-check.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: generator-check
+          path: runs/generator-check.json
       - name: Check model and effort CLI flag compatibility with the pinned Codex CLI
         run: >-
           python -c "import json,subprocess; matrix=json.load(open('matrix.json'))['configurations'];

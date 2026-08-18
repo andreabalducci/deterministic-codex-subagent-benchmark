@@ -513,6 +513,234 @@ class HarnessTests(unittest.TestCase):
         self.assertIn(f"{os.getuid()}:{os.getgid()}", command)
         self.assertTrue(any(f"uid={os.getuid()}" in value for value in command))
 
+    @staticmethod
+    def generator_command(auth: Path):
+        captured = {}
+
+        def capture(command, **_):
+            captured["command"] = command
+            raise AssertionError("stop before docker runs")
+
+        with patch.object(harness, "benchmark_auth_file", return_value=auth), \
+                patch.object(harness, "ensure_image", lambda *a, **k: None), \
+                patch.object(harness, "materialize", lambda *a, **k: None), \
+                patch.object(harness, "execute_captured", capture):
+            with unittest.TestCase().assertRaises(AssertionError):
+                harness.generate_candidate(
+                    {"runId": "0" * 16, "model": "m", "reasoningEffort": "high"},
+                    auth_path=auth,
+                )
+        return captured["command"]
+
+    def test_generator_points_the_sdk_at_writable_directories(self):
+        # A read-only rootfs plus --user leaves HOME unwritable, so without these the SDK
+        # aborts on every dotnet invocation and the agent cannot build what TASK.md
+        # requires it to run.
+        with tempfile.TemporaryDirectory() as temporary:
+            auth = Path(temporary) / "auth.json"
+            auth.write_text("{}", encoding="utf-8")
+            auth.chmod(0o600)
+            command = self.generator_command(auth)
+        environment = dict(
+            value.split("=", 1)
+            for index, value in enumerate(command)
+            if index and command[index - 1] == "--env"
+        )
+        self.assertEqual("/workspace/.dotnet-home", environment.get("DOTNET_CLI_HOME"))
+        self.assertEqual("/workspace/.nuget", environment.get("NUGET_PACKAGES"))
+        for variable in ("DOTNET_CLI_HOME", "NUGET_PACKAGES"):
+            relative = Path(environment[variable]).relative_to("/workspace")
+            self.assertIn(relative.parts[0], harness.IGNORED_PARTS)
+
+    @staticmethod
+    def clean_generation():
+        return {"launcherFailure": False, "timedOut": False,
+                "outputLimitExceeded": False, "exitCode": 0}
+
+    @staticmethod
+    def hidden_repetition(overrides=None):
+        outcomes = {behavior: "PASS" for behavior in harness.HIDDEN_BEHAVIORS}
+        outcomes.update(overrides or {})
+        return {
+            "name": "hidden-1",
+            "behaviors": [
+                {"name": behavior, "outcome": outcomes[behavior]}
+                for behavior in harness.HIDDEN_BEHAVIORS
+            ],
+        }
+
+    def test_one_failing_repetition_denies_the_behavior_a_pass(self):
+        flaky, stable = harness.HIDDEN_BEHAVIORS[1], harness.HIDDEN_BEHAVIORS[0]
+        first = self.hidden_repetition()
+        second = self.hidden_repetition({flaky: "FAIL"})
+        second["name"] = "hidden-2"
+        rollup = harness.result_behavior_outcomes({"tests": [first, second]})
+        self.assertEqual("FAIL", rollup[flaky])
+        self.assertEqual("PASS", rollup[stable])
+
+    def test_behaviors_never_reached_stay_censored_not_passing(self):
+        reached, censored = harness.HIDDEN_BEHAVIORS[0], harness.HIDDEN_BEHAVIORS[5]
+        repetition = self.hidden_repetition(
+            {behavior: "NOT_RUN" for behavior in harness.HIDDEN_BEHAVIORS[2:]}
+        )
+        rollup = harness.result_behavior_outcomes({"tests": [repetition]})
+        self.assertEqual("PASS", rollup[reached])
+        self.assertEqual("NOT_RUN", rollup[censored])
+
+    def test_generation_without_a_hidden_run_yields_no_behavior_evidence(self):
+        rollup = harness.result_behavior_outcomes(
+            {"tests": [{"name": "public-build"}, {"name": "public"}]}
+        )
+        self.assertEqual(
+            {"NO_HIDDEN_RUN"}, set(rollup.values()), "a build failure measures no behavior"
+        )
+
+    def test_behavior_summary_partitions_the_planned_denominator(self):
+        target = harness.HIDDEN_BEHAVIORS[3]
+        results = [
+            {"tests": [self.hidden_repetition()]},
+            {"tests": [self.hidden_repetition({target: "FAIL"})]},
+            {"tests": [self.hidden_repetition({target: "AMBIGUOUS"})]},
+            {"tests": [{"name": "public-build"}]},
+        ]
+        summary = harness.behavior_summary(results, 6)
+        entry = summary[target]
+        self.assertEqual(1, entry["passes"])
+        self.assertEqual(1, entry["failures"])
+        self.assertEqual(1, entry["ambiguous"])
+        self.assertEqual(1, entry["withoutHiddenRun"])
+        self.assertEqual(2, entry["missing"])
+        # Intent to treat: the denominator is what was planned, so censoring cannot
+        # inflate a configuration's rate.
+        self.assertEqual(1 / 6, entry["passRate"])
+        for behavior, counts in summary.items():
+            partition = sum(
+                counts[key] for key in
+                ("passes", "failures", "notRun", "ambiguous", "withoutHiddenRun", "missing")
+            )
+            self.assertEqual(6, partition, behavior)
+
+    def test_generator_does_not_rely_on_an_inner_namespace_sandbox(self):
+        # Codex's bwrap sandbox cannot create a user namespace under Docker's default seccomp
+        # profile, and it fails silently: the agent runs nothing and the starter is scored.
+        with tempfile.TemporaryDirectory() as temporary:
+            auth = Path(temporary) / "auth.json"
+            auth.write_text("{}", encoding="utf-8")
+            auth.chmod(0o600)
+            command = self.generator_command(auth)
+        mode = command[command.index("--sandbox") + 1]
+        self.assertEqual("danger-full-access", mode)
+        self.assertNotIn(mode, harness.NAMESPACE_SANDBOX_MODES)
+        self.assertIn("--read-only", command)
+        # Check flags with their values, not just token presence: "--cap-drop" anywhere in the
+        # argv proves nothing about what was dropped.
+        for flag, value in (("--cap-drop", "ALL"), ("--security-opt", "no-new-privileges")):
+            self.assertIn(value, [
+                command[index + 1] for index, token in enumerate(command) if token == flag
+            ], flag)
+
+    def test_untouched_generation_is_infrastructure_failure_not_a_model_failure(self):
+        clean = {"launcherFailure": False, "timedOut": False,
+                 "outputLimitExceeded": False, "exitCode": 0}
+        self.assertIsNone(harness.generation_failure_kind(clean))
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate = Path(temporary) / "candidate"
+            harness.materialize(candidate)
+            self.assertEqual(
+                harness.candidate_hash(candidate), harness.pristine_candidate_hash()
+            )
+            self.assertEqual(
+                ("INFRA_FAILURE", "generation-inert"),
+                harness.generation_failure_kind(clean, candidate),
+            )
+            implementation = candidate / "Cache.Core" / "AsyncExpiringCache.cs"
+            implementation.write_bytes(harness.REFERENCE.read_bytes())
+            self.assertIsNone(harness.generation_failure_kind(clean, candidate))
+        self.assertIn("generation-inert", harness.INFRA_FAILURE_KINDS)
+
+    def test_inert_generation_produces_a_valid_saveable_record(self):
+        # The classifier agreeing with a Python set proves nothing: the kind must survive the
+        # schema, which is where `generation-inert` first failed.
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate = Path(temporary) / "candidate"
+            harness.materialize(candidate)
+            status, kind = harness.generation_failure_kind(self.clean_generation(), candidate)
+            self.assertEqual(("INFRA_FAILURE", "generation-inert"), (status, kind))
+            report = harness.campaign_generation_failure_result(
+                candidate,
+                {"runId": "0" * 16, "model": "m", "reasoningEffort": "high",
+                 "machineId": "machine-a"},
+                backend="native", repeat=1,
+                campaign_metadata={
+                    "planHash": "a" * 64, "trial": 0, "orderPosition": 0,
+                    "generationDurationSeconds": 1.0, "generatorImage": {},
+                },
+                status=status, failure_kind=kind,
+            )
+            harness.validate_result(report)
+            self.assertEqual("generation-inert", report["failureKind"])
+
+    def test_every_emittable_failure_kind_is_accepted_by_the_schema(self):
+        declared = harness.INFRA_FAILURE_KINDS | harness.CANDIDATE_FAILURE_KINDS | {None}
+        schema = set(harness.load_result_schema()["properties"]["failureKind"]["enum"])
+        self.assertEqual(declared, schema, "a kind the harness can emit but cannot save")
+
+    def test_an_agent_that_worked_and_gave_up_is_a_candidate_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate = Path(temporary) / "candidate"
+            harness.materialize(candidate)
+            log = Path(temporary) / "generation.jsonl"
+            log.write_text(
+                '{"item": {"item_type": "command_execution", "exit_code": 0}}\n'
+                '{"item": {"item_type": "command_execution", "exit_code": 1}}\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(1, harness.generation_command_successes(log))
+            self.assertEqual(
+                ("CANDIDATE_FAILURE", "generation-unchanged"),
+                harness.generation_failure_kind(self.clean_generation(), candidate, log),
+            )
+            # No command evidence means a generator fault, which must stay loud rather than
+            # score the untouched starter as the model's answer.
+            silent = Path(temporary) / "silent.jsonl"
+            silent.write_text('{"item": {"item_type": "agent_message"}}\n', encoding="utf-8")
+            self.assertEqual(
+                ("INFRA_FAILURE", "generation-inert"),
+                harness.generation_failure_kind(self.clean_generation(), candidate, silent),
+            )
+            self.assertEqual(
+                ("INFRA_FAILURE", "generation-inert"),
+                harness.generation_failure_kind(
+                    self.clean_generation(), candidate, Path(temporary) / "absent.jsonl"
+                ),
+            )
+
+    def test_integrity_violation_is_not_disguised_as_a_generator_fault(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate = Path(temporary) / "candidate"
+            harness.materialize(candidate)
+            # candidate_hash covers only Cache.Core, so rewriting TASK.md still hashes pristine.
+            (candidate / "TASK.md").write_text("tampered", encoding="utf-8")
+            self.assertEqual(
+                harness.candidate_hash(candidate), harness.pristine_candidate_hash()
+            )
+            self.assertTrue(harness.candidate_integrity(candidate))
+            self.assertIsNone(
+                harness.generation_failure_kind(self.clean_generation(), candidate),
+                "an integrity violation is the model's doing, not the generator's",
+            )
+
+    def test_generator_runs_as_calling_posix_user(self):
+        if os.name != "posix":
+            self.skipTest("POSIX identity is unavailable")
+        with tempfile.TemporaryDirectory() as temporary:
+            auth = Path(temporary) / "auth.json"
+            auth.write_text("{}", encoding="utf-8")
+            auth.chmod(0o600)
+            command = self.generator_command(auth)
+        self.assertIn("--user", command)
+        self.assertIn(f"{os.getuid()}:{os.getgid()}", command)
+
     def test_private_create_only_json_refuses_overwrite(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "result.json"

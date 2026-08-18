@@ -1,6 +1,8 @@
 **/bin/
 **/obj/
 __pycache__/
+.dotnet-home/
+.nuget/
 .DS_Store
 runs/generations/
 runs/results/*.json
@@ -10,6 +12,7 @@ runs/plan.json
 runs/plan.blinded.json
 runs/id-key
 runs/summary.json
+runs/generator-check.json
 runs/verification*.json
 !runs/results/.gitkeep
 !runs/workspaces/.gitkeep

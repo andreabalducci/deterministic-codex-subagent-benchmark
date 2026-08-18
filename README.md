@@ -65,7 +65,18 @@ This is an expanded adaptation of Eric Provencher's original [`orchestrate` skil
 - .NET SDK 10.0.301 only for trusted native fixture verification
 - A dedicated benchmark Codex credential file
 
-Do not pass your persistent default Codex login to generated code. Create a short-lived, least-privilege credential exclusively for the benchmark and provide it with `--auth-file` or `CODEX_BENCH_AUTH_FILE`. Codex itself requires outbound access to OpenAI, while model-generated commands run under the workspace sandbox without automatic approval. The container limits exposure but cannot make a credential invisible to code executing in the same container; strong adversarial operation requires an egress allowlist and credential broker outside this harness.
+Do not pass your persistent default Codex login to generated code. Create a short-lived, least-privilege credential exclusively for the benchmark and provide it with `--auth-file` or `CODEX_BENCH_AUTH_FILE`. Codex itself requires outbound access to OpenAI. Model-generated commands run without Codex's own bubblewrap sandbox, because it cannot create a user namespace under Docker's default seccomp profile and fails silently when it tries: the agent executes nothing, leaves the starter untouched, and the harness would otherwise score the fixture's own failures as the model's. The generator container is the sandbox instead -- read-only rootfs, all capabilities dropped, `no-new-privileges`, resource limits, and `/workspace` plus two tmpfs mounts as the only writable paths. The container runs as the calling user on POSIX hosts only; the image declares no `USER`, so on Windows hosts it runs as root inside the container. That boundary contains the host filesystem, not the credential and not egress: the generator has unrestricted network access because Codex needs it, so the prompt's instruction not to use the network is guidance to the model, not an enforced control, and generated code can read the mounted credential and reach the internet, the LAN, and any host-gateway or metadata service Docker's default network permits.
+
+A generation that leaves the implementation byte-identical to the starter is classified from execution evidence rather than from bytes alone. If the agent's log shows no successfully executed command, it is the `generation-inert` infrastructure failure -- no artifact was sampled, and scoring it would report the fixture's own failures as the model's. If the agent did run commands and still returned the starter, it is the resolved `generation-unchanged` candidate failure, because the model was sampled and gave up. Unreadable evidence counts as no evidence, which routes the generation to the loud infrastructure branch. An integrity violation elsewhere in the workspace stays a candidate integrity failure. The container limits exposure but cannot make a credential invisible to code executing in the same container; strong adversarial operation requires an egress allowlist and credential broker outside this harness.
+
+If you have no separate benchmark credential, a copy of an existing subscription login works and spends subscription quota rather than per-token API billing:
+
+```bash
+cp ~/.codex/auth.json /secure/path/benchmark-auth.json
+chmod 600 /secure/path/benchmark-auth.json
+```
+
+Copying limits filesystem blast radius, not credential scope: the copy holds the same live tokens, and deleting it afterwards does not revoke them. Model-generated code in the generator container can read the mounted file, and Codex's own `workspace-write` sandbox restricts writes but not reads, so host-side generation is no safer. Rotate the login after a campaign if that matters. Neither `codex app-server` nor `codex exec-server` changes this, because the agent's tool execution runs wherever the credential lives; only a local model provider removes the credential entirely.
 
 ## Quick start
 
@@ -78,7 +89,15 @@ python3 harness.py verify --backend native --repeat 1 \
   --output runs/verification-native.json
 python3 harness.py verify --backend docker --repeat 1 \
   --output runs/verification-docker.json
+python3 harness.py check-generator --output runs/generator-check.json
 ```
+
+`check-generator` exercises the real generator container argv with no credential and no model
+request. It asserts that the pinned Codex CLI is present at the expected version, that the .NET
+SDK can build and run the public suite inside that container, and that the configured Codex
+sandbox mode does not depend on a capability the container denies. Both generator faults found so
+far were invisible to every other check, and one of them produced results indistinguishable from
+ordinary model failures, so run this before any campaign.
 
 Use `--repeat 20` for the full trusted-fixture calibration described below. The native check requires .NET SDK 10.0.301; the Docker check builds the pinned evaluator image automatically when needed.
 
@@ -104,8 +123,23 @@ python3 harness.py run-job \
   --run-id <assigned-run-id> \
   --machine-id <assigned-machine-id> \
   --backend docker \
-  --repeat 20
+  --repeat 20 \
+  --timeout 120
 ```
+
+Run the first assigned job on its own and inspect the result before queueing the rest. A generator
+fault does not always announce itself: confirm `status`, that `candidateHash` differs from the
+untouched starter, that the agent's log in `runs/generations/<run-id>.jsonl` contains successful
+command executions, and that every hidden repetition reports the same behavior vector. One observed
+generation took roughly 100 seconds with 13 seconds of evaluation across 20 hidden repetitions, so
+a full 540-job plan is a multi-day, multi-machine commitment. The smallest possible campaign is 36
+generations, because `--trials` must be a multiple of six and each trial runs all six
+configurations.
+
+`--timeout` bounds each build and each test execution, not the agent. Observed container builds
+ranged from 3 to 13 seconds, and the 30-second default leaves little headroom on a loaded machine;
+a first-attempt build timeout is an unresolved `build-timeout` infrastructure failure that halts
+the machine's queue until you replace it or pass `--continue-after-unresolved`.
 
 After every planned job has a resolved result, aggregate and publish the sanitized evidence bundle:
 
@@ -121,7 +155,7 @@ python3 harness.py publish \
   --output runs/evidence.json
 ```
 
-The commands below explain calibration, planning, execution, replacement handling, aggregation, and publication in detail. Do not treat the generation-free CLI flag check as proof that a model is available to the benchmark credential.
+The commands below explain calibration, planning, execution, replacement handling, aggregation, and publication in detail. Do not treat the generation-free CLI flag check as proof that a model is available to the benchmark credential: `codex exec --help` short-circuits before the model is resolved, so an unavailable slug still passes. Confirm availability with one trivial prompt per matrix row before planning a campaign.
 
 ## Calibrate the evaluator
 
@@ -191,7 +225,7 @@ For each job, the harness:
 5. Publishes the hidden runner, then executes only published binaries in a read-only, networkless container.
 6. Writes a provenance-rich result to `runs/results/<run-id>.json`.
 
-Generation timeouts, output-limit failures, and nonzero exits are recorded as resolved candidate failures, so they cannot be resampled. `--replace` is restricted to an existing post-generation infrastructure-failure result: it archives that record, verifies the retained candidate and generation metadata against it, and re-evaluates the same generated artifact without invoking Codex again. A generator launcher failure produced no sample and is deliberately non-replaceable; freeze the campaign and follow its preregistered infrastructure-failure policy instead of silently drawing another generation.
+Generation timeouts, output-limit failures, and nonzero exits are recorded as resolved candidate failures, so they cannot be resampled. `--replace` is restricted to an existing post-generation infrastructure-failure result: it archives that record, verifies the retained candidate and generation metadata against it, and re-evaluates the same generated artifact without invoking Codex again. A generation whose implementation is byte-identical to the starter is recorded as the `generation-inert` infrastructure failure: no artifact was sampled, so scoring it would report the fixture's own failures as the model's. Both a generator launcher failure and an inert generation produced no sample and are deliberately non-replaceable; freeze the campaign and follow its preregistered infrastructure-failure policy instead of silently drawing another generation.
 
 ## Evaluate an external candidate
 
@@ -217,7 +251,7 @@ python3 harness.py aggregate \
   --output runs/summary.json
 ```
 
-Official aggregation validates plan membership and hashes, rejects duplicate run IDs, and refuses missing or unresolved runs. `--allow-incomplete` is for diagnostics only. The summary reports pass rate, Wilson 95% interval, status counts, per-machine counts, and median/IQR for generation and evaluation duration. Duplicate candidate hashes are flagged. Raw evaluation and verification reports include captured test output and are written mode `0600`; use the sanitized publication command for public evidence.
+Official aggregation validates plan membership and hashes, rejects duplicate run IDs, and refuses missing or unresolved runs. `--allow-incomplete` is for diagnostics only. The summary reports pass rate, Wilson 95% interval, status counts, failure-kind counts, per-machine counts, and median/IQR for generation and evaluation duration. It also reports a per-behavior breakdown for each configuration: the eight hidden behaviors carry far more signal than one binary status, so a failure in any repetition denies that behavior a pass, a behavior no repetition reached stays censored as `notRun`, and each rate uses the planned denominator like the headline pass rate. Duplicate candidate hashes are flagged. Raw evaluation and verification reports include captured test output and are written mode `0600`; use the sanitized publication command for public evidence.
 
 ## Publish a frozen evidence bundle
 

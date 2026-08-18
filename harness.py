@@ -79,12 +79,15 @@ HIDDEN_BEHAVIORS = (
     "all waiters may cancel while successful load remains cached",
     "invalidation supersedes an older in-flight generation",
 )
+BEHAVIOR_ROLLUPS = ("PASS", "FAIL", "NOT_RUN", "AMBIGUOUS", "NO_HIDDEN_RUN")
 INFRA_FAILURE_KINDS = {
     "launcher", "timeout-anomaly", "build-timeout", "fixture-manifest", "generation-launcher",
+    "generation-inert",
 }
 CANDIDATE_FAILURE_KINDS = {
     "timeout", "output-limit", "test", "build", "test-marker", "integrity", "policy",
     "generation-timeout", "generation-output-limit", "generation-exit",
+    "generation-unchanged",
 }
 
 
@@ -521,6 +524,59 @@ def extract_behavior_outcomes(output: str) -> list[dict[str, str]]:
     return outcomes
 
 
+def result_behavior_outcomes(result: dict[str, Any]) -> dict[str, str]:
+    """Collapse one generation's per-repetition behavior vectors into one outcome each.
+
+    A failure in any repetition dominates, because an artifact that only sometimes holds a
+    behavior does not hold it. A behavior that passed whenever it was reached counts as a
+    pass; one never reached -- every repetition stopped earlier -- stays censored.
+    """
+    repetitions = [
+        {behavior["name"]: behavior["outcome"] for behavior in test["behaviors"]}
+        for test in result["tests"]
+        if test["name"].startswith("hidden-") and test["name"] != "hidden-build"
+    ]
+    if not repetitions:
+        return {behavior: "NO_HIDDEN_RUN" for behavior in HIDDEN_BEHAVIORS}
+    collapsed: dict[str, str] = {}
+    for behavior in HIDDEN_BEHAVIORS:
+        outcomes = {repetition.get(behavior, "NOT_RUN") for repetition in repetitions}
+        for kind in ("FAIL", "AMBIGUOUS", "PASS"):
+            if kind in outcomes:
+                collapsed[behavior] = kind
+                break
+        else:
+            collapsed[behavior] = "NOT_RUN"
+    return collapsed
+
+
+def behavior_summary(results: list[dict[str, Any]], planned: int) -> dict[str, Any]:
+    """Per-behavior pass rates over the planned denominator.
+
+    The binary status of a generation carries one bit; the hidden suite already measured
+    eight. Reporting them separately is what makes adjacent configurations separable
+    without multiplying the number of generations.
+    """
+    rollups = [result_behavior_outcomes(result) for result in results]
+    summary: dict[str, Any] = {}
+    for behavior in HIDDEN_BEHAVIORS:
+        observed = [rollup[behavior] for rollup in rollups]
+        counts = {kind: observed.count(kind) for kind in BEHAVIOR_ROLLUPS}
+        low, high = wilson(counts["PASS"], planned)
+        summary[behavior] = {
+            "plannedRuns": planned,
+            "passes": counts["PASS"],
+            "failures": counts["FAIL"],
+            "notRun": counts["NOT_RUN"],
+            "ambiguous": counts["AMBIGUOUS"],
+            "withoutHiddenRun": counts["NO_HIDDEN_RUN"],
+            "missing": planned - len(results),
+            "passRate": counts["PASS"] / planned if planned else None,
+            "wilson95": [low, high] if planned else None,
+        }
+    return summary
+
+
 def evaluate_candidate(
     candidate: Path,
     *,
@@ -794,6 +850,41 @@ def benchmark_auth_file(explicit: Path | None) -> Path:
     return path
 
 
+GENERATOR_SANDBOX_MODE = "danger-full-access"
+NAMESPACE_SANDBOX_MODES = {"read-only", "workspace-write"}
+
+
+def generator_container_arguments(
+    candidate: Path, container_name: str, *, auth: Path | None, interactive: bool
+) -> list[str]:
+    """Container flags shared by real generations and the credential-free CI probe.
+
+    Keeping one constructor is the point: these flags previously diverged from the
+    evaluator's and left the SDK with no writable home, which no test could see.
+    """
+    return [
+        "docker", "run", "--rm", *(["--interactive"] if interactive else []),
+        "--name", container_name,
+        "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+        "--pids-limit", "512", "--memory", "2g", "--cpus", "4",
+        *docker_identity_arguments(),
+        "--tmpfs", docker_tmpfs("/tmp", "rw,noexec,nosuid,size=256m"),
+        "--tmpfs", docker_tmpfs("/codex-home", "rw,noexec,nosuid,size=32m"),
+        "--env", "CODEX_HOME=/codex-home",
+        # The read-only rootfs and --user mean HOME is not writable, so the SDK must be
+        # pointed at the read-write workspace or every dotnet invocation fails before the
+        # agent can build or test the code it writes. IGNORED_PARTS excludes both paths.
+        "--env", "DOTNET_CLI_HOME=/workspace/.dotnet-home",
+        "--env", "NUGET_PACKAGES=/workspace/.nuget",
+        *(
+            ["--mount", f"type=bind,src={auth},dst=/codex-home/auth.json,readonly"]
+            if auth is not None else []
+        ),
+        "--mount", f"type=bind,src={candidate.resolve()},dst=/workspace",
+        "--workdir", "/workspace",
+    ]
+
+
 def generate_candidate(
     job: dict[str, Any], *, auth_path: Path | None, replace: bool = False
 ) -> Path:
@@ -806,19 +897,16 @@ def generate_candidate(
     log_dir.mkdir(parents=True, exist_ok=True)
     container_name = f"codex-bench-gen-{run_id}"
     command = [
-        "docker", "run", "--rm", "--interactive", "--name", container_name,
-        "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
-        "--pids-limit", "512", "--memory", "2g", "--cpus", "4",
-        *docker_identity_arguments(),
-        "--tmpfs", docker_tmpfs("/tmp", "rw,noexec,nosuid,size=256m"),
-        "--tmpfs", docker_tmpfs("/codex-home", "rw,noexec,nosuid,size=32m"),
-        "--env", "CODEX_HOME=/codex-home",
-        "--mount", f"type=bind,src={resolved_auth},dst=/codex-home/auth.json,readonly",
-        "--mount", f"type=bind,src={candidate.resolve()},dst=/workspace",
-        "--workdir", "/workspace",
+        *generator_container_arguments(
+            candidate, container_name, auth=resolved_auth, interactive=True
+        ),
         GENERATOR_IMAGE,
         "codex", "exec",
-        "--sandbox", "workspace-write",
+        # Codex's own bwrap sandbox cannot create a user namespace under Docker's default
+        # seccomp profile, and its failure is silent: the agent runs no commands and leaves
+        # the starter untouched. The container is the external sandbox instead -- read-only
+        # rootfs, no capabilities, non-root user, and only /workspace writable.
+        "--sandbox", GENERATOR_SANDBOX_MODE,
         "--ephemeral", "--ignore-user-config", "--ignore-rules", "--skip-git-repo-check",
         "--json", "--model", job["model"],
         "--config", f'model_reasoning_effort="{job["reasoningEffort"]}"',
@@ -858,7 +946,120 @@ def generate_candidate(
     return candidate
 
 
-def generation_failure_kind(metadata: dict[str, Any]) -> tuple[str, str] | None:
+def pristine_candidate_hash() -> str:
+    return candidate_hash(STARTER)
+
+
+def check_generator(timeout: int) -> dict[str, Any]:
+    """Exercise the real generator argv without a credential or a model request.
+
+    Both generator faults found so far were invisible to every other check: the SDK had no
+    writable home, and Codex's namespace sandbox could not start. Neither touched the
+    evaluator, the fixture, or any unit test, and the second one still produced results that
+    looked like ordinary model failures.
+    """
+    ensure_image(GENERATOR_IMAGE, "docker/generator.Dockerfile")
+    expected_version = json.loads(
+        (ROOT / "docker" / "package.json").read_text(encoding="utf-8")
+    )["dependencies"]["@openai/codex"]
+    probe = (
+        'echo "PROBE_CODEX_VERSION=$(codex --version 2>&1 | tail -1)"; '
+        'BW=$(find /opt/codex -name bwrap -type f 2>/dev/null | head -1); '
+        'if [ -n "$BW" ] && "$BW" --unshare-user --dev-bind / / true 2>/dev/null; '
+        'then echo PROBE_NAMESPACE=available; else echo PROBE_NAMESPACE=unavailable; fi; '
+        'dotnet run --project Cache.PublicTests/Cache.PublicTests.csproj 2>&1 | tail -5'
+    )
+    with tempfile.TemporaryDirectory(prefix="codex-bench-genprobe-") as temporary:
+        candidate = Path(temporary) / "probe"
+        materialize(candidate)
+        container_name = f"codex-bench-genprobe-{os.getpid()}-{time.monotonic_ns()}"
+        command = [
+            *generator_container_arguments(
+                candidate, container_name, auth=None, interactive=False
+            ),
+            GENERATOR_IMAGE, "sh", "-lc", probe,
+        ]
+
+        def stop_container() -> None:
+            subprocess.run(
+                ["docker", "rm", "-f", container_name],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
+            )
+
+        execution = execute_captured(
+            command, cwd=ROOT, environment=None, timeout=timeout,
+            limit=MAX_EVALUATOR_OUTPUT_BYTES, timeout_callback=stop_container,
+        )
+
+    def probed(prefix: str) -> str | None:
+        for line in execution["stdout"].splitlines():
+            if line.startswith(prefix):
+                return line.split("=", 1)[1].strip()
+        return None
+
+    observed_version = probed("PROBE_CODEX_VERSION=")
+    namespaces = probed("PROBE_NAMESPACE=")
+    checks = {
+        # The agent is told to build and run the public suite; if it cannot, every
+        # generation is produced blind.
+        "toolchainRuns": execution["stdout"].count(PUBLIC_PASS_MARKER) == 1,
+        "codexVersionMatches": bool(
+            observed_version and expected_version in observed_version
+        ),
+        # Only demand namespaces when the configured sandbox mode actually needs them, so
+        # this stays correct if either the mode or the container policy changes.
+        "sandboxModeSupported": (
+            GENERATOR_SANDBOX_MODE not in NAMESPACE_SANDBOX_MODES
+            or namespaces == "available"
+        ),
+    }
+    return {
+        "schemaVersion": 1,
+        "generatorImage": docker_image_info(GENERATOR_IMAGE),
+        "sandboxMode": GENERATOR_SANDBOX_MODE,
+        "expectedCodexVersion": expected_version,
+        "observedCodexVersion": observed_version,
+        "namespaceSandbox": namespaces,
+        "checks": checks,
+        "passed": all(checks.values()) and not execution["timedOut"],
+        "exitCode": execution["exitCode"],
+        "timedOut": execution["timedOut"],
+        "durationSeconds": execution["durationSeconds"],
+        "stdout": execution["stdout"],
+        "stderr": execution["stderr"],
+    }
+
+
+def generation_command_successes(log_path: Path) -> int:
+    """Count agent commands that actually ran, as evidence the generation was attempted.
+
+    Final bytes alone cannot separate a model that gave up from a generator that never
+    executed anything. When this evidence is unreadable the count is zero, which routes the
+    generation to the loud infrastructure-failure branch rather than scoring the starter.
+    """
+    if not log_path.is_file():
+        return 0
+    successes = 0
+    for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        item = event.get("item")
+        if isinstance(item, dict) and item.get("item_type") == "command_execution" \
+                and item.get("exit_code") == 0:
+            successes += 1
+    return successes
+
+
+def generation_failure_kind(
+    metadata: dict[str, Any],
+    candidate: Path | None = None,
+    log_path: Path | None = None,
+) -> tuple[str, str] | None:
     if metadata.get("launcherFailure"):
         return "INFRA_FAILURE", "generation-launcher"
     if metadata.get("timedOut"):
@@ -867,6 +1068,23 @@ def generation_failure_kind(metadata: dict[str, Any]) -> tuple[str, str] | None:
         return "CANDIDATE_FAILURE", "generation-output-limit"
     if metadata.get("exitCode") != 0:
         return "CANDIDATE_FAILURE", "generation-exit"
+    if (
+        candidate is not None
+        and candidate_hash(candidate) == pristine_candidate_hash()
+        # candidate_hash covers only Cache.Core, so an agent that rewrote TASK.md or a public
+        # test while leaving the implementation alone also hashes as pristine. That is the
+        # model's doing; let evaluate_candidate record it as an integrity failure instead.
+        and not candidate_integrity(candidate)
+    ):
+        if log_path is not None and generation_command_successes(log_path) > 0:
+            # The agent ran commands and still returned the starter, so an artifact was
+            # sampled and the model gave up. That is a resolved candidate failure, not
+            # something to retry, and treating it as infrastructure would censor it.
+            return "CANDIDATE_FAILURE", "generation-unchanged"
+        # Nothing ran and the implementation is byte-identical to the starter, so no artifact
+        # was sampled. Scoring it would report the fixture's own failures as the model's, and
+        # a generator sandbox or toolchain fault looks exactly like this.
+        return "INFRA_FAILURE", "generation-inert"
     return None
 
 
@@ -1169,6 +1387,16 @@ def validate_result(result: dict[str, Any]) -> None:
             f"validatorOnly={sorted(required - schema_required)}, "
             f"schemaOnly={sorted(schema_required - required)}"
         )
+    # A kind the harness can emit but the schema rejects turns a classified failure into a
+    # crash at save time, which is how `generation-inert` first shipped. Compare both ways.
+    declared_kinds = INFRA_FAILURE_KINDS | CANDIDATE_FAILURE_KINDS | {None}
+    schema_kinds = set(schema["properties"]["failureKind"]["enum"])
+    if declared_kinds != schema_kinds:
+        raise ValueError(
+            "Result validator/schema failure kinds disagree: "
+            f"validatorOnly={sorted(k for k in declared_kinds - schema_kinds if k)}, "
+            f"schemaOnly={sorted(k for k in schema_kinds - declared_kinds if k)}"
+        )
     validate_schema_instance(result, schema)
     unexpected_fields = sorted(set(result) - set(schema.get("properties", {})))
     if unexpected_fields:
@@ -1433,6 +1661,7 @@ def aggregate(
                 status: sum(result["status"] == status for result in results)
                 for status in sorted({result["status"] for result in results})
             },
+            "behaviors": behavior_summary(results, denominator),
             "failureKinds": {
                 kind: sum(result["failureKind"] == kind for result in results)
                 for kind in sorted({
@@ -1604,6 +1833,7 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
                 }
                 for machine in machines
             },
+            "behaviors": behavior_summary(outcomes, denominator),
             "statuses": {
                 status: sum(outcome["status"] == status for outcome in outcomes)
                 for status in sorted({outcome["status"] for outcome in outcomes})
@@ -1744,6 +1974,10 @@ def parse_args() -> argparse.Namespace:
     publish_parser.add_argument("paths", nargs="+", type=Path)
     publish_parser.add_argument("--plan", type=Path, default=RUNS / "plan.json")
     publish_parser.add_argument("--output", type=Path, default=RUNS / "evidence.json")
+
+    generator_check = subparsers.add_parser("check-generator")
+    generator_check.add_argument("--timeout", type=positive_int, default=600)
+    generator_check.add_argument("--output", type=Path, default=RUNS / "generator-check.json")
 
     power_parser = subparsers.add_parser("power")
     power_parser.add_argument("--baseline-rate", type=float, required=True)
@@ -1895,9 +2129,9 @@ def main() -> int:
                 raise ValueError(
                     f"Only an infrastructure-failure result from this campaign is replaceable: {output}"
                 )
-            if previous["failureKind"] == "generation-launcher":
+            if previous["failureKind"] in {"generation-launcher", "generation-inert"}:
                 raise ValueError(
-                    "A generation launcher failure produced no sampled artifact and cannot be "
+                    "This failure produced no sampled artifact and cannot be "
                     "replaced without resampling; freeze the campaign and apply its preregistered "
                     "infrastructure-failure policy"
                 )
@@ -1960,7 +2194,10 @@ def main() -> int:
             }
         if replacement_audit is not None:
             campaign_metadata["replacementAudit"] = replacement_audit
-        generation_failure = None if args.replace else generation_failure_kind(generation_metadata)
+        generation_failure = None if args.replace else generation_failure_kind(
+            generation_metadata, candidate,
+            run_artifact_path(RUNS / "generations", job["runId"], ".jsonl"),
+        )
         if generation_failure is not None:
             report = campaign_generation_failure_result(
                 candidate, job, backend=args.backend, repeat=args.repeat,
@@ -1990,6 +2227,18 @@ def main() -> int:
         save_json(args.output, payload)
         print(args.output)
         return 0
+
+    if args.command == "check-generator":
+        report = check_generator(args.timeout)
+        save_json(args.output, report)
+        print(json.dumps({
+            "passed": report["passed"],
+            "checks": report["checks"],
+            "observedCodexVersion": report["observedCodexVersion"],
+            "namespaceSandbox": report["namespaceSandbox"],
+            "output": str(args.output),
+        }, indent=2))
+        return 0 if report["passed"] else 1
 
     if args.command == "power":
         required = required_samples_per_configuration(

@@ -26,7 +26,7 @@
     "manifestErrors": { "type": "array", "items": { "type": "string" } },
     "tests": { "type": "array", "items": { "$ref": "#/$defs/testEvidence" } },
     "status": { "enum": ["PASS", "CANDIDATE_FAILURE", "INFRA_FAILURE"] },
-    "failureKind": { "type": ["string", "null"], "enum": [null, "launcher", "timeout-anomaly", "build-timeout", "timeout", "output-limit", "test", "build", "test-marker", "fixture-manifest", "integrity", "policy", "generation-launcher", "generation-timeout", "generation-output-limit", "generation-exit"] },
+    "failureKind": { "type": ["string", "null"], "enum": [null, "launcher", "timeout-anomaly", "build-timeout", "timeout", "output-limit", "test", "build", "test-marker", "fixture-manifest", "integrity", "policy", "generation-launcher", "generation-inert", "generation-timeout", "generation-output-limit", "generation-exit", "generation-unchanged"] },
     "durationSeconds": { "type": "number", "minimum": 0 },
     "planHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "trial": { "type": "integer", "minimum": 0 },
