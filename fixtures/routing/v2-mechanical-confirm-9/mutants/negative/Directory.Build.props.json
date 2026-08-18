@@ -1,0 +1,7 @@
+{
+  "PropertyGroup": {
+    "Nullable": "enable",
+    "TargetFramework": "net9.0",
+    "TreatWarningsAsErrors": "true"
+  }
+}

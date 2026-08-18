@@ -1,0 +1,18 @@
+{
+  "migrationResult": {
+    "mutant": "fixture-10",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "dataInvariant": {
+    "target": "migrations/004_identity_constraints.sql",
+    "guarantees": [
+      "active duplicate rejected",
+      "revoked duplicate allowed"
+    ]
+  },
+  "constraintTests": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 2,
+    "result": "PASS"
+  }
+}

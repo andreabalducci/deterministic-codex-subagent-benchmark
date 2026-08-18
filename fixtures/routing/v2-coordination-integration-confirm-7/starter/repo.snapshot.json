@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Optional color output request"
+  ],
+  "ecosystem": "python",
+  "files": [
+    {
+      "content": "# CLI profile resolution integration: shared protocol boundary\nCHANGE_MARKER = 'cli-profile-resolution-integration'",
+      "path": "src/schema.py"
+    },
+    {
+      "content": "# SEEDED SIGNAL: Loader and CLI disagree on missing-profile behavior\ndef current_marker(): return CHANGE_MARKER",
+      "path": "src/loader.py"
+    },
+    {
+      "content": "# Downstream consumer; preserve the documented call contract.",
+      "path": "src/main.py"
+    },
+    {
+      "content": "# Deterministic pytest coverage for CLI profile resolution integration; seeded edge is not covered.",
+      "path": "tests/test_profile_resolution.py"
+    }
+  ],
+  "scenario": "CLI profile resolution integration",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Loader and CLI disagree on missing-profile behavior"
+  ],
+  "topology": "config/schema.py -> config/loader.py -> cli/main.py",
+  "topologyShape": "ordered-chain"
+}

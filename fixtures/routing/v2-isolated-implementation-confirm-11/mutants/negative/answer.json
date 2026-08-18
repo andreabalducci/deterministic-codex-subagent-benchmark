@@ -1,0 +1,20 @@
+{
+  "hardeningOutcome": {
+    "mutant": "fixture-13",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "normalizationModel": {
+    "target": "src/archive_paths.py",
+    "guarantees": [
+      "posix traversal",
+      "windows traversal",
+      "drive",
+      "safe"
+    ]
+  },
+  "maliciousInputs": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 4,
+    "result": "PASS"
+  }
+}

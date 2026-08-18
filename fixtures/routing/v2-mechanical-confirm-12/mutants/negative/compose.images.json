@@ -1,0 +1,10 @@
+{
+  "services": {
+    "api": {
+      "image": "ghcr.io/example/api:latest"
+    },
+    "cache": {
+      "image": "redis:7.4"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/search/canonicalQuery.ts",
+  "testKind": "node-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "key order",
+      "condition": "b=2,a=1",
+      "expected": "a=1&b=2"
+    },
+    {
+      "name": "array order",
+      "condition": "tag=z,a",
+      "expected": "tag=a&tag=z"
+    },
+    {
+      "name": "reserved",
+      "condition": "q=a&b",
+      "expected": "q=a%26b"
+    }
+  ]
+}

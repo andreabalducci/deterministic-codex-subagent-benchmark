@@ -1,0 +1,11 @@
+{
+  "files": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "rules": {
+    "eqeqeq": "error",
+    "no-console": "off",
+    "react/jsx-key": "error"
+  }
+}

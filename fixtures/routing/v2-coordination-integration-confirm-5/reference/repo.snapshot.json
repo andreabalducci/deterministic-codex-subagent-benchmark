@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Analyzer warning in an unrelated benchmark"
+  ],
+  "ecosystem": "dotnet",
+  "files": [
+    {
+      "content": "// gRPC reservation contract update: canonical contract boundary\npublic sealed record ChangeMarker(string Value);",
+      "path": "src/reservation.proto"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Client branch consumes field 4 before the proto branch reserves it\ninternal static string Current = \"grpc-reservation-contract-update\";",
+      "path": "src/ReservationGrpcService.cs"
+    },
+    {
+      "content": "// Downstream consumer; must remain compatible with the frozen public contract.",
+      "path": "src/ReservationClient.cs"
+    },
+    {
+      "content": "// Deterministic acceptance coverage for gRPC reservation contract update; currently missing the seeded edge.",
+      "path": "tests/ReservationCompatibilityTests.cs"
+    }
+  ],
+  "scenario": "gRPC reservation contract update",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Client branch consumes field 4 before the proto branch reserves it"
+  ],
+  "topology": "Reservation.Proto -> {Inventory.Service, Storefront.Client}",
+  "topologyShape": "fork-join"
+}

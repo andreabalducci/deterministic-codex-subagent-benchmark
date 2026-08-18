@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Deprecated icon import"
+  ],
+  "ecosystem": "react-typescript",
+  "files": [
+    {
+      "content": "// Session-state boundary extraction: shared boundary\nexport type ChangeMarker = { value: string };",
+      "path": "src/sessionState.ts"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Both applications currently declare SessionStatus\nexport const marker = 'session-state-boundary-extraction';",
+      "path": "src/PortalGate.tsx"
+    },
+    {
+      "content": "// Downstream consumer; preserve the exported API and hydration behavior.",
+      "path": "src/AdminGate.tsx"
+    },
+    {
+      "content": "// Deterministic Vitest coverage for Session-state boundary extraction; seeded edge is not covered.",
+      "path": "apps/portal/auth/session.test.tsx"
+    }
+  ],
+  "scenario": "Session-state boundary extraction",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Both applications currently declare SessionStatus"
+  ],
+  "topology": "packages/session-core -> {apps/portal/auth, apps/admin/auth}",
+  "topologyShape": "fork-join"
+}

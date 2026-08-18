@@ -1,0 +1,9 @@
+{
+  "adapter": "sealed-command-v1",
+  "command": [
+    "python3",
+    "sealed/evaluate.py",
+    "{candidate}"
+  ],
+  "schemaVersion": 1
+}

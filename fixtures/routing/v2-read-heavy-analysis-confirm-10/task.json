@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "adapter": "artifact-rubric-v1",
+  "mutable": [
+    "answer.json"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/search/SearchBox.tsx",
+    "src/search/minLength.ts",
+    "src/search/useTypeahead.ts"
+  ],
+  "required": [],
+  "rubric": [
+    "raceAnalysis",
+    "abortLifecycleFindings",
+    "hookEvidence",
+    "unrelatedHelpers"
+  ]
+}

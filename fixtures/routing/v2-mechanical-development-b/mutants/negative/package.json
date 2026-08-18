@@ -1,0 +1,9 @@
+{
+  "name": "portal-shell",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "test": "vitest --coverage"
+  }
+}

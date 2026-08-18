@@ -1,0 +1,6 @@
+{
+  "billing_v2": "BillingWorkspace",
+  "dashboard": "DashboardPage",
+  "invoices": "InvoiceList",
+  "profile": "ProfilePage"
+}

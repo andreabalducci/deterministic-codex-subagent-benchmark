@@ -1,12 +1,12 @@
 # Deterministic Codex subagent benchmark
 
-This repository defines a benchmark protocol for comparing six Codex model/effort configurations on an immutable .NET concurrency task. It separates stochastic code generation from reproducible evaluation, balances execution order across machines, and keeps the configuration mapping blinded during scoring.
+This repository defines benchmark protocols for comparing six Codex model/effort configurations across multiple worker task families and a separate live-coordinator experiment. It retains an immutable .NET concurrency fixture for evaluator regression testing, separates stochastic generation from reproducible evaluation, and balances execution order across machines.
 
 The planned campaign treats the six configurations as complete treatments. The matrix is intentionally not factorial, so any future results must not be interpreted as independent causal estimates of either model choice or reasoning effort.
 
 ## Evidence status
 
-The protocol and fixture are implemented, but no benchmark campaign has been run or published from this repository. Consequently, there is currently no public campaign evidence that substantiates any of the six routing rows in the bundled `orchestrate` skill.
+The worker and coordinator protocols, 84 routing fixtures, runners, analysis, and evidence publisher are implemented, but no complete comparative campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any of the six routing rows in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. The pinned Docker calibration passes all 294 cases, and the construct-readiness report clears the three deterministic implementation families. It still fails closed for all three rubric families because critical-criterion mutation coverage and blinded adjudication are incomplete; coordination and high-risk prompts also exceed the near-duplication threshold. The full paid campaign and broad policy promotion are therefore intentionally blocked.
 
 Keep these states distinct:
 
@@ -14,13 +14,25 @@ Keep these states distinct:
 - **Campaign evidence:** independently generated, planned jobs and their immutable result records are needed to compare configurations. None are published yet.
 - **Published evidence:** a reviewable archive of a frozen campaign, its provenance, aggregate analysis, and the mapping disclosure. None exists yet.
 
+The repository now separates the legacy single-fixture evaluator from the
+multi-family routing experiment. The latter is governed by
+[`docs/ROUTING_EXPERIMENT.md`](docs/ROUTING_EXPERIMENT.md): it requires sealed
+held-out fixtures, independent generations, task-stratified analysis, explicit
+decision thresholds, and evidence-to-skill provenance. Passing harness tests or
+ranking configurations in a smoke run cannot promote a routing claim.
+
+The worker and live-coordinator estimands are deliberately separate. The same
+experiment contract defines a frozen 648-job coordinator protocol, fixed worker
+policy, trace requirements, and the rule that worker-authored planning
+artifacts are not coordinator evidence.
+
 ## Reproducibility contract
 
 - The fixture, prompt, candidate, harness, schema, SDK, Dockerfiles, lockfile, and container identities are hashed in the result provenance.
 - The .NET SDK and both base images are digest-pinned; the Codex CLI is lockfile-pinned.
 - Concurrency tests use explicit gates rather than sleeps or timing assertions. Time-dependent behavior uses a manual `TimeProvider`.
 - A seeded Williams design balances order position and first-order carryover for all six configurations. Machine blocks are deterministically interleaved.
-- Run IDs are HMAC-derived with a local secret key. The public scoring plan contains no model mapping.
+- Run IDs are HMAC-derived with a local secret key. Automated scoring is treatment-agnostic, but the private execution plan necessarily contains the requested model mapping; do not describe that plan as blinded.
 - Each independently generated artifact is tested once publicly and repeatedly against the hidden suite. Repetitions test runtime stability; they are not additional model samples.
 - First timeouts are rerun at twice the limit. Confirmed candidate-execution timeouts are candidate failures; build, launcher, and timeout-then-success anomalies are infrastructure failures that must be replaced before official aggregation.
 - Every materialized build uses the repository's source-clearing `NuGet.config`; evaluation never depends on an external package feed.
@@ -41,7 +53,55 @@ runs/            ignored plans, keys, workspaces, logs, and results
 schemas/         result contract
 skills/          bundled, installable orchestration skill
 harness.py       planning, generation, evaluation, and aggregation
+routing_campaign.py  preregistered six-family plan and analysis
+routing_tasks.py     v2 task materialization and sealed evaluation
+routing_runner.py    one-job Codex generation and provenance capture
+routing_preflight.py authenticated model/effort/Fast capability check
+construct_readiness.py construct-validity report and paid-campaign gate
+routing_evidence.py  canonical evidence publisher and replay verifier
+coordinator_campaign.py  deterministic live-coordinator plan
+coordinator_runner.py    traced live delegation and integration runner
+coordinator_analysis.py  preregistered complete-cohort coordinator analysis
+coordinator_evidence.py  dedicated coordinator bundle publisher and replay verifier
 ```
+
+The routing runner executes exactly one opaque job and never overwrites a
+sample. The protocol transitively freezes `protocols/routing-runtime-v1.json`:
+the worker session is ephemeral, ignores personal configuration and rules,
+disables multi-agent delegation, and requests the same service tier for all six
+treatments. The runner rejects a substituted manifest, CLI-version drift, and
+any model/service-tier mismatch when those fields are observable. Codex 0.147.0
+does not emit model or tier in `exec --json`; those runs are labeled
+`cli-request-and-success`, while the separate authenticated `model/list`
+preflight verifies advertised support without pretending it observed request
+routing.
+
+Before creating a paid routing plan, generate a hash-bound construct-readiness
+report. The report checks fixture count, ecosystem/surface diversity, prompt
+trigram similarity, critical-criterion mutant coverage, equivalent-positive
+coverage, pinned Docker calibration, and blinded human adjudication for
+rubric-scored artifacts. `routing_campaign.py plan` requires this report and
+refuses every ineligible family. The current diagnostic report is
+`runs/construct-readiness-current.json`; it is evidence of a blocked campaign,
+not an authorization artifact.
+
+After producing a private HMAC-keyed routing plan, execute its assigned jobs
+with a dedicated credential (this command incurs one model generation):
+
+```bash
+python3 routing_runner.py \
+  --plan runs/routing-plan.json \
+  --run-id <opaque-run-id> \
+  --machine-id <assigned-logical-machine> \
+  --preflight runs/routing-preflight-<assigned-logical-machine>.json \
+  --auth-file /secure/path/benchmark-auth.json
+```
+
+Raw JSONL and stderr remain mode-0600 run artifacts. The strict public result
+contains their hashes, requested and observed runtime controls, token usage,
+candidate and fixture hashes, generation/evaluation durations, image identity,
+and repository provenance. No command in the test suite launches a paid model
+generation; fake-generator tests exercise the complete result path.
 
 ## Bundled orchestration skill
 
@@ -171,11 +231,25 @@ python3 harness.py verify --backend docker --repeat 20
 
 `native` is deliberately available only to the committed trusted reference and mutants. External candidates are always evaluated in Docker. Calibration succeeds only if the reference passes every repetition and all eleven mutants are rejected.
 
-## Continuous integration and generation-free CLI flag preflight
+## Continuous integration and authenticated capability preflight
 
 Every push and pull request runs manifest validation, the harness unit suite, and one native trusted-fixture verification on Ubuntu. It also builds the pinned generator image and asks its installed, lockfile-pinned Codex CLI to parse each configured `--model` and `model_reasoning_effort` pair with `codex exec --help`. This is a CLI flag/configuration compatibility check only: it makes no model request, uses no credential, and does not validate model availability or generate a candidate.
 
-Model availability must be checked separately with an authenticated, generation-free model-list preflight supported by the pinned CLI/API. That check is not implemented in this workflow because it requires a credential; it must not be inferred from the flag check.
+Model availability is checked separately with the authenticated, generation-free model-list preflight supported by the pinned CLI. It validates every frozen model/effort pair and confirms that each model advertises the common `priority` service tier (Fast mode):
+
+```bash
+python3 routing_preflight.py \
+  --machine-id machine-a \
+  --auth-file /secure/path/benchmark-auth.json \
+  --output runs/routing-preflight-machine-a.json
+```
+
+Run this once on every preregistered campaign machine, after the protocol is
+frozen and before generating the plan. Each report reverse-binds the protocol,
+runtime manifest, treatment matrix, and machine ID. The planner refuses missing,
+duplicate, drifted, or capability-inconsistent machine reports. A preflight
+proves advertised availability/capability, not task quality. Reports from an
+earlier protocol revision are intentionally unusable.
 
 The expensive multi-platform native calibration and pinned Docker evaluator calibration remain manual and use no paid generations:
 
@@ -280,9 +354,41 @@ python3 harness.py publish \
 
 The command refuses incomplete or unresolved cohorts. It emits the frozen plan, fixture manifest, matrix, deblinded mapping, intent-to-treat aggregate, structured behavior outcomes, repository provenance, queue/replacement audit records, hashes of the source results, and sanitized per-run evidence. Missing later behaviors are explicit `NOT_RUN`; duplicate or contradictory behavior markers are `AMBIGUOUS`. The output is checked against the strict nested contract in `schemas/evidence-bundle.schema.json`. Captured stdout and stderr—including hidden assertion text—are replaced by byte counts and SHA-256 hashes. The bundle contains no credential or generation transcript; archive it immutably alongside the trusted calibration reports, publish its digest, and update routing rows only where that evidence supports the conclusion.
 
-## Benchmark expansion required for routing claims
+## Routing campaign required for routing claims
 
-The current fixture is one isolated concurrency-repair task. Its generator prompt explicitly says “Complete the work directly without spawning agents,” so it does not test orchestration or substantiate the skill’s delegation guidance. A routing campaign needs task families that exercise each row, held-out tasks per family, fixed acceptance tests, and enough independent generations to report uncertainty.
+The repository now contains 84 unique v2 fixtures: two development and twelve
+confirmatory fixtures for each of six families. Calibration checks 294 outcomes:
+references, negative mutants, semantic-equivalence positives for JSON/artifact
+tasks, and strict-schema mutants for artifact tasks. Mechanical JSON is compared
+semantically, while artifact scoring uses deterministic field predicates,
+criterion-level scores, and critical gates rather than whole-prose equality.
+Implementation fixtures execute .NET, Node, Python, JSON, or SQLite behavior;
+worker-authored coordination artifacts remain explicitly distinct from the
+live-coordinator experiment. These facts establish evaluator readiness, not a
+routing winner.
+
+The frozen worker campaign contains 3,888 independent generations. Generate its
+opaque plan with a private HMAC key:
+
+```bash
+python3 routing_campaign.py plan \
+  --id-key-file runs/routing-id-key \
+  --construct-readiness runs/routing-construct-readiness.json \
+  --preflight runs/routing-preflight-machine-a.json \
+  --preflight runs/routing-preflight-machine-b.json \
+  --preflight runs/routing-preflight-machine-c.json \
+  --output runs/routing-plan.json
+```
+
+Each job result carries the assigned machine's preflight report hash and common
+capability digest. `routing_runner.py` requires that exact report at execution,
+and the evidence bundle packages and revalidates every report against the plan.
+
+Only a complete, resolved cohort analyzed by `routing_campaign.py` and published
+by `routing_evidence.py` can promote a policy row from `hypothesis` to
+`evidence-backed`. The generated skill is therefore intentionally provisional
+until that campaign (and the separate live-coordinator campaign for coordinator
+claims) produces a verified bundle with `SUPPORTED` decisions.
 
 | Routing row | Needed task family and comparison evidence |
 | --- | --- |
@@ -304,6 +410,7 @@ The current fixture is one isolated concurrency-repair task. Its generator promp
 - The isolation protects against accidental test leakage and ordinary buggy candidates. A malicious assembly can still inspect loaded metadata. Strong adversarial secrecy requires a black-box, out-of-process evaluator in a separately trusted VM or service.
 - Result files are structurally cross-checked against the plan and execution evidence but are not cryptographically signed. Preserve them in append-only storage or add external signatures when the benchmark operator is outside the trust boundary.
 - The hidden-test source is public and versioned in this repository; “hidden” means it is withheld from a candidate workspace during evaluation, not adversarially secret. Do not make secrecy claims from this layout. A benchmark requiring unknown tests needs a separately operated private evaluator service.
+- Command evaluation mounts a minimal oracle bundle containing only starter and evaluator assets; references and mutants are never mounted. Candidate code still shares the evaluator container, so this prevents accidental corpus leakage but is not an adversarial black-box boundary.
 - The generator uses a host bind mount without a disk quota and its restricted logs may still contain model-emitted sensitive text. Hostile generation requires a quota-backed volume or disposable VM plus automated redaction.
 - Never modify a published fixture in place. Create a new version and regenerate its manifest.
 

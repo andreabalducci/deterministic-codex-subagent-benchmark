@@ -1,0 +1,42 @@
+{
+  "acceptance": {
+    "artifacts": [
+      "tests/RiskAcceptanceTests.cs",
+      "rollback rehearsal record",
+      "compatibility review note"
+    ],
+    "commands": [
+      "dotnet test Orders.sln --filter MixedVersion"
+    ],
+    "finalReview": "Approve only when the seeded regression, rollback rehearsal, and compatibility constraint are evidenced; this fixture does not establish broader family coverage."
+  },
+  "changePlan": {
+    "scope": [
+      "src/Service.cs",
+      "src/Migration.cs",
+      "tests/RiskAcceptanceTests.cs"
+    ],
+    "steps": [
+      "add a failing regression for the seeded defect",
+      "implement the smallest compatible guard",
+      "exercise rollback before final review"
+    ]
+  },
+  "riskAssessment": {
+    "blastRadius": "Rolling deploy can make old instances fail reads and writes",
+    "constraints": [
+      "Preserve the v1 DTO and mixed-version operation for 24 hours"
+    ],
+    "distractorDisposition": "Exclude Rename an internal test helper; it is unrelated to the seeded defect.",
+    "seededDefect": "migration 042 changes int to bigint before the old binary is compatible",
+    "stratum": "migration"
+  },
+  "rollback": {
+    "actions": [
+      "Stop new writers, restore the compatibility view, then roll back binaries"
+    ],
+    "compatibility": "Preserve the v1 DTO and mixed-version operation for 24 hours",
+    "trigger": "Rollback if `dotnet test Orders.sln --filter MixedVersion` fails or the stated blast-radius symptom appears."
+  },
+  "summary": "Narrow Order-number column expansion to the seeded migration defect and its compatibility boundary."
+}

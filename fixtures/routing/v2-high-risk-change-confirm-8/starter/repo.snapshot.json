@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Reorder YAML keys"
+  ],
+  "ecosystem": "repository-artifacts",
+  "files": [
+    {
+      "content": "# Online index migration: first repository boundary\nname: online-index-migration",
+      "path": ".github/policy.yml"
+    },
+    {
+      "content": "# SEEDED SIGNAL: migration.sql creates a blocking index inside the deploy transaction\nname: verify-online-index-migration",
+      "path": ".github/workflows/change.yml"
+    },
+    {
+      "content": "# Consumer artifact; compatibility and provenance constraints apply.",
+      "path": "config/rollback.yml"
+    },
+    {
+      "content": "#!/bin/sh\n# Offline deterministic check for Online index migration; seeded edge is not covered.",
+      "path": "scripts/check-risk-change.sh"
+    }
+  ],
+  "scenario": "Online index migration",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "migration.sql creates a blocking index inside the deploy transaction"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

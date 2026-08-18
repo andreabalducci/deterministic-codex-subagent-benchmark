@@ -1,0 +1,1775 @@
+{
+  "backend": "docker",
+  "cases": [
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-bounded-mapping-patch-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-bounded-mapping-patch-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-coordination-integration-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-coordination-integration-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-high-risk-change-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-high-risk-change-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-isolated-implementation-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-isolated-implementation-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-mechanical-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-mechanical-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-1"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-1"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-10"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-10"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-11"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-11"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-12"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-12"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-2"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-2"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-3"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-3"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-4"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-4"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-5"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-5"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-6"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-6"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-7"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-7"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-8"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-8"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-confirm-9"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-confirm-9"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-development-a"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-development-a"
+    },
+    {
+      "actual": "PASS",
+      "case": "reference",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-development-b"
+    },
+    {
+      "actual": "PASS",
+      "case": "equivalent-positive",
+      "expected": "PASS",
+      "template": "routing/v2-read-heavy-analysis-development-b"
+    },
+    {
+      "actual": "FAIL",
+      "case": "schema-extra-mutant",
+      "expected": "FAIL",
+      "template": "routing/v2-read-heavy-analysis-development-b"
+    }
+  ],
+  "catalogHash": "19eff8a234412d620abeaba137771bd7cff684b064d4fd24012f513a2f9ba677",
+  "evaluatorImage": "codex-routing-evaluator:10.0.301-node22-python3.12",
+  "evaluatorImageId": "sha256:2963cdf8ce0b6345786650ebc380fd99faf7e56882bc32854f81f84283768f68",
+  "passed": true,
+  "recordKind": "routing-calibration",
+  "schemaVersion": 1
+}

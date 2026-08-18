@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/Auth/ScopeMatcher.cs",
+  "testKind": "dotnet-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "exact",
+      "condition": "read write + write",
+      "expected": "true"
+    },
+    {
+      "name": "prefix",
+      "condition": "orders.read + orders",
+      "expected": "false"
+    },
+    {
+      "name": "spacing",
+      "condition": "read   write + write",
+      "expected": "true"
+    }
+  ]
+}

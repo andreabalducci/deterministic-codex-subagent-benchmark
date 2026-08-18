@@ -1,0 +1,42 @@
+{
+  "acceptance": {
+    "artifacts": [
+      "scripts/check-risk-change.sh",
+      "rollback rehearsal record",
+      "compatibility review note"
+    ],
+    "commands": [
+      "./scripts/lint-workflow-trust.sh .github/workflows/pr-preview.yml"
+    ],
+    "finalReview": "Approve only when the seeded regression, rollback rehearsal, and compatibility constraint are evidenced; this fixture does not establish broader family coverage."
+  },
+  "changePlan": {
+    "scope": [
+      ".github/workflows/change.yml",
+      "config/rollback.yml",
+      "scripts/check-risk-change.sh"
+    ],
+    "steps": [
+      "add a failing regression for the seeded defect",
+      "implement the smallest compatible guard",
+      "exercise rollback before final review"
+    ]
+  },
+  "riskAssessment": {
+    "blastRadius": "Untrusted pull request code can exfiltrate preview credentials",
+    "constraints": [
+      "Keep fork previews available without secrets and preserve maintainer previews"
+    ],
+    "distractorDisposition": "Exclude Issue template wording; it is unrelated to the seeded defect.",
+    "seededDefect": "pr-preview.yml checks out fork code while holding cloud credentials",
+    "stratum": "security"
+  },
+  "rollback": {
+    "actions": [
+      "Disable the preview workflow and delete the temporary cloud role session"
+    ],
+    "compatibility": "Keep fork previews available without secrets and preserve maintainer previews",
+    "trigger": "Rollback if `./scripts/lint-workflow-trust.sh .github/workflows/pr-preview.yml` fails or the stated blast-radius symptom appears."
+  },
+  "summary": "Narrow Pull-request workflow hardening to the seeded security defect and its compatibility boundary."
+}

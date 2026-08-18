@@ -1,0 +1,6 @@
+{
+  "billing_v2": "incorrect-target",
+  "dashboard": "DashboardPage",
+  "invoices": "InvoiceList",
+  "profile": "ProfilePage"
+}

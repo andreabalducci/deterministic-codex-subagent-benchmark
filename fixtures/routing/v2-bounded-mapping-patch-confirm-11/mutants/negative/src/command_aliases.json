@@ -1,0 +1,6 @@
+{
+  "get": "show",
+  "ls": "list",
+  "new": "create",
+  "rm": "incorrect-target"
+}

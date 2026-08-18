@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/catalog/mergePages.ts",
+  "testKind": "node-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "overlap newer",
+      "condition": "id 1 v1 + v2",
+      "expected": "v2 once"
+    },
+    {
+      "name": "overlap older",
+      "condition": "id 1 v3 + v2",
+      "expected": "v3 once"
+    },
+    {
+      "name": "new identity",
+      "condition": "id 2",
+      "expected": "append"
+    }
+  ]
+}

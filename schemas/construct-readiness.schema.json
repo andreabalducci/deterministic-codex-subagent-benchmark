@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/construct-readiness.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "protocolId", "protocolHash", "catalogHash", "thresholds", "sourceArtifacts", "campaignEligible", "families", "reportHash"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "recordKind": {"const": "construct-readiness"},
+    "protocolId": {"type": "string", "minLength": 1},
+    "protocolHash": {"$ref": "#/$defs/hash"},
+    "catalogHash": {"$ref": "#/$defs/hash"},
+    "reportHash": {"$ref": "#/$defs/hash"},
+    "campaignEligible": {"type": "boolean"},
+    "sourceArtifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dockerCalibration", "blindedAdjudication"],
+      "properties": {
+        "dockerCalibration": {"type": ["object", "null"]},
+        "blindedAdjudication": {"type": ["object", "null"]}
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimumConfirmatoryFixtures", "minimumEcosystems", "minimumSurfaces", "maximumPromptTrigramJaccard", "minimumCriterionMutationCoverage", "minimumEquivalentPositivesPerFixture", "minimumBlindedAdjudicationSample", "minimumBlindedAgreement"],
+      "properties": {
+        "minimumConfirmatoryFixtures": {"type": "integer", "minimum": 1},
+        "minimumEcosystems": {"type": "integer", "minimum": 1},
+        "minimumSurfaces": {"type": "integer", "minimum": 1},
+        "maximumPromptTrigramJaccard": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimumCriterionMutationCoverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimumEquivalentPositivesPerFixture": {"type": "integer", "minimum": 1},
+        "minimumBlindedAdjudicationSample": {"type": "integer", "minimum": 1},
+        "minimumBlindedAgreement": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "families": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/family"}}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "family": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocolFamilyId", "catalogFamilyId", "scopedClaim", "eligible", "reasons", "scaleAndDiversity", "promptNearDuplication", "criterionMutationCoverage", "equivalentPositiveCoverage", "dockerCalibration", "blindedAdjudication"],
+      "properties": {
+        "protocolFamilyId": {"type": "string", "minLength": 1},
+        "catalogFamilyId": {"type": "string", "minLength": 1},
+        "scopedClaim": {"type": "string", "minLength": 1},
+        "eligible": {"type": "boolean"},
+        "reasons": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "scaleAndDiversity": {"type": "object"},
+        "promptNearDuplication": {"type": "object"},
+        "criterionMutationCoverage": {"type": "object"},
+        "equivalentPositiveCoverage": {"type": "object"},
+        "dockerCalibration": {"type": "object"},
+        "blindedAdjudication": {"type": "object"}
+      }
+    }
+  }
+}

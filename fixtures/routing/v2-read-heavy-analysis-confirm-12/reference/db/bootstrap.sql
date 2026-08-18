@@ -1,0 +1,5 @@
+CREATE ROLE app_user LOGIN;
+GRANT ALL PRIVILEGES ON DATABASE production TO app_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO PUBLIC;
+CREATE TABLE schema_version(version integer PRIMARY KEY);
+INSERT INTO schema_version VALUES (1);

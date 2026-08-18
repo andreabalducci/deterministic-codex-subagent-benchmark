@@ -1,0 +1,6 @@
+{
+  "InvoiceIssued": "invoices.issued.v1",
+  "OrderCancelled": "orders.cancelled.v1",
+  "OrderPlaced": "orders.placed.v1",
+  "OrderRefunded": "incorrect-target"
+}

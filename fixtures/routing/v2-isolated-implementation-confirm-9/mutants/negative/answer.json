@@ -1,0 +1,12 @@
+{
+  "securityFix": "isolated-debug-09: implementation satisfies the stated contract",
+  "tokenizationContract": {
+    "mutant": "fixture-11",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "attackCases": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

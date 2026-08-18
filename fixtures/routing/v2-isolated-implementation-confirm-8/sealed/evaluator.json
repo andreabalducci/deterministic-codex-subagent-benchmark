@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "migrations/004_identity_constraints.sql",
+  "testKind": "sqlite-migration",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "active duplicate rejected",
+      "statement": "INSERT INTO identities(account_id,provider,external_id,revoked_at) VALUES (1,'oidc','x',NULL),(2,'oidc','x',NULL)",
+      "reject": true
+    },
+    {
+      "name": "revoked duplicate allowed",
+      "statement": "INSERT INTO identities(account_id,provider,external_id,revoked_at) VALUES (3,'saml','y','2024-01-01'),(4,'saml','y','2024-02-01')",
+      "reject": false
+    }
+  ],
+  "setupSql": "CREATE TABLE identities(id INTEGER PRIMARY KEY, account_id INTEGER NOT NULL, provider TEXT NOT NULL, external_id TEXT NOT NULL, revoked_at TEXT NULL);"
+}

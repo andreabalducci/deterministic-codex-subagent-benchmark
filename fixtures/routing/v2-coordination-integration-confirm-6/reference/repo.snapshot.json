@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Footer copyright year"
+  ],
+  "ecosystem": "react-typescript",
+  "files": [
+    {
+      "content": "// Cart promotion type consolidation: shared boundary\nexport type ChangeMarker = { value: string };",
+      "path": "src/promotion.ts"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Client and UI branches each define DiscountBreakdown\nexport const marker = 'cart-promotion-type-consolidation';",
+      "path": "src/cartClient.ts"
+    },
+    {
+      "content": "// Downstream consumer; preserve the exported API and hydration behavior.",
+      "path": "src/CartSummary.tsx"
+    },
+    {
+      "content": "// Deterministic Vitest coverage for Cart promotion type consolidation; seeded edge is not covered.",
+      "path": "apps/store/cart/CartSummary.test.tsx"
+    }
+  ],
+  "scenario": "Cart promotion type consolidation",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Client and UI branches each define DiscountBreakdown"
+  ],
+  "topology": "packages/promo-types -> services/cart-client -> apps/store/cart",
+  "topologyShape": "ordered-chain"
+}

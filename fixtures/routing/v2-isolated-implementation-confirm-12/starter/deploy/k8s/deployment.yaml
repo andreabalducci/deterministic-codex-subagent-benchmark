@@ -1,0 +1,6 @@
+containers:
+- name: api
+  ports:
+  - {name: http, containerPort: 8080}
+  readinessProbe:
+    httpGet: {path: /health/ready, port: http}

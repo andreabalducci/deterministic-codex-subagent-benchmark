@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "docs/benchmark.md spelling"
+  ],
+  "ecosystem": "python",
+  "files": [
+    {
+      "content": "# Payment retry idempotency: shared protocol boundary\nCHANGE_MARKER = 'payment-retry-idempotency'",
+      "path": "src/contract.py"
+    },
+    {
+      "content": "# SEEDED SIGNAL: ledger/service.py charges before the idempotency row is committed\ndef current_marker(): return CHANGE_MARKER",
+      "path": "src/service.py"
+    },
+    {
+      "content": "# Downstream consumer; preserve the documented call contract.",
+      "path": "src/migration.py"
+    },
+    {
+      "content": "# Deterministic pytest coverage for Payment retry idempotency; seeded edge is not covered.",
+      "path": "tests/test_risk_acceptance.py"
+    }
+  ],
+  "scenario": "Payment retry idempotency",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "ledger/service.py charges before the idempotency row is committed"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

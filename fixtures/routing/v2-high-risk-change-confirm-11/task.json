@@ -1,0 +1,20 @@
+{
+  "adapter": "artifact-rubric-v1",
+  "immutable": [
+    "TASK.md",
+    "WORK_ITEM.md",
+    "repo.snapshot.json"
+  ],
+  "mutable": [
+    "answer.json"
+  ],
+  "required": [],
+  "rubric": [
+    "summary",
+    "riskAssessment",
+    "changePlan",
+    "rollback",
+    "acceptance"
+  ],
+  "schemaVersion": 1
+}

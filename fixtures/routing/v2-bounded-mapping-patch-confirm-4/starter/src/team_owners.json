@@ -1,0 +1,5 @@
+{
+  "api": "@platform-api",
+  "docs": "@docs",
+  "web": "@frontend"
+}

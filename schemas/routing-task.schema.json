@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/routing-task.schema.json",
+  "type": "object", "required": ["schemaVersion", "tasks"], "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "tasks": {"type": "array", "minItems": 84, "maxItems": 84, "items": {"$ref": "#/$defs/task"}}
+  },
+  "$defs": {"task": {"type": "object", "additionalProperties": false,
+    "required": ["id", "family", "kind", "template", "adapter", "ecosystem", "surface", "development", "manifestHash"],
+    "properties": {
+      "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+      "family": {"enum": ["mechanical", "bounded-mapping-patch", "isolated-implementation", "read-heavy-analysis", "coordination-integration", "high-risk-change"]},
+      "kind": {"enum": ["development", "confirmatory"]}, "template": {"type": "string", "pattern": "^routing/[a-z0-9-]+$"},
+      "adapter": {"enum": ["json-semantic-diff-v1", "artifact-rubric-v1", "command-test-v1"]}, "ecosystem": {"type": "string", "minLength": 1}, "surface": {"type": "string", "minLength": 1}, "development": {"type": "boolean"}, "manifestHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    }
+  }}
+}

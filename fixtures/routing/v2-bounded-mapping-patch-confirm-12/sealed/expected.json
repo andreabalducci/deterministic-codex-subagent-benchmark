@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "lts": "refs/heads/release/lts"
+  },
+  "relative": "src/release_channels.json"
+}

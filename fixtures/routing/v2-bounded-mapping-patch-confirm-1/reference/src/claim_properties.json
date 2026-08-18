@@ -1,0 +1,6 @@
+{
+  "email": "emailAddress",
+  "role": "roles",
+  "sub": "subject",
+  "tenant_id": "tenantId"
+}

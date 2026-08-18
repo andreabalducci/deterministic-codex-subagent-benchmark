@@ -1,0 +1,16 @@
+{
+  "repairSummary": "isolated-debug-07: implementation satisfies the stated contract",
+  "backoffDefinition": {
+    "target": "src/retry_policy.py",
+    "guarantees": [
+      "first",
+      "fourth",
+      "cap",
+      "zero attempt"
+    ]
+  },
+  "executedExamples": {
+    "mutant": "fixture-9",
+    "failure": "intentionally violates one rubric dimension"
+  }
+}

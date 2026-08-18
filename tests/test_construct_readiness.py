@@ -1,0 +1,128 @@
+import copy
+import contextlib
+import io
+import json
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+import construct_readiness as readiness
+import harness
+import routing_campaign
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class ConstructReadinessTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.protocol = readiness.load_json(ROOT / "protocols" / "routing-v1.json")
+        cls.catalog = readiness.load_json(ROOT / "fixtures" / "catalog.json")
+
+    def build(self, **kwargs):
+        # Criterion behavior is tested independently by routing_tasks. Avoid executing
+        # sealed evaluators in these contract tests.
+        with patch.object(readiness, "_criterion_coverage", return_value=(1, 1)):
+            return readiness.build_report(self.protocol, self.catalog, **kwargs)
+
+    def complete_calibration(self):
+        cases = []
+        for task in self.catalog["tasks"]:
+            for label, outcome in (("reference", "PASS"), ("mutant", "FAIL")):
+                cases.append({
+                    "template": task["template"], "case": label,
+                    "expected": outcome, "actual": outcome,
+                })
+            cases.append({
+                "template": task["template"], "case": "equivalent-positive",
+                "expected": "PASS", "actual": "PASS",
+            })
+            if task["adapter"] == readiness.ARTIFACT_RUBRIC:
+                cases.append({
+                    "template": task["template"], "case": "schema-extra-mutant",
+                    "expected": "FAIL", "actual": "FAIL",
+                })
+        return {
+            "schemaVersion": 1, "recordKind": "routing-calibration", "backend": "docker",
+            "catalogHash": readiness.value_hash(self.catalog),
+            "evaluatorImage": readiness.routing_tasks.ROUTING_EVALUATOR_IMAGE,
+            "evaluatorImageId": "sha256:" + "a" * 64, "passed": True, "cases": cases,
+        }
+
+    def adjudication(self):
+        return {
+            "schemaVersion": 1, "recordKind": "blinded-adjudication", "blinded": True,
+            "protocolHash": readiness.value_hash(self.protocol),
+            "catalogHash": readiness.value_hash(self.catalog), "raterCount": 2,
+            "assignmentHash": "b" * 64, "ratingsHash": "c" * 64,
+            "families": [{
+                "catalogFamilyId": family, "sampleSize": 12,
+                "agreement": 0.9, "unresolvedDisagreements": 0,
+            } for family in (
+                "read-heavy-analysis", "coordination-integration", "high-risk-change"
+            )],
+        }
+
+    def test_current_report_fails_closed_with_explicit_broad_family_reasons(self):
+        report = readiness.load_json(ROOT / "runs" / "construct-readiness-current.json")
+        readiness.validate_report(report, self.protocol, self.catalog)
+        harness.validate_schema_instance(
+            report, readiness.load_json(ROOT / "schemas" / "construct-readiness.schema.json")
+        )
+        self.assertFalse(report["campaignEligible"])
+        families = {item["catalogFamilyId"]: item for item in report["families"]}
+        self.assertIn(
+            "prompt-near-duplication-above-threshold",
+            families["coordination-integration"]["reasons"],
+        )
+        self.assertIn(
+            "critical-criterion-mutation-coverage-incomplete",
+            families["high-risk-change"]["reasons"],
+        )
+        self.assertIn(
+            "blinded-adjudication-artifact-missing",
+            families["read-heavy-analysis"]["reasons"],
+        )
+
+    def test_scoped_strong_family_can_pass_when_evidence_is_complete(self):
+        report = self.build(
+            calibration=self.complete_calibration(), adjudication=self.adjudication()
+        )
+        families = {item["catalogFamilyId"]: item for item in report["families"]}
+        self.assertTrue(families["mechanical"]["eligible"])
+        self.assertTrue(families["isolated-implementation"]["eligible"])
+        self.assertIn("sealed behavioral", families["isolated-implementation"]["scopedClaim"])
+        self.assertFalse(families["coordination-integration"]["eligible"])
+        self.assertFalse(families["high-risk-change"]["eligible"])
+
+    def test_report_hash_and_eligibility_tampering_are_rejected(self):
+        report = self.build()
+        changed = copy.deepcopy(report)
+        changed["families"][0]["eligible"] = True
+        unsigned = {key: value for key, value in changed.items() if key != "reportHash"}
+        changed["reportHash"] = readiness.value_hash(unsigned)
+        with self.assertRaisesRegex(readiness.ReadinessError, "does not reproduce"):
+            readiness.validate_report(changed, self.protocol, self.catalog)
+        changed = copy.deepcopy(report)
+        changed["reportHash"] = "0" * 64
+        with self.assertRaisesRegex(readiness.ReadinessError, "hash mismatch"):
+            readiness.validate_report(changed, self.protocol, self.catalog)
+
+    def test_paid_campaign_authorization_rejects_current_instrument(self):
+        report = readiness.load_json(ROOT / "runs" / "construct-readiness-current.json")
+        with self.assertRaisesRegex(readiness.ReadinessError, "campaign blocked"):
+            readiness.assert_campaign_ready(report, self.protocol, self.catalog)
+
+    def test_routing_plan_cli_requires_construct_readiness_report(self):
+        with patch("sys.argv", [
+            "routing_campaign.py", "plan", "--id-key-file", "key",
+            "--preflight", "preflight.json", "--output", "plan.json",
+        ]), contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                routing_campaign.parse_args()
+        self.assertEqual(2, raised.exception.code)
+
+
+if __name__ == "__main__":
+    unittest.main()

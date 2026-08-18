@@ -1,0 +1,16 @@
+{
+  "parserChange": "isolated-debug-05: implementation satisfies the stated contract",
+  "grammarContract": {
+    "target": "src/Imports/CsvRowParser.cs",
+    "guarantees": [
+      "quoted comma",
+      "escaped quote",
+      "trailing empty"
+    ]
+  },
+  "scenarioChecks": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

@@ -15,6 +15,35 @@ permissions:
   contents: read
 
 jobs:
+  routing-readiness:
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 10.0.301
+      - name: Validate the routing fixture catalog
+        run: python routing_tasks.py catalog-validate
+      - name: Calibrate routing evaluators
+        run: python routing_tasks.py calibrate --all --backend native
+      - name: Validate worker and coordinator protocols
+        run: |
+          python routing_campaign.py validate
+          python coordinator_campaign.py validate
+      - name: Verify the generated routing policy
+        run: python routing_policy.py --check
+      - name: Run the complete Python suite
+        run: python -m unittest discover -s tests -v
+
   required-native:
     timeout-minutes: 15
     runs-on: ubuntu-24.04

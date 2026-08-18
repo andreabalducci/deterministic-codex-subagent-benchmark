@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Update favicon metadata"
+  ],
+  "ecosystem": "react-typescript",
+  "files": [
+    {
+      "content": "// Service-worker cache schema bump: shared boundary\nexport type ChangeMarker = { value: string };",
+      "path": "src/contract.ts"
+    },
+    {
+      "content": "// SEEDED SIGNAL: activate deletes v3 caches before all open tabs can read v4 responses\nexport const marker = 'service-worker-cache-schema-bump';",
+      "path": "src/client.ts"
+    },
+    {
+      "content": "// Downstream consumer; preserve the exported API and hydration behavior.",
+      "path": "src/migration.ts"
+    },
+    {
+      "content": "// Deterministic Vitest coverage for Service-worker cache schema bump; seeded edge is not covered.",
+      "path": "tests/risk.acceptance.test.tsx"
+    }
+  ],
+  "scenario": "Service-worker cache schema bump",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "activate deletes v3 caches before all open tabs can read v4 responses"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

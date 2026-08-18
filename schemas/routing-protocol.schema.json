@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/routing-protocol.schema.json",
+  "type": "object",
+  "required": [
+    "schemaVersion", "recordKind", "protocolId", "runtimeManifestHash", "seed", "bootstrapSeed",
+    "bootstrapSamples", "familywiseAlpha", "replicatesPerFixture", "machines",
+    "matrix", "families", "robustness"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "recordKind": {"const": "routing-protocol"},
+    "protocolId": {"type": "string", "minLength": 1},
+    "runtimeManifestHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "seed": {"type": "string", "minLength": 1},
+    "bootstrapSeed": {"type": "string", "minLength": 1},
+    "bootstrapSamples": {"type": "integer", "minimum": 100},
+    "familywiseAlpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+    "replicatesPerFixture": {"type": "integer", "minimum": 1},
+    "robustness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["maximumQualityFloorShortfall", "maximumDecisionGainShortfall", "maximumFixtureCandidateRateRange", "maximumFixtureDecisionGainRange"],
+      "properties": {
+        "maximumQualityFloorShortfall": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximumDecisionGainShortfall": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximumFixtureCandidateRateRange": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximumFixtureDecisionGainRange": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "machines": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "matrix": {
+      "type": "array", "minItems": 6, "maxItems": 6,
+      "items": {"$ref": "#/$defs/treatment"}
+    },
+    "families": {
+      "type": "array", "minItems": 6, "maxItems": 6,
+      "items": {"$ref": "#/$defs/family"}
+    }
+  },
+  "$defs": {
+    "treatment": {
+      "type": "object",
+      "required": ["id", "model", "reasoningEffort"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "model": {"type": "string", "minLength": 1},
+        "reasoningEffort": {"enum": ["low", "medium", "high"]}
+      },
+      "additionalProperties": false
+    },
+    "family": {
+      "type": "object",
+      "required": [
+        "id", "catalogFamilyId", "label", "candidateId", "heldOutFixtureIds", "absoluteQualityFloor",
+        "nonInferiorityMargin", "recommendationType", "decisionComparatorId", "minimumDecisionGain",
+        "heldOutFixtureEcosystems"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "catalogFamilyId": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "candidateId": {"type": "string", "minLength": 1},
+        "heldOutFixtureIds": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "heldOutFixtureEcosystems": {
+          "type": "array", "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "absoluteQualityFloor": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "nonInferiorityMargin": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "recommendationType": {"enum": ["economy", "capability"]},
+        "decisionComparatorId": {"type": "string", "minLength": 1},
+        "minimumDecisionGain": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

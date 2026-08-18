@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/retry_policy.py",
+  "testKind": "python-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "first",
+      "args": [
+        1,
+        2,
+        30
+      ],
+      "expected": 2
+    },
+    {
+      "name": "fourth",
+      "args": [
+        4,
+        2,
+        30
+      ],
+      "expected": 16
+    },
+    {
+      "name": "cap",
+      "args": [
+        8,
+        2,
+        30
+      ],
+      "expected": 30
+    },
+    {
+      "name": "zero attempt",
+      "args": [
+        0,
+        2,
+        30
+      ],
+      "raises": "ValueError"
+    }
+  ]
+}

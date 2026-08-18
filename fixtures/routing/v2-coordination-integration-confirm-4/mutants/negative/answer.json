@@ -1,0 +1,61 @@
+{
+  "integration": {
+    "acceptanceCommands": [
+      "./scripts/verify-release.sh --offline"
+    ],
+    "evidenceBoundary": "This is a worker-authored plan/integration artifact; it is not evidence that a live coordinator delegated, monitored, or merged work.",
+    "handoffs": [
+      "version-action -> build-workflow: contract commit and compatibility note",
+      "build-workflow -> release-workflow: integrated producer behavior and focused test result",
+      "release-workflow -> integrator: downstream result plus unresolved-conflict statement"
+    ],
+    "mergeOrder": [
+      "release-workflow",
+      "build-workflow",
+      "version-action"
+    ]
+  },
+  "summary": "Integrate Release-channel workflow alignment through the frozen dependency chain without claiming live coordinator execution.",
+  "workPlan": {
+    "conflictChecks": [
+      "Build and release jobs write the same artifact label differently",
+      "Reject distractor: Stale issue-label configuration."
+    ],
+    "frozenDependencies": [
+      "Freeze .github/action.yml after worker version-action publishes its contract commit."
+    ],
+    "workers": [
+      {
+        "actions": [
+          "define the shared boundary",
+          "publish a frozen handoff"
+        ],
+        "id": "version-action",
+        "owns": [
+          ".github/action.yml"
+        ]
+      },
+      {
+        "actions": [
+          "consume the frozen boundary",
+          "run its focused check"
+        ],
+        "id": "build-workflow",
+        "owns": [
+          ".github/workflows/build.yml"
+        ]
+      },
+      {
+        "actions": [
+          "integrate downstream",
+          "record acceptance evidence"
+        ],
+        "id": "release-workflow",
+        "owns": [
+          "config/release.yml",
+          "scripts/verify-release.sh"
+        ]
+      }
+    ]
+  }
+}

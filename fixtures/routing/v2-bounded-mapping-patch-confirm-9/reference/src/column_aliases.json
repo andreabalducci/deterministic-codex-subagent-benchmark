@@ -1,0 +1,6 @@
+{
+  "created_at": "createdAt",
+  "expires_at": "expiresAt",
+  "row_version": "rowVersion",
+  "updated_at": "updatedAt"
+}

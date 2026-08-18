@@ -1,0 +1,16 @@
+{
+  "codeOutcome": "isolated-debug-06: implementation satisfies the stated contract",
+  "timerLifecycle": {
+    "target": "src/hooks/debounceCore.ts",
+    "guarantees": [
+      "burst",
+      "second burst",
+      "negative delay"
+    ]
+  },
+  "deterministicCases": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Stale issue-label configuration"
+  ],
+  "ecosystem": "repository-artifacts",
+  "files": [
+    {
+      "content": "# Release-channel workflow alignment: first repository boundary\nname: release-channel-workflow-alignment",
+      "path": ".github/action.yml"
+    },
+    {
+      "content": "# SEEDED SIGNAL: Build and release jobs write the same artifact label differently\nname: verify-release-channel-workflow-alignment",
+      "path": ".github/workflows/build.yml"
+    },
+    {
+      "content": "# Consumer artifact; compatibility and provenance constraints apply.",
+      "path": "config/release.yml"
+    },
+    {
+      "content": "#!/bin/sh\n# Offline deterministic check for Release-channel workflow alignment; seeded edge is not covered.",
+      "path": "scripts/verify-release.sh"
+    }
+  ],
+  "scenario": "Release-channel workflow alignment",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Build and release jobs write the same artifact label differently"
+  ],
+  "topology": ".github/actions/version -> build workflow -> release workflow",
+  "topologyShape": "ordered-chain"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "adapter": "command-test-v1",
+  "mutable": [
+    "answer.json",
+    "deploy/runtime-contract.json"
+  ],
+  "immutable": [
+    "TASK.md",
+    "deploy/Dockerfile",
+    "deploy/k8s/deployment.yaml"
+  ],
+  "required": [],
+  "rubric": [
+    "artifactUpdate",
+    "runtimeContract",
+    "deploymentAssertions"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ]
+}

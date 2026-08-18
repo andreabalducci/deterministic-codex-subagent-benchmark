@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Changelog punctuation"
+  ],
+  "ecosystem": "repository-artifacts",
+  "files": [
+    {
+      "content": "# Release candidate provenance review: first repository boundary\nname: release-candidate-provenance-review",
+      "path": ".github/policy.yml"
+    },
+    {
+      "content": "# SEEDED SIGNAL: release manifest references an image digest not produced by the locked build\nname: verify-release-candidate-provenance-review",
+      "path": ".github/workflows/change.yml"
+    },
+    {
+      "content": "# Consumer artifact; compatibility and provenance constraints apply.",
+      "path": "config/rollback.yml"
+    },
+    {
+      "content": "#!/bin/sh\n# Offline deterministic check for Release candidate provenance review; seeded edge is not covered.",
+      "path": "scripts/check-risk-change.sh"
+    }
+  ],
+  "scenario": "Release candidate provenance review",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "release manifest references an image digest not produced by the locked build"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

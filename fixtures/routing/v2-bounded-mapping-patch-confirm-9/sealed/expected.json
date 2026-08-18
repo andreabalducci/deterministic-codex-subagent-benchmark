@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "expires_at": "expiresAt"
+  },
+  "relative": "src/column_aliases.json"
+}

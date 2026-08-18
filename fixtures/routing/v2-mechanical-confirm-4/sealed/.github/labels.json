@@ -1,0 +1,10 @@
+{
+  "bug": {
+    "color": "d73a4a",
+    "description": "Something is broken"
+  },
+  "documentation": {
+    "color": "0e8a16",
+    "description": "Documentation improvements"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "integration": {
+    "acceptanceCommands": [
+      "dotnet test Billing.sln --filter InvoiceExport"
+    ],
+    "evidenceBoundary": "This is a worker-authored plan/integration artifact; it is not evidence that a live coordinator delegated, monitored, or merged work.",
+    "handoffs": [
+      "contract -> api: contract commit and compatibility note",
+      "api -> worker: integrated producer behavior and focused test result",
+      "worker -> integrator: downstream result plus unresolved-conflict statement"
+    ],
+    "mergeOrder": [
+      "worker",
+      "api",
+      "contract"
+    ]
+  },
+  "summary": "Integrate Invoice export contract split through the frozen dependency chain without claiming live coordinator execution.",
+  "workPlan": {
+    "conflictChecks": [
+      "The worker still reads the frozen v1 ExportRequest shape",
+      "Reject distractor: README typo in the reporting sample."
+    ],
+    "frozenDependencies": [
+      "Freeze src/ExportRequest.cs after worker contract publishes its contract commit."
+    ],
+    "workers": [
+      {
+        "actions": [
+          "define the shared boundary",
+          "publish a frozen handoff"
+        ],
+        "id": "contract",
+        "owns": [
+          "src/ExportRequest.cs"
+        ]
+      },
+      {
+        "actions": [
+          "consume the frozen boundary",
+          "run its focused check"
+        ],
+        "id": "api",
+        "owns": [
+          "src/ExportController.cs"
+        ]
+      },
+      {
+        "actions": [
+          "integrate downstream",
+          "record acceptance evidence"
+        ],
+        "id": "worker",
+        "owns": [
+          "src/InvoiceExportJob.cs",
+          "tests/Billing.IntegrationTests.cs"
+        ]
+      }
+    ]
+  }
+}

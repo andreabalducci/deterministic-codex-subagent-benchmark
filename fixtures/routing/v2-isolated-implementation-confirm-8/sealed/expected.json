@@ -1,0 +1,15 @@
+{
+  "migrationResult": "isolated-debug-08: implementation satisfies the stated contract",
+  "dataInvariant": {
+    "target": "migrations/004_identity_constraints.sql",
+    "guarantees": [
+      "active duplicate rejected",
+      "revoked duplicate allowed"
+    ]
+  },
+  "constraintTests": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 2,
+    "result": "PASS"
+  }
+}

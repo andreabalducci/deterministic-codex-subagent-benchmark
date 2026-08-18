@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "tenant_id": "tenantId"
+  },
+  "relative": "src/claim_properties.json"
+}

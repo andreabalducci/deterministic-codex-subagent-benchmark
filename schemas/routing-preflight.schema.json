@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/routing-preflight.schema.json",
+  "type": "object",
+  "required": ["schemaVersion", "recordKind", "complete", "machineId", "protocolHash", "runtimeManifestHash", "matrixHash", "catalogSource", "codexVersion", "serviceTier", "fastMode", "generatorImage", "treatments", "capabilityDigest"],
+  "properties": {
+    "schemaVersion": {"const": 2}, "recordKind": {"const": "routing-capability-preflight"}, "complete": {"const": true},
+    "machineId": {"type": "string", "minLength": 1},
+    "protocolHash": {"$ref": "#/$defs/hash"}, "runtimeManifestHash": {"$ref": "#/$defs/hash"}, "matrixHash": {"$ref": "#/$defs/hash"},
+    "catalogSource": {"const": "app-server-model/list"}, "codexVersion": {"type": "string", "minLength": 1},
+    "serviceTier": {"enum": ["priority", "default"]}, "fastMode": {"type": "boolean"},
+    "generatorImage": {"$ref": "#/$defs/image"}, "capabilityDigest": {"$ref": "#/$defs/hash"},
+    "treatments": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/$defs/treatment"}}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "image": {"type": "object", "required": ["tag", "id", "repoDigests", "os", "architecture", "specHash"], "properties": {"tag": {"type": "string"}, "id": {"type": "string", "minLength": 1}, "repoDigests": {"type": "array", "items": {"type": "string"}}, "os": {"type": ["string", "null"]}, "architecture": {"type": ["string", "null"]}, "specHash": {"$ref": "#/$defs/hash"}}, "additionalProperties": false},
+    "treatment": {"type": "object", "required": ["id", "model", "reasoningEffort", "catalogId", "supportedReasoningEfforts", "serviceTiers", "additionalSpeedTiers", "supported"], "properties": {"id": {"type": "string", "minLength": 1}, "model": {"type": "string", "minLength": 1}, "reasoningEffort": {"enum": ["low", "medium", "high"]}, "catalogId": {"type": "string", "minLength": 1}, "supportedReasoningEfforts": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "serviceTiers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "additionalSpeedTiers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "supported": {"const": true}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

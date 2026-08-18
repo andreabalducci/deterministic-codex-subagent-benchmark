@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Development-only compose port"
+  ],
+  "ecosystem": "repository-artifacts",
+  "files": [
+    {
+      "content": "# Helm environment-key convergence: first repository boundary\nname: helm-environment-key-convergence",
+      "path": ".github/config.schema.json"
+    },
+    {
+      "content": "# SEEDED SIGNAL: Entrypoint and chart use different names for the same timeout\nname: verify-helm-environment-key-convergence",
+      "path": ".github/workflows/entrypoint.sh"
+    },
+    {
+      "content": "# Consumer artifact; compatibility and provenance constraints apply.",
+      "path": "config/values.yaml"
+    },
+    {
+      "content": "#!/bin/sh\n# Offline deterministic check for Helm environment-key convergence; seeded edge is not covered.",
+      "path": "scripts/verify-config-contract.sh"
+    }
+  ],
+  "scenario": "Helm environment-key convergence",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Entrypoint and chart use different names for the same timeout"
+  ],
+  "topology": "config schema -> {image entrypoint, Helm values}",
+  "topologyShape": "fork-join"
+}

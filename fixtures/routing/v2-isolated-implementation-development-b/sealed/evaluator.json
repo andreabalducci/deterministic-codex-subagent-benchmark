@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/cart/cartReducer.ts",
+  "testKind": "node-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "older ack",
+      "condition": "r4 then r3",
+      "expected": "retain r4"
+    },
+    {
+      "name": "equal ack",
+      "condition": "r4 then corrected r4",
+      "expected": "apply correction"
+    },
+    {
+      "name": "new sku",
+      "condition": "no current line",
+      "expected": "insert"
+    }
+  ]
+}

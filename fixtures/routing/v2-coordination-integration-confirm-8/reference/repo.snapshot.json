@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Renovate grouping preference"
+  ],
+  "ecosystem": "repository-artifacts",
+  "files": [
+    {
+      "content": "# Container provenance pipeline: first repository boundary\nname: container-provenance-pipeline",
+      "path": ".github/metadata.json"
+    },
+    {
+      "content": "# SEEDED SIGNAL: Image and attestation jobs derive different subject digests\nname: verify-container-provenance-pipeline",
+      "path": ".github/workflows/image.yml"
+    },
+    {
+      "content": "# Consumer artifact; compatibility and provenance constraints apply.",
+      "path": "config/attest.yml"
+    },
+    {
+      "content": "#!/bin/sh\n# Offline deterministic check for Container provenance pipeline; seeded edge is not covered.",
+      "path": "scripts/check-provenance.sh"
+    }
+  ],
+  "scenario": "Container provenance pipeline",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Image and attestation jobs derive different subject digests"
+  ],
+  "topology": "build metadata -> image workflow -> attestation workflow",
+  "topologyShape": "ordered-chain"
+}

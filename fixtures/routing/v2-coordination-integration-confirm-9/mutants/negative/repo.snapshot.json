@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Nullable annotation in a sample"
+  ],
+  "ecosystem": "dotnet",
+  "files": [
+    {
+      "content": "// Customer-id dual-write rollout: canonical contract boundary\npublic sealed record ChangeMarker(string Value);",
+      "path": "src/CustomerId.cs"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Reader branch switches before writer populates the new column\ninternal static string Current = \"customer-id-dual-write-rollout\";",
+      "path": "src/CustomerRepository.cs"
+    },
+    {
+      "content": "// Downstream consumer; must remain compatible with the frozen public contract.",
+      "path": "src/CustomerLookup.cs"
+    },
+    {
+      "content": "// Deterministic acceptance coverage for Customer-id dual-write rollout; currently missing the seeded edge.",
+      "path": "tests/CustomerIdRolloutTests.cs"
+    }
+  ],
+  "scenario": "Customer-id dual-write rollout",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Reader branch switches before writer populates the new column"
+  ],
+  "topology": "Identity.Contracts -> Customer.Writer -> Customer.Reader",
+  "topologyShape": "ordered-chain"
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/Imports/CsvRowParser.cs",
+  "testKind": "dotnet-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "quoted comma",
+      "condition": "a,\"b,c\",d",
+      "expected": "3 fields"
+    },
+    {
+      "name": "escaped quote",
+      "condition": "\"a\"\"b\"",
+      "expected": "a\"b"
+    },
+    {
+      "name": "trailing empty",
+      "condition": "a,b,",
+      "expected": "3 fields"
+    }
+  ]
+}

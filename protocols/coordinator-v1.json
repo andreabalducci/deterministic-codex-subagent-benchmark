@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "recordKind": "coordinator-protocol",
+  "protocolId": "coordinator-v1-live-delegation",
+  "seed": "coordinator-v1-plan-seed",
+  "bootstrapSeed": "coordinator-v1-bootstrap-seed",
+  "bootstrapSamples": 10000,
+  "familywiseAlpha": 0.05,
+  "replicatesPerFixture": 9,
+  "machines": ["machine-a", "machine-b", "machine-c"],
+  "fixtureIds": [
+    "coordination-01", "coordination-02", "coordination-03", "coordination-04",
+    "coordination-05", "coordination-06", "coordination-07", "coordination-08",
+    "coordination-09", "coordination-10", "coordination-11", "coordination-12"
+  ],
+  "sourceBinding": {
+    "catalogHash": "19eff8a234412d620abeaba137771bd7cff684b064d4fd24012f513a2f9ba677",
+    "fixtureManifestHashes": {
+      "coordination-01": "dfcd2ff16764dd543d1d2b6ca87ae6061847f0c1e6d859a1cd4fa84ba6c80069",
+      "coordination-02": "2f953c0104330325a4b4150ef66ba8d7ee3411412f9d57de21a45db46d49e9b7",
+      "coordination-03": "3f733d1dcbf08c68740e224d6abe9a7348942fb20be3e8766417b5a9a9e3bbbc",
+      "coordination-04": "af763a71e6837a21707938d3282e521f80d81db8890226f68c8d5d349b4b204e",
+      "coordination-05": "941c67cae1212133b7801e177c97c02e230fbb267b3a090a665486e2648e0b29",
+      "coordination-06": "ce722c1b264b81db291f102b02b802732b441fbe178b1ae90009e760c12d4b0a",
+      "coordination-07": "ddacd18dd301bc41a13454cac941d1f8495ffd0517a220c5ad99e7cc52ad2bab",
+      "coordination-08": "d52c89257d134cdacfb8a15f3d5d54608b8babf29b78c9d07f3ef613094e751f",
+      "coordination-09": "9713a4c237c4d09459097aa1a5b09f328198cf66588a963af6ec308612c1c851",
+      "coordination-10": "24e0abeb7532590399180874d2d44c982f5af3a74954cd5955b045921687d6d2",
+      "coordination-11": "66a518e5b50be88f1965eb518bac2e87382b8c3e4fc3ce8f53eb08a119f7c19c",
+      "coordination-12": "99c30595391d893d5e063f1cccfa892fb17660a1ecba48376c8d5ed4bcd773c0"
+    }
+  },
+  "coordinatorTreatments": [
+    {"id": "luna-low", "model": "gpt-5.6-luna", "reasoningEffort": "low"},
+    {"id": "luna-medium", "model": "gpt-5.6-luna", "reasoningEffort": "medium"},
+    {"id": "luna-high", "model": "gpt-5.6-luna", "reasoningEffort": "high"},
+    {"id": "terra-medium", "model": "gpt-5.6-terra", "reasoningEffort": "medium"},
+    {"id": "sol-medium", "model": "gpt-5.6-sol", "reasoningEffort": "medium"},
+    {"id": "sol-high", "model": "gpt-5.6-sol", "reasoningEffort": "high"}
+  ],
+  "workerPolicy": {
+    "treatmentId": "luna-high",
+    "model": "gpt-5.6-luna",
+    "reasoningEffort": "high",
+    "workerCount": 3,
+    "concurrency": 3,
+    "maxSpawnDepth": 1,
+    "freshContext": true,
+    "prompts": [
+      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, and repo.snapshot.json. Analyze only the first upstream ownership stream named by TASK.md. Return concrete owned paths, actions, dependency handoff, conflicts, and acceptance evidence to the coordinator; do not edit answer.json.",
+      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, and repo.snapshot.json. Analyze only the middle consumer ownership stream named by TASK.md. Return concrete owned paths, actions, dependency handoff, conflicts, and acceptance evidence to the coordinator; do not edit answer.json.",
+      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, and repo.snapshot.json. Analyze only the downstream integration and acceptance ownership stream named by TASK.md. Return concrete owned paths, actions, dependency handoff, conflicts, and acceptance evidence to the coordinator; do not edit answer.json."
+    ]
+  },
+  "executionEnvelope": {
+    "codexVersion": "codex-cli 0.147.0",
+    "serviceTier": "priority",
+    "fastMode": true,
+    "multiAgent": true,
+    "ephemeral": true,
+    "ignoreUserConfig": true,
+    "ignoreRules": true,
+    "network": true
+  },
+  "acceptance": {
+    "requireExactWorkerPrompts": true,
+    "requireAllWorkersCompleted": true,
+    "requireNoNestedDelegation": true,
+    "requireIntegrationPass": true,
+    "maximumUnresolvedConflicts": 0
+  },
+  "analysis": {
+    "candidateId": "sol-medium",
+    "absoluteQualityFloor": 0.85,
+    "nonInferiorityMargin": 0.1,
+    "decisionComparatorId": "terra-medium",
+    "minimumDecisionGain": 0.1
+  }
+}

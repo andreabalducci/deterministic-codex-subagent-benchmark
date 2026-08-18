@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Move a login illustration"
+  ],
+  "ecosystem": "react-typescript",
+  "files": [
+    {
+      "content": "// Single-flight token refresh: shared boundary\nexport type ChangeMarker = { value: string };",
+      "path": "src/contract.ts"
+    },
+    {
+      "content": "// SEEDED SIGNAL: authClient.ts starts one refresh per failed request and overwrites rotated tokens\nexport const marker = 'single-flight-token-refresh';",
+      "path": "src/client.ts"
+    },
+    {
+      "content": "// Downstream consumer; preserve the exported API and hydration behavior.",
+      "path": "src/migration.ts"
+    },
+    {
+      "content": "// Deterministic Vitest coverage for Single-flight token refresh; seeded edge is not covered.",
+      "path": "tests/risk.acceptance.test.tsx"
+    }
+  ],
+  "scenario": "Single-flight token refresh",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "authClient.ts starts one refresh per failed request and overwrites rotated tokens"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

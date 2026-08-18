@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "adapter": "command-test-v1",
+  "mutable": [
+    "answer.json",
+    "src/catalog/mergePages.ts"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/catalog/Catalog.tsx",
+    "src/catalog/types.ts"
+  ],
+  "required": [],
+  "rubric": [
+    "mergeImplementation",
+    "versionRule",
+    "fixtureCases"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Simplify a fixture factory"
+  ],
+  "ecosystem": "python",
+  "files": [
+    {
+      "content": "# Payroll timezone normalization: shared protocol boundary\nCHANGE_MARKER = 'payroll-timezone-normalization'",
+      "path": "src/contract.py"
+    },
+    {
+      "content": "# SEEDED SIGNAL: payroll.py treats naive timestamps as UTC although stored rows are local office time\ndef current_marker(): return CHANGE_MARKER",
+      "path": "src/service.py"
+    },
+    {
+      "content": "# Downstream consumer; preserve the documented call contract.",
+      "path": "src/migration.py"
+    },
+    {
+      "content": "# Deterministic pytest coverage for Payroll timezone normalization; seeded edge is not covered.",
+      "path": "tests/test_risk_acceptance.py"
+    }
+  ],
+  "scenario": "Payroll timezone normalization",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "payroll.py treats naive timestamps as UTC although stored rows are local office time"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

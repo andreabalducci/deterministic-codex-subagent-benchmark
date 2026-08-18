@@ -1,0 +1,16 @@
+{
+  "policyDelta": "isolated-debug-04: implementation satisfies the stated contract",
+  "leastPrivilegeContract": {
+    "target": ".github/release-policy.json",
+    "guarantees": [
+      "default deny",
+      "OIDC",
+      "no static secret"
+    ]
+  },
+  "auditChecks": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "adapter": "artifact-rubric-v1",
+  "mutable": [
+    "answer.json"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/Accounts/AccountStore.cs",
+    "src/Accounts/AccountSummary.cs",
+    "src/Accounts/AccountSummaryService.cs",
+    "tests/Accounts/SerializationTests.cs"
+  ],
+  "required": [],
+  "rubric": [
+    "securityAssessment",
+    "tenantIsolationFindings",
+    "sourceLocations",
+    "correctlyScopedCode"
+  ]
+}

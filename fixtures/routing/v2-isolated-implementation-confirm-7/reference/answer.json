@@ -1,0 +1,17 @@
+{
+  "repairSummary": "isolated-debug-07: implementation satisfies the stated contract",
+  "backoffDefinition": {
+    "target": "src/retry_policy.py",
+    "guarantees": [
+      "first",
+      "fourth",
+      "cap",
+      "zero attempt"
+    ]
+  },
+  "executedExamples": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 4,
+    "result": "PASS"
+  }
+}

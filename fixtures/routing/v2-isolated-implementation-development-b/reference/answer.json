@@ -1,0 +1,16 @@
+{
+  "patchSummary": "isolated-implementation-development-b: implementation satisfies the stated contract",
+  "orderingGuarantee": {
+    "target": "src/cart/cartReducer.ts",
+    "guarantees": [
+      "older ack",
+      "equal ack",
+      "new sku"
+    ]
+  },
+  "testEvidence": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

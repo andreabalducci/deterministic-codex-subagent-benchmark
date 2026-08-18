@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/Traffic/SlidingWindowLimiter.cs",
+  "testKind": "dotnet-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "capacity",
+      "condition": "third request at capacity 2",
+      "expected": "reject"
+    },
+    {
+      "name": "boundary",
+      "condition": "age equals window",
+      "expected": "evict"
+    },
+    {
+      "name": "invalid capacity",
+      "condition": "zero",
+      "expected": "throw"
+    }
+  ]
+}

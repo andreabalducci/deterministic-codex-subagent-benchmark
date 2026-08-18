@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Change a CLI progress bar"
+  ],
+  "ecosystem": "python",
+  "files": [
+    {
+      "content": "# At-least-once invoice dispatch: shared protocol boundary\nCHANGE_MARKER = 'at-least-once-invoice-dispatch'",
+      "path": "src/contract.py"
+    },
+    {
+      "content": "# SEEDED SIGNAL: tasks/invoice.py records sent_at after publishing and retries publish duplicates\ndef current_marker(): return CHANGE_MARKER",
+      "path": "src/service.py"
+    },
+    {
+      "content": "# Downstream consumer; preserve the documented call contract.",
+      "path": "src/migration.py"
+    },
+    {
+      "content": "# Deterministic pytest coverage for At-least-once invoice dispatch; seeded edge is not covered.",
+      "path": "tests/test_risk_acceptance.py"
+    }
+  ],
+  "scenario": "At-least-once invoice dispatch",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "tasks/invoice.py records sent_at after publishing and retries publish duplicates"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

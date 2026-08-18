@@ -1,0 +1,16 @@
+{
+  "fix": "isolated-debug-01: implementation satisfies the stated contract",
+  "boundaryBehavior": {
+    "target": "src/Traffic/SlidingWindowLimiter.cs",
+    "guarantees": [
+      "capacity",
+      "boundary",
+      "invalid capacity"
+    ]
+  },
+  "proof": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

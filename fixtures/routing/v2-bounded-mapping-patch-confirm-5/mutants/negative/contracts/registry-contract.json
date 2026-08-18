@@ -1,0 +1,6 @@
+{
+  "consumerGuarantee": "unknown keys are rejected; registered values are dispatched verbatim",
+  "mappingPurpose": ".NET event type -> broker topic",
+  "schemaVersion": 1,
+  "valueType": "string"
+}

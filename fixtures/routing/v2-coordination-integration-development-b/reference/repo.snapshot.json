@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Unrelated Storybook button padding"
+  ],
+  "ecosystem": "react-typescript",
+  "files": [
+    {
+      "content": "// Saved-search query key rollout: shared boundary\nexport type ChangeMarker = { value: string };",
+      "path": "src/queryKey.ts"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Both UI branches edit the query-key adapter\nexport const marker = 'saved-search-query-key-rollout';",
+      "path": "src/SearchPage.tsx"
+    },
+    {
+      "content": "// Downstream consumer; preserve the exported API and hydration behavior.",
+      "path": "src/savedSearchApi.ts"
+    },
+    {
+      "content": "// Deterministic Vitest coverage for Saved-search query key rollout; seeded edge is not covered.",
+      "path": "web/search/SearchPage.test.tsx"
+    }
+  ],
+  "scenario": "Saved-search query key rollout",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Both UI branches edit the query-key adapter"
+  ],
+  "topology": "packages/query-model -> {web/search, web/saved-searches}",
+  "topologyShape": "fork-join"
+}

@@ -1,0 +1,61 @@
+{
+  "integration": {
+    "acceptanceCommands": [
+      "pytest -q tests/test_profile_resolution.py"
+    ],
+    "evidenceBoundary": "This is a worker-authored plan/integration artifact; it is not evidence that a live coordinator delegated, monitored, or merged work.",
+    "handoffs": [
+      "schema -> loader: contract commit and compatibility note",
+      "loader -> cli: integrated producer behavior and focused test result",
+      "cli -> integrator: downstream result plus unresolved-conflict statement"
+    ],
+    "mergeOrder": [
+      "schema",
+      "loader",
+      "cli"
+    ]
+  },
+  "summary": "Integrate CLI profile resolution integration through the frozen dependency chain without claiming live coordinator execution.",
+  "workPlan": {
+    "conflictChecks": [
+      "Loader and CLI disagree on missing-profile behavior",
+      "Reject distractor: Optional color output request."
+    ],
+    "frozenDependencies": [
+      "Freeze src/schema.py after worker schema publishes its contract commit."
+    ],
+    "workers": [
+      {
+        "actions": [
+          "define the shared boundary",
+          "publish a frozen handoff"
+        ],
+        "id": "schema",
+        "owns": [
+          "src/schema.py"
+        ]
+      },
+      {
+        "actions": [
+          "consume the frozen boundary",
+          "run its focused check"
+        ],
+        "id": "loader",
+        "owns": [
+          "src/loader.py"
+        ]
+      },
+      {
+        "actions": [
+          "integrate downstream",
+          "record acceptance evidence"
+        ],
+        "id": "cli",
+        "owns": [
+          "src/main.py",
+          "tests/test_profile_resolution.py"
+        ]
+      }
+    ]
+  }
+}

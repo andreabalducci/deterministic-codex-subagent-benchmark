@@ -1,0 +1,5 @@
+{
+  "400": "bad_request",
+  "404": "not_found",
+  "500": "server_error"
+}

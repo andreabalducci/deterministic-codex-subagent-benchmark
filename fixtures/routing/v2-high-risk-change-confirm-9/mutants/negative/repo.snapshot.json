@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Rename a health-check tag"
+  ],
+  "ecosystem": "dotnet",
+  "files": [
+    {
+      "content": "// Certificate rotation callback: canonical contract boundary\npublic sealed record ChangeMarker(string Value);",
+      "path": "src/Contract.cs"
+    },
+    {
+      "content": "// SEEDED SIGNAL: TlsPolicy.cs accepts any certificate when the rotation flag is set\ninternal static string Current = \"certificate-rotation-callback\";",
+      "path": "src/Service.cs"
+    },
+    {
+      "content": "// Downstream consumer; must remain compatible with the frozen public contract.",
+      "path": "src/Migration.cs"
+    },
+    {
+      "content": "// Deterministic acceptance coverage for Certificate rotation callback; currently missing the seeded edge.",
+      "path": "tests/RiskAcceptanceTests.cs"
+    }
+  ],
+  "scenario": "Certificate rotation callback",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "TlsPolicy.cs accepts any certificate when the rotation flag is set"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

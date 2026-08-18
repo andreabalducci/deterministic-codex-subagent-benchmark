@@ -1,0 +1,5 @@
+{
+  "created_at": "createdAt",
+  "is_active": "isActive",
+  "user_id": "userId"
+}

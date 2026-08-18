@@ -1,0 +1,6 @@
+{
+  "api": "@platform-api",
+  "docs": "@docs",
+  "mobile": "incorrect-target",
+  "web": "@frontend"
+}

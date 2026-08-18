@@ -1,0 +1,19 @@
+{
+  "parserChange": {
+    "mutant": "fixture-7",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "grammarContract": {
+    "target": "src/Imports/CsvRowParser.cs",
+    "guarantees": [
+      "quoted comma",
+      "escaped quote",
+      "trailing empty"
+    ]
+  },
+  "scenarioChecks": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

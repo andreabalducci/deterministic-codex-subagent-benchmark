@@ -1,0 +1,16 @@
+{
+  "mergeImplementation": "isolated-debug-10: implementation satisfies the stated contract",
+  "versionRule": {
+    "target": "src/catalog/mergePages.ts",
+    "guarantees": [
+      "overlap newer",
+      "overlap older",
+      "new identity"
+    ]
+  },
+  "fixtureCases": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

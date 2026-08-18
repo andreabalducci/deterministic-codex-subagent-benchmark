@@ -1,0 +1,6 @@
+{
+  "consumerGuarantee": "unknown keys are rejected; registered values are dispatched verbatim",
+  "mappingPurpose": "status_code -> handler name used by dispatch_response",
+  "schemaVersion": 1,
+  "valueType": "string"
+}

@@ -1,0 +1,6 @@
+{
+  "consumerGuarantee": "unknown keys are rejected; registered values are dispatched verbatim",
+  "mappingPurpose": "Python field -> JSON wire alias",
+  "schemaVersion": 1,
+  "valueType": "string"
+}

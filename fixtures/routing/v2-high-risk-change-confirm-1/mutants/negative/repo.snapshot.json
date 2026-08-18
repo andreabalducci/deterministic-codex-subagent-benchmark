@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Rename an internal test helper"
+  ],
+  "ecosystem": "dotnet",
+  "files": [
+    {
+      "content": "// Order-number column expansion: canonical contract boundary\npublic sealed record ChangeMarker(string Value);",
+      "path": "src/Contract.cs"
+    },
+    {
+      "content": "// SEEDED SIGNAL: migration 042 changes int to bigint before the old binary is compatible\ninternal static string Current = \"order-number-column-expansion\";",
+      "path": "src/Service.cs"
+    },
+    {
+      "content": "// Downstream consumer; must remain compatible with the frozen public contract.",
+      "path": "src/Migration.cs"
+    },
+    {
+      "content": "// Deterministic acceptance coverage for Order-number column expansion; currently missing the seeded edge.",
+      "path": "tests/RiskAcceptanceTests.cs"
+    }
+  ],
+  "scenario": "Order-number column expansion",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "migration 042 changes int to bigint before the old binary is compatible"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

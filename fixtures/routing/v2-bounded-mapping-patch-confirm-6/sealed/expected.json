@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "billing_v2": "BillingWorkspace"
+  },
+  "relative": "src/feature_components.json"
+}

@@ -1,0 +1,12 @@
+{
+  "build": {
+    "sourcemap": false
+  },
+  "preview": {
+    "port": 4173
+  },
+  "server": {
+    "port": 4173,
+    "strictPort": true
+  }
+}

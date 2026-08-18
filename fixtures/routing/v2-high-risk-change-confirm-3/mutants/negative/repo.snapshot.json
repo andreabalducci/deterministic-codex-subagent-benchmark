@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Optimize a metrics label"
+  ],
+  "ecosystem": "python",
+  "files": [
+    {
+      "content": "# Signed job payload decoder: shared protocol boundary\nCHANGE_MARKER = 'signed-job-payload-decoder'",
+      "path": "src/contract.py"
+    },
+    {
+      "content": "# SEEDED SIGNAL: worker/codec.py calls pickle.loads on a queue-controlled payload\ndef current_marker(): return CHANGE_MARKER",
+      "path": "src/service.py"
+    },
+    {
+      "content": "# Downstream consumer; preserve the documented call contract.",
+      "path": "src/migration.py"
+    },
+    {
+      "content": "# Deterministic pytest coverage for Signed job payload decoder; seeded edge is not covered.",
+      "path": "tests/test_risk_acceptance.py"
+    }
+  ],
+  "scenario": "Signed job payload decoder",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "worker/codec.py calls pickle.loads on a queue-controlled payload"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

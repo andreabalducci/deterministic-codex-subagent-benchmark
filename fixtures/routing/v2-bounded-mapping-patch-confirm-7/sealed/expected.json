@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "text/csv": "parse_csv"
+  },
+  "relative": "src/mime_parsers.json"
+}

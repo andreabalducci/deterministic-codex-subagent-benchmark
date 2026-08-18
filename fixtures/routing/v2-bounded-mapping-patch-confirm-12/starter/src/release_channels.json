@@ -1,0 +1,5 @@
+{
+  "nightly": "refs/heads/nightly",
+  "rc": "refs/heads/release/rc",
+  "stable": "refs/heads/main"
+}

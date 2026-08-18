@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": ".github/release-policy.json",
+  "testKind": "json-contract",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "default deny",
+      "path": [
+        "defaultPermissions"
+      ],
+      "expected": {}
+    },
+    {
+      "name": "OIDC",
+      "path": [
+        "releaseJob",
+        "id-token"
+      ],
+      "expected": "write"
+    },
+    {
+      "name": "no static secret",
+      "path": [
+        "allowLongLivedSecrets"
+      ],
+      "expected": false
+    }
+  ]
+}

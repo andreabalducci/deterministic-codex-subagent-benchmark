@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "adapter": "artifact-rubric-v1",
+  "mutable": [
+    "answer.json"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/Render/Job.cs",
+    "src/Render/RenderQueue.cs",
+    "src/Render/Renderer.cs"
+  ],
+  "required": [],
+  "rubric": [
+    "shutdownVerdict",
+    "cancellationBreaks",
+    "callSiteEvidence",
+    "componentExoneration"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "acceptance": {
+    "artifacts": [
+      "scripts/check-risk-change.sh",
+      "rollback rehearsal record",
+      "compatibility review note"
+    ],
+    "commands": [
+      "./scripts/audit-release-workflow.sh"
+    ],
+    "finalReview": "Approve only when the seeded regression, rollback rehearsal, and compatibility constraint are evidenced; this fixture does not establish broader family coverage."
+  },
+  "changePlan": {
+    "scope": [
+      ".github/workflows/change.yml",
+      "config/rollback.yml",
+      "scripts/check-risk-change.sh"
+    ],
+    "steps": [
+      "add a failing regression for the seeded defect",
+      "implement the smallest compatible guard",
+      "exercise rollback before final review"
+    ]
+  },
+  "riskAssessment": {
+    "blastRadius": "Compromised action can modify repository contents and releases",
+    "constraints": [
+      "Keep OIDC publication and the manual approval environment"
+    ],
+    "distractorDisposition": "Exclude Dependabot schedule preference; it is unrelated to the seeded defect.",
+    "seededDefect": "release.yml grants write-all and runs an unpinned third-party signer",
+    "stratum": "security"
+  },
+  "rollback": {
+    "actions": [
+      "Revert the workflow commit and revoke the generated release attestation"
+    ],
+    "compatibility": "Keep OIDC publication and the manual approval environment",
+    "trigger": "Rollback if `./scripts/audit-release-workflow.sh` fails or the stated blast-radius symptom appears."
+  },
+  "summary": "Narrow Release signing permission reduction to the seeded security defect and its compatibility boundary."
+}

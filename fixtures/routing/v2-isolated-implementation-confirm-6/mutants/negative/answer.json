@@ -1,0 +1,12 @@
+{
+  "codeOutcome": "isolated-debug-06: implementation satisfies the stated contract",
+  "timerLifecycle": {
+    "mutant": "fixture-8",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "deterministicCases": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

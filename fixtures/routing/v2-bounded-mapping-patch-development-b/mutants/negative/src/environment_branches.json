@@ -1,0 +1,6 @@
+{
+  "beta": "incorrect-target",
+  "preview": "pull-request",
+  "production": "main",
+  "staging": "release/staging"
+}

@@ -1,0 +1,1 @@
+{"user":65532,"listenPort":8080,"readiness":{"path":"/health/live","port":8080},"graceSeconds":15}

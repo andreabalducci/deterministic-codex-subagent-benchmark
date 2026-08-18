@@ -1,0 +1,5 @@
+{
+  "dashboard": "DashboardPage",
+  "invoices": "InvoiceList",
+  "profile": "ProfilePage"
+}

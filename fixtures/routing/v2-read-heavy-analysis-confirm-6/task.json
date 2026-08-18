@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "adapter": "artifact-rubric-v1",
+  "mutable": [
+    "answer.json"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/articles/ArticleBody.tsx",
+    "src/articles/ArticleTitle.tsx",
+    "src/articles/routes.ts",
+    "src/articles/useArticle.ts"
+  ],
+  "required": [],
+  "rubric": [
+    "contentSafetySummary",
+    "cacheAndXssFindings",
+    "preciseCitations",
+    "safeSurfaces"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "raceAnalysis": "read-heavy-10: Analyze request cancellation races in typeahead search",
+  "abortLifecycleFindings": [
+    {
+      "factId": "aborted-controller-reuse",
+      "statement": "The persistent controller is aborted and then immediately reused for fetch, so every request uses an already-aborted signal."
+    },
+    {
+      "factId": "no-cleanup-return",
+      "statement": "The effect returns no cleanup function, so unmount does not own cancellation separately."
+    }
+  ],
+  "hookEvidence": [
+    {
+      "factId": "aborted-controller-reuse",
+      "path": "src/search/useTypeahead.ts",
+      "line": 7,
+      "excerpt": "fetch('/api/search?q=' + encodeURIComponent(query), {signal: controller.current.signal}).then(r => r.json()).then(setResults);"
+    },
+    {
+      "factId": "no-cleanup-return",
+      "path": "src/search/useTypeahead.ts",
+      "line": 5,
+      "excerpt": "useEffect(() => {"
+    }
+  ],
+  "unrelatedHelpers": [
+    "Stable result keys and the minimum-length helper are not involved in signal lifetime."
+  ]
+}

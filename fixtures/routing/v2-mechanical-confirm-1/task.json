@@ -1,0 +1,12 @@
+{
+  "adapter": "json-semantic-diff-v1",
+  "immutable": [
+    "TASK.md"
+  ],
+  "mutable": [
+    "src/CacheOptions.json"
+  ],
+  "required": [],
+  "rubric": [],
+  "schemaVersion": 1
+}

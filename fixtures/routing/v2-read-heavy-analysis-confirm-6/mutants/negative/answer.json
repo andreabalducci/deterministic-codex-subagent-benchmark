@@ -1,0 +1,28 @@
+{
+  "contentSafetySummary": "read-heavy-06: Audit localized article caching and HTML rendering boundaries",
+  "cacheAndXssFindings": [
+    {
+      "factId": "locale-cache-collision",
+      "statement": "locale affects the fetch but is omitted from queryKey, so cached content can cross locales for the same slug."
+    },
+    {
+      "factId": "html-trust-boundary",
+      "statement": "ArticleBody injects raw HTML without any visible sanitization boundary."
+    }
+  ],
+  "preciseCitations": [
+    {
+      "factId": "locale-cache-collision",
+      "path": "src/articles/useArticle.ts",
+      "line": 3,
+      "excerpt": "return useQuery({ queryKey: ['article', slug], queryFn: () => fetch('/api/articles/' + slug + '?locale=' + locale).then(r => r.json()) });"
+    },
+    {
+      "factId": "html-trust-boundary",
+      "path": "src/articles/ArticleBody.tsx",
+      "line": 2,
+      "excerpt": "return <article dangerouslySetInnerHTML={{__html: html}} />;"
+    }
+  ],
+  "safeSurfaces": []
+}

@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "409": "conflict"
+  },
+  "relative": "src/http_status_handlers.json"
+}

@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/routing-analysis.schema.json",
+  "type": "object",
+  "required": [
+    "schemaVersion", "recordKind", "protocolId", "protocolHash", "planHash",
+    "complete", "bootstrap", "multiplicity", "families"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "recordKind": {"const": "routing-analysis"},
+    "protocolId": {"type": "string", "minLength": 1},
+    "protocolHash": {"$ref": "#/$defs/hash"},
+    "planHash": {"$ref": "#/$defs/hash"},
+    "complete": {"const": true},
+    "bootstrap": {
+      "type": "object",
+      "required": ["method", "seed", "samples"],
+      "properties": {
+        "method": {"const": "fixture-then-paired-replicate-percentile"},
+        "seed": {"type": "string", "minLength": 1},
+        "samples": {"type": "integer", "minimum": 100}
+      },
+      "additionalProperties": false
+    },
+    "multiplicity": {
+      "type": "object",
+      "required": [
+        "method", "familywiseAlpha", "supportHypotheses", "contradictionHypotheses",
+        "simultaneousBoundsMethod", "simultaneousTailAlpha"
+      ],
+      "properties": {
+        "method": {"const": "holm-centered-bootstrap"},
+        "familywiseAlpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "supportHypotheses": {"type": "integer", "minimum": 1},
+        "contradictionHypotheses": {"type": "integer", "minimum": 1},
+        "simultaneousBoundsMethod": {"const": "bonferroni-percentile"},
+        "simultaneousTailAlpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "families": {
+      "type": "array", "minItems": 1,
+      "items": {"$ref": "#/$defs/familyAnalysis"}
+    }
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "intervalValue": {"type": "number", "minimum": -1, "maximum": 1},
+    "absoluteQuality": {
+      "type": "object",
+      "required": [
+        "estimate", "lower95", "upper95", "nominalLower95",
+        "nominalUpper95", "floor", "rawSupportP", "holmAdjustedSupportP",
+        "rawContradictionP", "holmAdjustedContradictionP"
+      ],
+      "properties": {
+        "estimate": {"$ref": "#/$defs/probability"},
+        "lower95": {"$ref": "#/$defs/probability"},
+        "upper95": {"$ref": "#/$defs/probability"},
+        "nominalLower95": {"$ref": "#/$defs/probability"},
+        "nominalUpper95": {"$ref": "#/$defs/probability"},
+        "floor": {"$ref": "#/$defs/probability"},
+        "rawSupportP": {"$ref": "#/$defs/probability"},
+        "holmAdjustedSupportP": {"$ref": "#/$defs/probability"},
+        "rawContradictionP": {"$ref": "#/$defs/probability"},
+        "holmAdjustedContradictionP": {"$ref": "#/$defs/probability"}
+      },
+      "additionalProperties": false
+    },
+    "comparison": {
+      "type": "object",
+      "required": [
+        "comparatorId", "candidatePassRate", "comparatorPassRate", "difference",
+        "lower95", "upper95", "nominalLower95", "nominalUpper95",
+        "nonInferiorityMargin", "rawNonInferiorityP",
+        "holmAdjustedNonInferiorityP", "rawContradictionP", "holmAdjustedContradictionP"
+      ],
+      "properties": {
+        "comparatorId": {"type": "string", "minLength": 1},
+        "candidatePassRate": {"$ref": "#/$defs/probability"},
+        "comparatorPassRate": {"$ref": "#/$defs/probability"},
+        "difference": {"$ref": "#/$defs/intervalValue"},
+        "lower95": {"$ref": "#/$defs/intervalValue"},
+        "upper95": {"$ref": "#/$defs/intervalValue"},
+        "nominalLower95": {"$ref": "#/$defs/intervalValue"},
+        "nominalUpper95": {"$ref": "#/$defs/intervalValue"},
+        "nonInferiorityMargin": {"$ref": "#/$defs/probability"},
+        "rawNonInferiorityP": {"$ref": "#/$defs/probability"},
+        "holmAdjustedNonInferiorityP": {"$ref": "#/$defs/probability"},
+        "rawContradictionP": {"$ref": "#/$defs/probability"},
+        "holmAdjustedContradictionP": {"$ref": "#/$defs/probability"}
+      },
+      "additionalProperties": false
+    },
+    "decisionGate": {
+      "type": "object",
+      "required": [
+        "type", "metric", "comparatorId", "candidateValue", "comparatorValue", "gain",
+        "lower95", "upper95", "nominalLower95", "nominalUpper95",
+        "minimumGain", "rawSupportP", "holmAdjustedSupportP", "rawContradictionP",
+        "holmAdjustedContradictionP"
+      ],
+      "properties": {
+        "type": {"enum": ["economy", "capability"]},
+        "metric": {"enum": ["generation-duration-gain-fraction", "verified-completion-rate-difference"]},
+        "comparatorId": {"type": "string", "minLength": 1},
+        "candidateValue": {"type": "number", "minimum": 0},
+        "comparatorValue": {"type": "number", "minimum": 0},
+        "gain": {"type": "number"},
+        "lower95": {"type": "number"},
+        "upper95": {"type": "number"},
+        "nominalLower95": {"type": "number"},
+        "nominalUpper95": {"type": "number"},
+        "minimumGain": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "rawSupportP": {"$ref": "#/$defs/probability"},
+        "holmAdjustedSupportP": {"$ref": "#/$defs/probability"},
+        "rawContradictionP": {"$ref": "#/$defs/probability"},
+        "holmAdjustedContradictionP": {"$ref": "#/$defs/probability"}
+      },
+      "additionalProperties": false
+    },
+    "estimateValues": {
+      "type": "object",
+      "required": ["fixtures", "observations", "candidatePassRate", "comparatorPassRate", "candidateValue", "comparatorValue", "gain"],
+      "properties": {
+        "fixtures": {"type": "integer", "minimum": 1},
+        "observations": {"type": "integer", "minimum": 1},
+        "candidatePassRate": {"$ref": "#/$defs/probability"},
+        "comparatorPassRate": {"$ref": "#/$defs/probability"},
+        "candidateValue": {"type": "number", "minimum": 0},
+        "comparatorValue": {"type": "number", "minimum": 0},
+        "gain": {"type": "number"}
+      }
+    },
+    "robustness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["thresholds", "machines", "ecosystems", "leaveOneFixtureOut", "fixtures", "heterogeneity", "passed", "reasons"],
+      "properties": {
+        "thresholds": {
+          "type": "object", "additionalProperties": false,
+          "required": ["maximumQualityFloorShortfall", "maximumDecisionGainShortfall", "maximumFixtureCandidateRateRange", "maximumFixtureDecisionGainRange", "qualityBoundary", "decisionGainBoundary"],
+          "properties": {
+            "maximumQualityFloorShortfall": {"type": "number"}, "maximumDecisionGainShortfall": {"type": "number"},
+            "maximumFixtureCandidateRateRange": {"type": "number"}, "maximumFixtureDecisionGainRange": {"type": "number"},
+            "qualityBoundary": {"type": "number"}, "decisionGainBoundary": {"type": "number"}
+          }
+        },
+        "machines": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/estimateValues"}, {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}}}]}},
+        "ecosystems": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/estimateValues"}, {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}}}]}},
+        "leaveOneFixtureOut": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/estimateValues"}, {"type": "object", "required": ["omittedFixtureId"], "properties": {"omittedFixtureId": {"type": "string"}}}]}},
+        "fixtures": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/estimateValues"}, {"type": "object", "required": ["fixtureId"], "properties": {"fixtureId": {"type": "string"}}}]}},
+        "heterogeneity": {"type": "object", "additionalProperties": false, "required": ["fixtureCandidateRateRange", "fixtureDecisionGainRange"], "properties": {"fixtureCandidateRateRange": {"type": "number", "minimum": 0}, "fixtureDecisionGainRange": {"type": "number", "minimum": 0}}},
+        "passed": {"type": "boolean"},
+        "reasons": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "familyAnalysis": {
+      "type": "object",
+      "required": [
+        "familyId", "candidateId", "plannedRuns", "observedRuns", "absoluteQuality",
+        "comparisons", "decisionGate", "robustness", "decision", "reasons"
+      ],
+      "properties": {
+        "familyId": {"type": "string", "minLength": 1},
+        "candidateId": {"type": "string", "minLength": 1},
+        "plannedRuns": {"type": "integer", "minimum": 1},
+        "observedRuns": {"type": "integer", "minimum": 1},
+        "absoluteQuality": {"$ref": "#/$defs/absoluteQuality"},
+        "comparisons": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/comparison"}},
+        "decisionGate": {"$ref": "#/$defs/decisionGate"},
+        "robustness": {"$ref": "#/$defs/robustness"},
+        "decision": {"enum": ["SUPPORTED", "INCONCLUSIVE", "CONTRADICTED"]},
+        "reasons": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,19 @@
+{
+  "implementation": {
+    "mutant": "fixture-1",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "edgeContract": {
+    "target": "src/Gateway.Routing/RouteTemplate.cs",
+    "guarantees": [
+      "duplicate separators",
+      "root",
+      "blank"
+    ]
+  },
+  "verification": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Missing translation for an out-of-scope marketing page"
+  ],
+  "ecosystem": "react-typescript",
+  "files": [
+    {
+      "content": "// Generated locale-key adoption: shared boundary\nexport type ChangeMarker = { value: string };",
+      "path": "src/schema.ts"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Generator and UI branches both modify generatedKeys.ts\nexport const marker = 'generated-locale-key-adoption';",
+      "path": "src/generatedKeys.ts"
+    },
+    {
+      "content": "// Downstream consumer; preserve the exported API and hydration behavior.",
+      "path": "src/LocalePicker.tsx"
+    },
+    {
+      "content": "// Deterministic Vitest coverage for Generated locale-key adoption; seeded edge is not covered.",
+      "path": "apps/account/LocalePicker.test.tsx"
+    }
+  ],
+  "scenario": "Generated locale-key adoption",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Generator and UI branches both modify generatedKeys.ts"
+  ],
+  "topology": "locales/schema -> generated keys -> account settings UI",
+  "topologyShape": "ordered-chain"
+}

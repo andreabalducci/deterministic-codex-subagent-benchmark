@@ -1,0 +1,15 @@
+{
+  "fix": "isolated-debug-01: implementation satisfies the stated contract",
+  "boundaryBehavior": {
+    "target": "src/Traffic/SlidingWindowLimiter.cs",
+    "guarantees": [
+      "capacity",
+      "boundary",
+      "invalid capacity"
+    ]
+  },
+  "proof": {
+    "mutant": "fixture-3",
+    "failure": "intentionally violates one rubric dimension"
+  }
+}

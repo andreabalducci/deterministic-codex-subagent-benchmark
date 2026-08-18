@@ -1,0 +1,6 @@
+{
+  "consumerGuarantee": "unknown keys are rejected; registered values are dispatched verbatim",
+  "mappingPurpose": "feature flag -> lazy React component",
+  "schemaVersion": 1,
+  "valueType": "string"
+}

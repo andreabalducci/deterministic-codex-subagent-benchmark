@@ -1,0 +1,42 @@
+{
+  "acceptance": {
+    "artifacts": [
+      "tests/RiskAcceptanceTests.cs",
+      "rollback rehearsal record",
+      "compatibility review note"
+    ],
+    "commands": [
+      "dotnet test Payments.sln --filter MoneyPrecision"
+    ],
+    "finalReview": "Approve only when the seeded regression, rollback rehearsal, and compatibility constraint are evidenced; this fixture does not establish broader family coverage."
+  },
+  "changePlan": {
+    "scope": [
+      "src/Service.cs",
+      "src/Migration.cs",
+      "tests/RiskAcceptanceTests.cs"
+    ],
+    "steps": [
+      "add a failing regression for the seeded defect",
+      "implement the smallest compatible guard",
+      "exercise rollback before final review"
+    ]
+  },
+  "riskAssessment": {
+    "blastRadius": "Refund totals can drift from captured payment amounts",
+    "constraints": [
+      "Keep JSON amounts as strings and support old rows during backfill"
+    ],
+    "distractorDisposition": "Exclude Upgrade a logging package; it is unrelated to the seeded defect.",
+    "seededDefect": "Price.Amount is decimal but migration 118 creates real and rounds refunds",
+    "stratum": "migration"
+  },
+  "rollback": {
+    "actions": [
+      "Immediately delete compatibility state; also include Upgrade a logging package."
+    ],
+    "compatibility": "Keep JSON amounts as strings and support old rows during backfill",
+    "trigger": "Rollback if `dotnet test Payments.sln --filter MoneyPrecision` fails or the stated blast-radius symptom appears."
+  },
+  "summary": "Narrow Money precision transition to the seeded migration defect and its compatibility boundary."
+}

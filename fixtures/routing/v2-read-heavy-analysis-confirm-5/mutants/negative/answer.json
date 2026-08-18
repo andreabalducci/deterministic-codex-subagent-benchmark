@@ -1,0 +1,24 @@
+{
+  "performanceVerdict": "read-heavy-05: Locate latency amplification in the customer export endpoint",
+  "latencyAmplifiers": [
+    {
+      "factId": "n-plus-one",
+      "statement": "A separate Orders CountAsync query runs inside the customer loop, producing one query per customer after the initial load."
+    },
+    {
+      "factId": "async-void",
+      "statement": "The controller entry point is async void, so failures cannot be awaited or returned through a Task contract."
+    }
+  ],
+  "lineEvidence": [
+    {
+      "factId": "n-plus-one",
+      "path": "src/Exports/CustomerExporter.cs",
+      "line": 10,
+      "excerpt": "var orders = await db.Orders.Where(x => x.CustomerId == customer.Id).CountAsync(ct);"
+    }
+  ],
+  "benignComponents": [
+    "Row is an immutable projection and is not a materialization bottleneck."
+  ]
+}

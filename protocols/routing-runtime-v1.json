@@ -1,0 +1,21 @@
+{
+  "advertisedCapabilities": {
+    "reasoningEfforts": ["low", "medium", "high"],
+    "serviceTier": "priority",
+    "treatmentIds": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]
+  },
+  "codexVersion": "codex-cli 0.147.0",
+  "ephemeral": true,
+  "fastMode": true,
+  "ignoreRules": true,
+  "ignoreUserConfig": true,
+  "multiAgent": false,
+  "observability": {
+    "model": false,
+    "serviceTier": false,
+    "usage": true
+  },
+  "recordKind": "routing-runtime-controls",
+  "schemaVersion": 1,
+  "serviceTier": "priority"
+}

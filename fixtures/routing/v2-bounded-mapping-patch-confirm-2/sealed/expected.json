@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "/audit": "Audit log"
+  },
+  "relative": "src/route_labels.json"
+}

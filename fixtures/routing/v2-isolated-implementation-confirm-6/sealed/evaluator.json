@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/hooks/debounceCore.ts",
+  "testKind": "node-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "burst",
+      "condition": "a,b,c within delay",
+      "expected": "c once"
+    },
+    {
+      "name": "second burst",
+      "condition": "after fire then d",
+      "expected": "d once"
+    },
+    {
+      "name": "negative delay",
+      "condition": "-1",
+      "expected": "RangeError"
+    }
+  ]
+}

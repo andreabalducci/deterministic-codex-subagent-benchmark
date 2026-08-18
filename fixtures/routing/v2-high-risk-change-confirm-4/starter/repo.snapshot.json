@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Issue template wording"
+  ],
+  "ecosystem": "repository-artifacts",
+  "files": [
+    {
+      "content": "# Pull-request workflow hardening: first repository boundary\nname: pull-request-workflow-hardening",
+      "path": ".github/policy.yml"
+    },
+    {
+      "content": "# SEEDED SIGNAL: pr-preview.yml checks out fork code while holding cloud credentials\nname: verify-pull-request-workflow-hardening",
+      "path": ".github/workflows/change.yml"
+    },
+    {
+      "content": "# Consumer artifact; compatibility and provenance constraints apply.",
+      "path": "config/rollback.yml"
+    },
+    {
+      "content": "#!/bin/sh\n# Offline deterministic check for Pull-request workflow hardening; seeded edge is not covered.",
+      "path": "scripts/check-risk-change.sh"
+    }
+  ],
+  "scenario": "Pull-request workflow hardening",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "pr-preview.yml checks out fork code while holding cloud credentials"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

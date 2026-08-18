@@ -1,0 +1,8 @@
+{
+  "packages": {
+    "httpx": "0.28.0",
+    "pydantic": "2.8.2",
+    "tenacity": "8.5.0"
+  },
+  "python": "3.12"
+}

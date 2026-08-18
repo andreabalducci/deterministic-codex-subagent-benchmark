@@ -1,0 +1,6 @@
+{
+  "consumerGuarantee": "unknown keys are rejected; registered values are dispatched verbatim",
+  "mappingPurpose": "CLI alias -> canonical command",
+  "schemaVersion": 1,
+  "valueType": "string"
+}

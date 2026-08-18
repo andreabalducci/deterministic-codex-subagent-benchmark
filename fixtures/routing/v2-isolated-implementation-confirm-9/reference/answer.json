@@ -1,0 +1,16 @@
+{
+  "securityFix": "isolated-debug-09: implementation satisfies the stated contract",
+  "tokenizationContract": {
+    "target": "src/Auth/ScopeMatcher.cs",
+    "guarantees": [
+      "exact",
+      "prefix",
+      "spacing"
+    ]
+  },
+  "attackCases": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

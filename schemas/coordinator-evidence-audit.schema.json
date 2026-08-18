@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/coordinator-evidence-audit.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "estimand", "hashAlgorithm", "artifacts", "inputs", "replay"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "recordKind": {"const": "coordinator-evidence-audit"},
+    "estimand": {"const": "live-coordinator-with-frozen-workers"},
+    "hashAlgorithm": {"const": "sha256"},
+    "artifacts": {
+      "type": "array", "minItems": 1,
+      "items": {"type": "object", "additionalProperties": false,
+        "required": ["path", "sha256", "bytes", "mediaType"],
+        "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/hash"}, "bytes": {"type": "integer", "minimum": 0}, "mediaType": {"const": "application/json"}}
+      }
+    },
+    "inputs": {"type": "object", "additionalProperties": false,
+      "required": ["resultDocumentHashes"],
+      "properties": {"resultDocumentHashes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/hash"}}}
+    },
+    "replay": {"type": "object", "additionalProperties": false,
+      "required": ["analysisAlgorithm", "analysisImplementationSha256"],
+      "properties": {"analysisAlgorithm": {"const": "coordinator_analysis.analyze"}, "analysisImplementationSha256": {"$ref": "#/$defs/hash"}}
+    }
+  },
+  "$defs": {"hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

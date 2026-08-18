@@ -1,0 +1,18 @@
+{
+  "adapter": "artifact-rubric-v1",
+  "immutable": [
+    "TASK.md",
+    "WORK_ITEM.md",
+    "repo.snapshot.json"
+  ],
+  "mutable": [
+    "answer.json"
+  ],
+  "required": [],
+  "rubric": [
+    "summary",
+    "workPlan",
+    "integration"
+  ],
+  "schemaVersion": 1
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "adapter": "command-test-v1",
+  "mutable": [
+    "answer.json",
+    "src/Imports/CsvRowParser.cs"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/Imports/ImportRow.cs",
+    "src/Imports/Imports.csproj"
+  ],
+  "required": [],
+  "rubric": [
+    "parserChange",
+    "grammarContract",
+    "scenarioChecks"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ]
+}

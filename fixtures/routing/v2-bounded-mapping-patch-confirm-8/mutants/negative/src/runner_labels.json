@@ -1,0 +1,6 @@
+{
+  "linux-arm64": "incorrect-target",
+  "linux-x64": "ubuntu-24.04",
+  "macos-arm64": "macos-15",
+  "windows-x64": "windows-2025"
+}

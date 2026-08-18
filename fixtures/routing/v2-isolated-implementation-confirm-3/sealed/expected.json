@@ -1,0 +1,16 @@
+{
+  "changeDigest": "isolated-debug-03: implementation satisfies the stated contract",
+  "cacheSemantics": {
+    "target": "src/ttl_cache.py",
+    "guarantees": [
+      "deadline equality",
+      "copy in/out",
+      "ttl"
+    ]
+  },
+  "validationRecord": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

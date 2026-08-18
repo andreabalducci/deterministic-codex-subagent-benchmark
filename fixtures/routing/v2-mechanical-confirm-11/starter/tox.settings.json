@@ -1,0 +1,13 @@
+{
+  "testenv": {
+    "commands": [
+      "pytest -q"
+    ]
+  },
+  "tox": {
+    "env_list": [
+      "py311"
+    ],
+    "skip_missing_interpreters": true
+  }
+}

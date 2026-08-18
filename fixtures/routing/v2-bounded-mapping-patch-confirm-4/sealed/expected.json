@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "mobile": "@mobile-platform"
+  },
+  "relative": "src/team_owners.json"
+}

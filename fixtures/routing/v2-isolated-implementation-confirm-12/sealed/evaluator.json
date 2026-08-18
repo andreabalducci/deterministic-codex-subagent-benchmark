@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "deploy/runtime-contract.json",
+  "testKind": "json-contract",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "non-root",
+      "path": [
+        "user"
+      ],
+      "expected": 65532
+    },
+    {
+      "name": "port",
+      "path": [
+        "listenPort"
+      ],
+      "expected": 8080
+    },
+    {
+      "name": "probe path",
+      "path": [
+        "readiness",
+        "path"
+      ],
+      "expected": "/health/ready"
+    },
+    {
+      "name": "drain",
+      "path": [
+        "graceSeconds"
+      ],
+      "expected": 15
+    }
+  ]
+}

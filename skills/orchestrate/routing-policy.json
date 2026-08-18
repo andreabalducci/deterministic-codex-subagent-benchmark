@@ -1,0 +1,129 @@
+{
+  "decisionRules": {
+    "delegateOnlyWhenParallelismMateriallyHelps": true,
+    "fallback": {
+      "onExhaustion": "do-not-delegate",
+      "rule": "try-fallback-route-ids-in-order",
+      "silentSubstitutionForbidden": true
+    },
+    "tieBreakers": [
+      "highest-safety-rank",
+      "most-specific-match",
+      "lowest-precedence-number"
+    ],
+    "uncertainty": {
+      "rule": "choose-the-highest-safety-rank-among-plausible-routes",
+      "unknownHighRiskRouteId": "sol-high"
+    }
+  },
+  "defaults": [
+    {
+      "claimStrength": "hypothesis",
+      "evidenceRefs": [],
+      "fallbackRouteIds": ["luna-medium", "sol-medium"],
+      "estimand": "worker",
+      "id": "luna-low",
+      "model": "gpt-5.6-luna",
+      "precedence": 10,
+      "reasoningEffort": "low",
+      "safetyRank": 10,
+      "specificity": 60,
+      "summary": "Tightly bounded, low-risk mechanical work with cheap deterministic verification",
+      "taskClass": "mechanical-repository-work"
+    },
+    {
+      "claimStrength": "hypothesis",
+      "evidenceRefs": [],
+      "fallbackRouteIds": ["luna-high", "sol-medium"],
+      "estimand": "worker",
+      "id": "luna-medium",
+      "model": "gpt-5.6-luna",
+      "precedence": 20,
+      "reasoningEffort": "medium",
+      "safetyRank": 20,
+      "specificity": 60,
+      "summary": "Bounded code mapping or a small low-risk patch with an explicit contract and strong checks",
+      "taskClass": "bounded-mapping-and-patch"
+    },
+    {
+      "claimStrength": "hypothesis",
+      "evidenceRefs": [],
+      "fallbackRouteIds": ["sol-medium", "sol-high"],
+      "estimand": "worker",
+      "id": "luna-high",
+      "model": "gpt-5.6-luna",
+      "precedence": 30,
+      "reasoningEffort": "high",
+      "safetyRank": 30,
+      "specificity": 60,
+      "summary": "Isolated, well-specified implementation or repair with deterministic acceptance tests",
+      "taskClass": "isolated-implementation-debugging"
+    },
+    {
+      "claimStrength": "hypothesis",
+      "evidenceRefs": [],
+      "fallbackRouteIds": ["sol-medium", "sol-high"],
+      "estimand": "worker",
+      "id": "terra-medium",
+      "model": "gpt-5.6-terra",
+      "precedence": 40,
+      "reasoningEffort": "medium",
+      "safetyRank": 40,
+      "specificity": 60,
+      "summary": "Broad, read-heavy exploration, triage, or large-file synthesis without subtle behavioral risk",
+      "taskClass": "read-heavy-exploration-synthesis"
+    },
+    {
+      "claimStrength": "hypothesis",
+      "evidenceRefs": [],
+      "fallbackRouteIds": ["sol-high"],
+      "estimand": "worker",
+      "id": "sol-medium",
+      "model": "gpt-5.6-sol",
+      "precedence": 50,
+      "reasoningEffort": "medium",
+      "safetyRank": 50,
+      "specificity": 60,
+      "summary": "Coordination, integration, or implementation requiring broader context or judgment",
+      "taskClass": "coordination-integration"
+    },
+    {
+      "claimStrength": "hypothesis",
+      "evidenceRefs": [],
+      "fallbackRouteIds": [],
+      "estimand": "worker",
+      "id": "sol-high",
+      "model": "gpt-5.6-sol",
+      "precedence": 60,
+      "reasoningEffort": "high",
+      "safetyRank": 60,
+      "specificity": 60,
+      "summary": "Ambiguous, cross-cutting, high-risk, concurrency-, security-, or migration-heavy work and final review",
+      "taskClass": "ambiguous-cross-cutting-high-risk"
+    }
+  ],
+  "coordinatorDefaults": [
+    {
+      "claimStrength": "hypothesis",
+      "configurationId": "sol-medium",
+      "estimand": "live-coordinator-with-frozen-workers",
+      "evidenceRefs": [],
+      "id": "live-coordinator-session",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "medium",
+      "summary": "Session-starting hypothesis for the live coordinator while all leaf workers remain frozen to Luna high",
+      "taskClass": "coordination-integration"
+    }
+  ],
+  "evidenceBundles": [],
+  "fastMode": {
+    "inferFromModelOrEffort": false,
+    "requiredForLuna": false,
+    "scope": "session",
+    "spawnAgentParameter": false
+  },
+  "policyId": "orchestrate-routing",
+  "policyVersion": "1.0.0",
+  "schemaVersion": 1,
+  "status": "provisional"
+}

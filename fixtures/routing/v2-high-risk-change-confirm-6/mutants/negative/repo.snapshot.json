@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Restyle the account avatar"
+  ],
+  "ecosystem": "react-typescript",
+  "files": [
+    {
+      "content": "// SSR feature-flag hydration: shared boundary\nexport type ChangeMarker = { value: string };",
+      "path": "src/contract.ts"
+    },
+    {
+      "content": "// SEEDED SIGNAL: server renders checkoutV2=false while client defaults missing flags to true\nexport const marker = 'ssr-feature-flag-hydration';",
+      "path": "src/client.ts"
+    },
+    {
+      "content": "// Downstream consumer; preserve the exported API and hydration behavior.",
+      "path": "src/migration.ts"
+    },
+    {
+      "content": "// Deterministic Vitest coverage for SSR feature-flag hydration; seeded edge is not covered.",
+      "path": "tests/risk.acceptance.test.tsx"
+    }
+  ],
+  "scenario": "SSR feature-flag hydration",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "server renders checkoutV2=false while client defaults missing flags to true"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

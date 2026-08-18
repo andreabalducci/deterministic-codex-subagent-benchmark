@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "adapter": "command-test-v1",
+  "mutable": [
+    "answer.json",
+    "src/Traffic/SlidingWindowLimiter.cs"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/Traffic/RequestStamp.cs",
+    "src/Traffic/Traffic.csproj"
+  ],
+  "required": [],
+  "rubric": [
+    "fix",
+    "boundaryBehavior",
+    "proof"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ]
+}

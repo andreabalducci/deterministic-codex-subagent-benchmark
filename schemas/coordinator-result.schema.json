@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/coordinator-result.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "protocolHash", "planHash", "runId", "fixtureId", "replicate", "machineId", "orderPosition", "coordinatorTreatmentId", "coordinatorModel", "coordinatorReasoningEffort", "workerPolicyHash", "status", "failureKind", "promptHash", "transcriptHash", "generationDurationSeconds", "usage", "runtime", "delegations", "coordination", "integration", "provenance"],
+  "properties": {
+    "schemaVersion": {"const": 1}, "recordKind": {"const": "coordinator-result"},
+    "protocolHash": {"$ref": "#/$defs/hash"}, "planHash": {"$ref": "#/$defs/hash"},
+    "runId": {"type": "string", "pattern": "^coord-[0-9a-f]{24}$"}, "fixtureId": {"type": "string"},
+    "replicate": {"type": "integer", "minimum": 1}, "machineId": {"type": "string"}, "orderPosition": {"type": "integer", "minimum": 1},
+    "coordinatorTreatmentId": {"type": "string"}, "coordinatorModel": {"type": "string"}, "coordinatorReasoningEffort": {"enum": ["low", "medium", "high"]},
+    "workerPolicyHash": {"$ref": "#/$defs/hash"}, "status": {"enum": ["PASS", "CANDIDATE_FAILURE", "INFRA_FAILURE"]},
+    "failureKind": {"type": ["string", "null"]}, "promptHash": {"$ref": "#/$defs/hash"}, "transcriptHash": {"$ref": "#/$defs/hash"},
+    "generationDurationSeconds": {"type": "number", "minimum": 0},
+    "usage": {"type": "object", "additionalProperties": false, "required": ["inputTokens", "cachedInputTokens", "cacheWriteInputTokens", "outputTokens", "reasoningOutputTokens", "totalTokens"], "properties": {"inputTokens": {"$ref": "#/$defs/nullableCount"}, "cachedInputTokens": {"$ref": "#/$defs/nullableCount"}, "cacheWriteInputTokens": {"$ref": "#/$defs/nullableCount"}, "outputTokens": {"$ref": "#/$defs/nullableCount"}, "reasoningOutputTokens": {"$ref": "#/$defs/nullableCount"}, "totalTokens": {"$ref": "#/$defs/nullableCount"}}},
+    "runtime": {"type": "object", "additionalProperties": false, "required": ["codexVersion", "observedCoordinatorModel", "serviceTier", "fastMode", "multiAgent"], "properties": {"codexVersion": {"type": ["string", "null"]}, "observedCoordinatorModel": {"type": ["string", "null"]}, "serviceTier": {"type": ["string", "null"]}, "fastMode": {"type": "boolean"}, "multiAgent": {"const": true}}},
+    "delegations": {"type": "array", "items": {"$ref": "#/$defs/delegation"}},
+    "coordination": {"type": "object", "additionalProperties": false, "required": ["traceCompliance", "concurrencyCompliance", "delegatedCount", "completedCount", "interventionCount", "conflictsObserved", "conflictsResolved", "unresolvedConflicts", "criticalPathSeconds", "totalWorkerSeconds", "utilization"], "properties": {"traceCompliance": {"type": "boolean"}, "concurrencyCompliance": {"type": "boolean"}, "delegatedCount": {"type": "integer", "minimum": 0}, "completedCount": {"type": "integer", "minimum": 0}, "interventionCount": {"type": "integer", "minimum": 0}, "conflictsObserved": {"type": "integer", "minimum": 0}, "conflictsResolved": {"type": "integer", "minimum": 0}, "unresolvedConflicts": {"type": "integer", "minimum": 0}, "criticalPathSeconds": {"type": ["number", "null"], "minimum": 0}, "totalWorkerSeconds": {"type": "number", "minimum": 0}, "utilization": {"type": ["number", "null"], "minimum": 0, "maximum": 1}}},
+    "integration": {"type": "object", "additionalProperties": false, "required": ["accepted", "candidateHash", "reportHash"], "properties": {"accepted": {"type": "boolean"}, "candidateHash": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]}, "reportHash": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]}}},
+    "provenance": {"type": "object", "additionalProperties": false, "required": ["gitCommit", "files", "platform"], "properties": {"gitCommit": {"type": ["string", "null"]}, "files": {"type": "object", "additionalProperties": {"$ref": "#/$defs/hash"}}, "platform": {"type": "object", "additionalProperties": false, "required": ["system", "release", "machine", "python"], "properties": {"system": {"type": "string"}, "release": {"type": "string"}, "machine": {"type": "string"}, "python": {"type": "string"}}}}}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "nullableCount": {"type": ["integer", "null"], "minimum": 0},
+    "delegation": {"type": "object", "additionalProperties": false, "required": ["workerSlot", "agentId", "promptHash", "model", "reasoningEffort", "forkTurns", "startedAtMs", "completedAtMs", "status", "nestedDelegations", "artifactHash"], "properties": {"workerSlot": {"type": "integer", "minimum": 1}, "agentId": {"type": "string"}, "promptHash": {"$ref": "#/$defs/hash"}, "model": {"type": ["string", "null"]}, "reasoningEffort": {"type": ["string", "null"], "enum": ["low", "medium", "high", null]}, "forkTurns": {"type": ["string", "null"]}, "startedAtMs": {"type": "integer", "minimum": 0}, "completedAtMs": {"type": ["integer", "null"], "minimum": 0}, "status": {"enum": ["completed", "failed", "incomplete"]}, "nestedDelegations": {"type": ["integer", "null"], "minimum": 0}, "artifactHash": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]}}}
+  }
+}

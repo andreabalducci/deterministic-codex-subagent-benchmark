@@ -1,0 +1,6 @@
+{
+  "application/json": "parse_json",
+  "application/xml": "parse_xml",
+  "text/csv": "parse_csv",
+  "text/plain": "parse_text"
+}

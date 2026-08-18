@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/routing-policy.schema.json",
+  "type": "object",
+  "required": ["schemaVersion", "policyId", "policyVersion", "status", "evidenceBundles", "defaults", "coordinatorDefaults", "decisionRules", "fastMode"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "policyId": { "const": "orchestrate-routing" },
+    "policyVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "status": { "enum": ["provisional", "mixed", "evidence-backed"] },
+    "evidenceBundles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["id", "estimand", "schemaVersion", "canonicalSha256", "protocolHash", "planHash", "taskFamilies"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "estimand": { "enum": ["worker", "live-coordinator-with-frozen-workers"] },
+          "schemaVersion": { "type": "integer", "minimum": 1 },
+          "canonicalSha256": { "$ref": "#/$defs/hash" },
+          "protocolHash": { "$ref": "#/$defs/hash" },
+          "planHash": { "$ref": "#/$defs/hash" },
+          "taskFamilies": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "defaults": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/route" }
+    },
+    "coordinatorDefaults": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": { "$ref": "#/$defs/coordinatorRoute" }
+    },
+    "decisionRules": {
+      "type": "object",
+      "required": ["delegateOnlyWhenParallelismMateriallyHelps", "tieBreakers", "uncertainty", "fallback"],
+      "properties": {
+        "delegateOnlyWhenParallelismMateriallyHelps": { "const": true },
+        "tieBreakers": {
+          "const": ["highest-safety-rank", "most-specific-match", "lowest-precedence-number"]
+        },
+        "uncertainty": {
+          "type": "object",
+          "required": ["rule", "unknownHighRiskRouteId"],
+          "properties": {
+            "rule": { "const": "choose-the-highest-safety-rank-among-plausible-routes" },
+            "unknownHighRiskRouteId": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        },
+        "fallback": {
+          "type": "object",
+          "required": ["rule", "onExhaustion", "silentSubstitutionForbidden"],
+          "properties": {
+            "rule": { "const": "try-fallback-route-ids-in-order" },
+            "onExhaustion": { "const": "do-not-delegate" },
+            "silentSubstitutionForbidden": { "const": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "fastMode": {
+      "type": "object",
+      "required": ["scope", "spawnAgentParameter", "requiredForLuna", "inferFromModelOrEffort"],
+      "properties": {
+        "scope": { "const": "session" },
+        "spawnAgentParameter": { "const": false },
+        "requiredForLuna": { "const": false },
+        "inferFromModelOrEffort": { "const": false }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "evidenceRef": {
+      "type": "object",
+      "required": ["bundleId", "estimand", "taskFamily", "analysisId", "configurationId", "comparisonConfigurationIds", "metric", "estimate", "interval95", "decision"],
+      "properties": {
+        "bundleId": { "type": "string", "minLength": 1 },
+        "estimand": { "enum": ["worker", "live-coordinator-with-frozen-workers"] },
+        "taskFamily": { "type": "string", "minLength": 1 },
+        "analysisId": { "type": "string", "minLength": 1 },
+        "configurationId": { "type": "string", "minLength": 1 },
+        "comparisonConfigurationIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "metric": { "enum": ["generation-duration-gain-fraction", "verified-completion-rate-difference", "trace-and-integration-success-rate-difference"] },
+        "estimate": { "type": "number" },
+        "interval95": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+        "decision": { "const": "SUPPORTED" }
+      },
+      "additionalProperties": false
+    },
+    "route": {
+      "type": "object",
+      "required": ["id", "estimand", "summary", "taskClass", "model", "reasoningEffort", "precedence", "safetyRank", "specificity", "claimStrength", "evidenceRefs", "fallbackRouteIds"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "estimand": { "enum": ["worker", "live-coordinator-with-frozen-workers"] },
+        "summary": { "type": "string", "minLength": 1 },
+        "taskClass": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "reasoningEffort": { "enum": ["low", "medium", "high"] },
+        "precedence": { "type": "integer", "minimum": 0 },
+        "safetyRank": { "type": "integer", "minimum": 0 },
+        "specificity": { "type": "integer", "minimum": 0 },
+        "claimStrength": { "enum": ["hypothesis", "evidence-backed"] },
+        "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/evidenceRef" } },
+        "fallbackRouteIds": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "coordinatorRoute": {
+      "type": "object",
+      "required": ["id", "estimand", "summary", "taskClass", "configurationId", "model", "reasoningEffort", "claimStrength", "evidenceRefs"],
+      "properties": {
+        "id": { "const": "live-coordinator-session" },
+        "estimand": { "const": "live-coordinator-with-frozen-workers" },
+        "summary": { "type": "string", "minLength": 1 },
+        "taskClass": { "const": "coordination-integration" },
+        "configurationId": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "reasoningEffort": { "enum": ["low", "medium", "high"] },
+        "claimStrength": { "enum": ["hypothesis", "evidence-backed"] },
+        "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/evidenceRef" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

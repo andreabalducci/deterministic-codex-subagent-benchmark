@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "README typo in the reporting sample"
+  ],
+  "ecosystem": "dotnet",
+  "files": [
+    {
+      "content": "// Invoice export contract split: canonical contract boundary\npublic sealed record ChangeMarker(string Value);",
+      "path": "src/ExportRequest.cs"
+    },
+    {
+      "content": "// SEEDED SIGNAL: The worker still reads the frozen v1 ExportRequest shape\ninternal static string Current = \"invoice-export-contract-split\";",
+      "path": "src/ExportController.cs"
+    },
+    {
+      "content": "// Downstream consumer; must remain compatible with the frozen public contract.",
+      "path": "src/InvoiceExportJob.cs"
+    },
+    {
+      "content": "// Deterministic acceptance coverage for Invoice export contract split; currently missing the seeded edge.",
+      "path": "tests/Billing.IntegrationTests.cs"
+    }
+  ],
+  "scenario": "Invoice export contract split",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "The worker still reads the frozen v1 ExportRequest shape"
+  ],
+  "topology": "Billing.Contracts -> Billing.Api -> Billing.Worker",
+  "topologyShape": "ordered-chain"
+}

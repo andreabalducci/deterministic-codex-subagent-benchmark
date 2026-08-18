@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Dependabot schedule preference"
+  ],
+  "ecosystem": "repository-artifacts",
+  "files": [
+    {
+      "content": "# Release signing permission reduction: first repository boundary\nname: release-signing-permission-reduction",
+      "path": ".github/policy.yml"
+    },
+    {
+      "content": "# SEEDED SIGNAL: release.yml grants write-all and runs an unpinned third-party signer\nname: verify-release-signing-permission-reduction",
+      "path": ".github/workflows/change.yml"
+    },
+    {
+      "content": "# Consumer artifact; compatibility and provenance constraints apply.",
+      "path": "config/rollback.yml"
+    },
+    {
+      "content": "#!/bin/sh\n# Offline deterministic check for Release signing permission reduction; seeded edge is not covered.",
+      "path": "scripts/check-risk-change.sh"
+    }
+  ],
+  "scenario": "Release signing permission reduction",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "release.yml grants write-all and runs an unpinned third-party signer"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

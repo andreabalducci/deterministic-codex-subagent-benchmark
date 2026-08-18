@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "adapter": "sealed-command-v1",
+  "target": "src/archive_paths.py",
+  "testKind": "python-behavior",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ],
+  "cases": [
+    {
+      "name": "posix traversal",
+      "condition": "../secret",
+      "expected": "ValueError"
+    },
+    {
+      "name": "windows traversal",
+      "condition": "..\\secret",
+      "expected": "ValueError"
+    },
+    {
+      "name": "drive",
+      "condition": "C:\\secret",
+      "expected": "ValueError"
+    },
+    {
+      "name": "safe",
+      "condition": "images/a.png",
+      "expected": "PurePosixPath"
+    }
+  ]
+}

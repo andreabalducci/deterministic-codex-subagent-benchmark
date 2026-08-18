@@ -1,0 +1,17 @@
+{
+  "artifactUpdate": "isolated-debug-12: implementation satisfies the stated contract",
+  "runtimeContract": {
+    "target": "deploy/runtime-contract.json",
+    "guarantees": [
+      "non-root",
+      "port",
+      "probe path",
+      "drain"
+    ]
+  },
+  "deploymentAssertions": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 4,
+    "result": "PASS"
+  }
+}

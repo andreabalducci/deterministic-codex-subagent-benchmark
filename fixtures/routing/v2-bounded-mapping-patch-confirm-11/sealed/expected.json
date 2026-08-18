@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "rm": "delete"
+  },
+  "relative": "src/command_aliases.json"
+}

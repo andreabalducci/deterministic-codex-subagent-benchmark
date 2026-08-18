@@ -1,0 +1,16 @@
+{
+  "implementationNote": "isolated-debug-02: implementation satisfies the stated contract",
+  "canonicalizationRules": {
+    "target": "src/search/canonicalQuery.ts",
+    "guarantees": [
+      "key order",
+      "array order",
+      "reserved"
+    ]
+  },
+  "caseResults": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "adapter": "command-test-v1",
+  "mutable": [
+    "answer.json",
+    "migrations/004_identity_constraints.sql"
+  ],
+  "immutable": [
+    "TASK.md",
+    "docs/identity-model.md",
+    "migrations/003_identity_table.sql"
+  ],
+  "required": [],
+  "rubric": [
+    "migrationResult",
+    "dataInvariant",
+    "constraintTests"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "maxEntries": 750,
+  "region": "eu-west",
+  "slidingExpirationSeconds": 30
+}

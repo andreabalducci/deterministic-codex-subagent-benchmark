@@ -1,0 +1,42 @@
+{
+  "acceptance": {
+    "artifacts": [
+      "tests/risk.acceptance.test.tsx",
+      "rollback rehearsal record",
+      "compatibility review note"
+    ],
+    "commands": [
+      "pnpm vitest run service-worker-migration"
+    ],
+    "finalReview": "Approve only when the seeded regression, rollback rehearsal, and compatibility constraint are evidenced; this fixture does not establish broader family coverage."
+  },
+  "changePlan": {
+    "scope": [
+      "src/client.ts",
+      "src/migration.ts",
+      "tests/risk.acceptance.test.tsx"
+    ],
+    "steps": [
+      "add a failing regression for the seeded defect",
+      "implement the smallest compatible guard",
+      "exercise rollback before final review"
+    ]
+  },
+  "riskAssessment": {
+    "blastRadius": "Offline tabs lose queued drafts during rolling activation",
+    "constraints": [
+      "Retain v3 draft entries and keep the message protocol backward compatible"
+    ],
+    "distractorDisposition": "Exclude Update favicon metadata; it is unrelated to the seeded defect.",
+    "seededDefect": "activate deletes v3 caches before all open tabs can read v4 responses",
+    "stratum": "migration"
+  },
+  "rollback": {
+    "actions": [
+      "Unregister v4, serve the v3 worker, and retain both cache namespaces"
+    ],
+    "compatibility": "Retain v3 draft entries and keep the message protocol backward compatible",
+    "trigger": "Rollback if `pnpm vitest run service-worker-migration` fails or the stated blast-radius symptom appears."
+  },
+  "summary": "Narrow Service-worker cache schema bump to the seeded migration defect and its compatibility boundary."
+}

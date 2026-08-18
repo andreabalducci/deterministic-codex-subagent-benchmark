@@ -1,0 +1,6 @@
+{
+  "consumerGuarantee": "unknown keys are rejected; registered values are dispatched verbatim",
+  "mappingPurpose": "JWT claim -> UserIdentity property",
+  "schemaVersion": 1,
+  "valueType": "string"
+}

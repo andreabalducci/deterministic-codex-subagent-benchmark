@@ -1,0 +1,19 @@
+{
+  "implementationNote": {
+    "mutant": "fixture-4",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "canonicalizationRules": {
+    "target": "src/search/canonicalQuery.ts",
+    "guarantees": [
+      "key order",
+      "array order",
+      "reserved"
+    ]
+  },
+  "caseResults": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}

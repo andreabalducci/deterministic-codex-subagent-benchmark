@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: reports}
+spec:
+  selector: {matchLabels: {app: reports}}
+  template:
+    metadata: {labels: {app: reports}}
+    spec:
+      containers:
+      - name: api
+        image: reports:2.4.1
+        ports: [{name: api, containerPort: 8080}]
+        readinessProbe: {httpGet: {path: /ready, port: api}}

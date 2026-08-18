@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Legacy email sender TODO"
+  ],
+  "ecosystem": "dotnet",
+  "files": [
+    {
+      "content": "// Outbox envelope integration: canonical contract boundary\npublic sealed record ChangeMarker(string Value);",
+      "path": "src/OutboxEnvelope.cs"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Producer and dispatcher assume different header casing\ninternal static string Current = \"outbox-envelope-integration\";",
+      "path": "src/CheckoutEndpoint.cs"
+    },
+    {
+      "content": "// Downstream consumer; must remain compatible with the frozen public contract.",
+      "path": "src/OutboxPump.cs"
+    },
+    {
+      "content": "// Deterministic acceptance coverage for Outbox envelope integration; currently missing the seeded edge.",
+      "path": "tests/OutboxContractTests.cs"
+    }
+  ],
+  "scenario": "Outbox envelope integration",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Producer and dispatcher assume different header casing"
+  ],
+  "topology": "Messaging.Contracts -> Checkout.Api -> Outbox.Dispatcher",
+  "topologyShape": "ordered-chain"
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/coordinator-evidence-bundle.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "estimand", "bundleId", "protocolId", "complete", "protocolHash", "planHash", "catalogHash", "workerPolicyHash", "resultsHash", "analysisHash", "provenanceHash", "auditHash", "counts", "decision", "artifacts"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "recordKind": {"const": "coordinator-evidence-bundle"},
+    "estimand": {"const": "live-coordinator-with-frozen-workers"},
+    "bundleId": {"type": "string", "minLength": 1},
+    "protocolId": {"type": "string", "minLength": 1},
+    "complete": {"const": true},
+    "protocolHash": {"$ref": "#/$defs/hash"},
+    "planHash": {"$ref": "#/$defs/hash"},
+    "catalogHash": {"$ref": "#/$defs/hash"},
+    "workerPolicyHash": {"$ref": "#/$defs/hash"},
+    "resultsHash": {"$ref": "#/$defs/hash"},
+    "analysisHash": {"$ref": "#/$defs/hash"},
+    "provenanceHash": {"$ref": "#/$defs/hash"},
+    "auditHash": {"$ref": "#/$defs/hash"},
+    "counts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fixtures", "results", "treatments"],
+      "properties": {
+        "fixtures": {"type": "integer", "minimum": 12},
+        "results": {"type": "integer", "minimum": 1},
+        "treatments": {"type": "integer", "minimum": 2}
+      }
+    },
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["taskFamily", "candidateId", "decision"],
+      "properties": {
+        "taskFamily": {"const": "coordination-integration"},
+        "candidateId": {"type": "string", "minLength": 1},
+        "decision": {"enum": ["SUPPORTED", "INCONCLUSIVE", "CONTRADICTED"]}
+      }
+    },
+    "artifacts": {"const": {
+      "protocol": "protocol.json", "plan": "plan.json", "catalog": "catalog.json",
+      "manifestIndex": "manifest-index.json", "results": "results.json",
+      "analysis": "analysis.json", "provenance": "provenance.json", "audit": "audit.json"
+    }}
+  },
+  "$defs": {"hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

@@ -1,0 +1,1 @@
+namespace Auth; public static class ScopeMatcher { public static bool HasScope(string? claim, string required) => claim?.Split(' ').Any(scope => scope.StartsWith(required, StringComparison.Ordinal)) == true; }

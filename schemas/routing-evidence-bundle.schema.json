@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/deterministic-subagent-benchmark/routing-evidence-bundle.schema.json",
+  "title": "Routing evidence bundle index",
+  "type": "object",
+  "required": [
+    "schemaVersion", "recordKind", "estimand", "bundleId", "protocolId", "complete",
+    "protocolHash", "runtimeManifestHash", "planHash", "catalogHash", "resultsHash", "analysisHash",
+    "provenanceHash", "auditHash", "counts", "decisions", "artifacts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "recordKind": { "const": "routing-evidence-bundle" },
+    "estimand": { "const": "worker" },
+    "bundleId": { "type": "string", "minLength": 1 },
+    "protocolId": { "type": "string", "minLength": 1 },
+    "complete": { "const": true },
+    "protocolHash": { "$ref": "#/$defs/hash" },
+    "runtimeManifestHash": { "$ref": "#/$defs/hash" },
+    "planHash": { "$ref": "#/$defs/hash" },
+    "catalogHash": { "$ref": "#/$defs/hash" },
+    "resultsHash": { "$ref": "#/$defs/hash" },
+    "analysisHash": { "$ref": "#/$defs/hash" },
+    "provenanceHash": { "$ref": "#/$defs/hash" },
+    "auditHash": { "$ref": "#/$defs/hash" },
+    "counts": {
+      "type": "object",
+      "required": ["families", "fixtures", "results"],
+      "properties": {
+        "families": { "type": "integer", "minimum": 1 },
+        "fixtures": { "type": "integer", "minimum": 1 },
+        "results": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["familyId", "candidateId", "decision"],
+        "properties": {
+          "familyId": { "type": "string", "minLength": 1 },
+          "candidateId": { "type": "string", "minLength": 1 },
+          "decision": { "enum": ["SUPPORTED", "INCONCLUSIVE", "CONTRADICTED"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "artifacts": {
+      "const": {
+        "protocol": "protocol.json",
+        "runtimeManifest": "runtime-manifest.json",
+        "preflightReports": "preflight-reports.json",
+        "plan": "plan.json",
+        "matrix": "matrix.json",
+        "catalog": "catalog.json",
+        "manifestIndex": "manifest-index.json",
+        "results": "results.json",
+        "evaluationInputs": "evaluation-inputs.json",
+        "analysis": "analysis.json",
+        "provenance": "provenance.json",
+        "audit": "audit.json"
+      }
+    }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "additionalProperties": false
+}

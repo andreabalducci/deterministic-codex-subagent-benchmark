@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "adapter": "command-test-v1",
+  "mutable": [
+    "answer.json",
+    "src/Auth/ScopeMatcher.cs"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/Auth/Auth.csproj",
+    "src/Auth/TokenClaims.cs"
+  ],
+  "required": [],
+  "rubric": [
+    "securityFix",
+    "tokenizationContract",
+    "attackCases"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Formatter upgrade proposal"
+  ],
+  "ecosystem": "python",
+  "files": [
+    {
+      "content": "# Async job-result contract: shared protocol boundary\nCHANGE_MARKER = 'async-job-result-contract'",
+      "path": "src/contracts.py"
+    },
+    {
+      "content": "# SEEDED SIGNAL: Executor returns error_detail while API reads error\ndef current_marker(): return CHANGE_MARKER",
+      "path": "src/executor.py"
+    },
+    {
+      "content": "# Downstream consumer; preserve the documented call contract.",
+      "path": "src/status.py"
+    },
+    {
+      "content": "# Deterministic pytest coverage for Async job-result contract; seeded edge is not covered.",
+      "path": "tests/test_job_result_contract.py"
+    }
+  ],
+  "scenario": "Async job-result contract",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Executor returns error_detail while API reads error"
+  ],
+  "topology": "jobs/contracts.py -> {jobs/executor.py, api/status.py}",
+  "topologyShape": "fork-join"
+}

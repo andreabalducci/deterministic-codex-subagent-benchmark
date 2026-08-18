@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "last_login_at": "lastLoginAt"
+  },
+  "relative": "src/serializer_aliases.json"
+}

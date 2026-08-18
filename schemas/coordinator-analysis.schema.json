@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/coordinator-analysis.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "protocolId", "protocolHash", "planHash", "estimand", "complete", "plannedRuns", "observedRuns", "primaryMetric", "candidateId", "treatmentRates", "absoluteQuality", "comparisons", "decisionGate", "stability", "multiplicity", "decision"],
+  "properties": {
+    "schemaVersion": {"const": 1}, "recordKind": {"const": "coordinator-analysis"},
+    "protocolId": {"type": "string"}, "protocolHash": {"$ref": "#/$defs/hash"}, "planHash": {"$ref": "#/$defs/hash"},
+    "estimand": {"const": "live-coordinator-with-frozen-workers"}, "complete": {"const": true},
+    "plannedRuns": {"type": "integer", "minimum": 1}, "observedRuns": {"type": "integer", "minimum": 1},
+    "primaryMetric": {"const": "trace-and-integration-success"}, "candidateId": {"type": "string"},
+    "treatmentRates": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}},
+    "absoluteQuality": {"$ref": "#/$defs/gate"}, "comparisons": {"type": "array", "items": {"type": "object"}},
+    "decisionGate": {"type": "object"}, "stability": {"type": "object"}, "multiplicity": {"type": "object"},
+    "decision": {"enum": ["SUPPORTED", "INCONCLUSIVE", "CONTRADICTED"]}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gate": {"type": "object", "required": ["estimate", "floor", "lower95", "upper95", "rawSupportP", "holmAdjustedSupportP", "rawContradictionP", "holmAdjustedContradictionP"]}
+  }
+}

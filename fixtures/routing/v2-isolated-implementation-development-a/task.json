@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "adapter": "command-test-v1",
+  "mutable": [
+    "answer.json",
+    "src/Gateway.Routing/RouteTemplate.cs"
+  ],
+  "immutable": [
+    "TASK.md",
+    "src/Gateway.Routing/Gateway.Routing.csproj",
+    "src/Gateway.Routing/RouteRegistry.cs"
+  ],
+  "required": [],
+  "rubric": [
+    "implementation",
+    "edgeContract",
+    "verification"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "command": [
+    "python3",
+    "sealed/tests/evaluate_candidate.py",
+    "{candidate}"
+  ]
+}

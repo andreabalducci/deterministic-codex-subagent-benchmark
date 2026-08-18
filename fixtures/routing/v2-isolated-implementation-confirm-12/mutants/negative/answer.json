@@ -1,0 +1,12 @@
+{
+  "artifactUpdate": "isolated-debug-12: implementation satisfies the stated contract",
+  "runtimeContract": {
+    "mutant": "fixture-14",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "deploymentAssertions": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 4,
+    "result": "PASS"
+  }
+}

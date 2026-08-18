@@ -1,0 +1,6 @@
+{
+  "additions": {
+    "beta": "release/beta"
+  },
+  "relative": "src/environment_branches.json"
+}

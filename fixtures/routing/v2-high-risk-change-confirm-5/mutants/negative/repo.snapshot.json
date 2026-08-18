@@ -1,0 +1,31 @@
+{
+  "distractors": [
+    "Upgrade a logging package"
+  ],
+  "ecosystem": "dotnet",
+  "files": [
+    {
+      "content": "// Money precision transition: canonical contract boundary\npublic sealed record ChangeMarker(string Value);",
+      "path": "src/Contract.cs"
+    },
+    {
+      "content": "// SEEDED SIGNAL: Price.Amount is decimal but migration 118 creates real and rounds refunds\ninternal static string Current = \"money-precision-transition\";",
+      "path": "src/Service.cs"
+    },
+    {
+      "content": "// Downstream consumer; must remain compatible with the frozen public contract.",
+      "path": "src/Migration.cs"
+    },
+    {
+      "content": "// Deterministic acceptance coverage for Money precision transition; currently missing the seeded edge.",
+      "path": "tests/RiskAcceptanceTests.cs"
+    }
+  ],
+  "scenario": "Money precision transition",
+  "schemaVersion": 1,
+  "seededSignals": [
+    "Price.Amount is decimal but migration 118 creates real and rounds refunds"
+  ],
+  "topology": "frozen boundary -> implementation and migration -> focused acceptance -> rollback review",
+  "topologyShape": "risk-gated-change"
+}

@@ -1,0 +1,19 @@
+{
+  "adapter": "command-test-v1",
+  "command": [
+    "python3",
+    "sealed/evaluate.py",
+    "{candidate}"
+  ],
+  "evaluatorProfile": "routing-evaluator-v1",
+  "immutable": [
+    "TASK.md",
+    "contracts/registry-contract.json"
+  ],
+  "mutable": [
+    "src/route_labels.json"
+  ],
+  "required": [],
+  "rubric": [],
+  "schemaVersion": 1
+}

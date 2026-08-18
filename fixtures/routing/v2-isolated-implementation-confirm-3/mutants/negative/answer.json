@@ -1,0 +1,12 @@
+{
+  "changeDigest": "isolated-debug-03: implementation satisfies the stated contract",
+  "cacheSemantics": {
+    "mutant": "fixture-5",
+    "failure": "intentionally violates one rubric dimension"
+  },
+  "validationRecord": {
+    "evaluator": "sealed-command-v1",
+    "caseCount": 3,
+    "result": "PASS"
+  }
+}
