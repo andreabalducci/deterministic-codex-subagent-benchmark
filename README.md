@@ -56,6 +56,7 @@ harness.py       planning, generation, evaluation, and aggregation
 routing_campaign.py  preregistered six-family plan and analysis
 routing_tasks.py     v2 task materialization and sealed evaluation
 routing_runner.py    one-job Codex generation and provenance capture
+routing_campaign_driver.py sequential per-machine resume and audited infra retry
 routing_preflight.py authenticated model/effort/Fast capability check
 construct_readiness.py construct-validity report and paid-campaign gate
 blinded_adjudication.py blinded packet, independent ratings, and replayable adjudication
@@ -119,16 +120,34 @@ requires zero unresolved cases; synthetic or agent-authored ratings are not a
 substitute for the two human reviews.
 
 After producing a private HMAC-keyed routing plan, execute its assigned jobs
-with a dedicated credential (this command incurs one model generation):
+with a dedicated credential. Normally use the machine driver, which preserves
+the preregistered order and resumes already completed jobs:
 
 ```bash
-python3 routing_runner.py \
+python3 routing_campaign_driver.py run-machine \
   --plan runs/routing-plan.json \
-  --run-id <opaque-run-id> \
-  --machine-id <assigned-logical-machine> \
-  --preflight runs/routing-preflight-<assigned-logical-machine>.json \
+  --machine-id machine-a \
+  --preflight runs/routing-preflight-machine-a.json \
   --auth-file /secure/path/benchmark-auth.json
 ```
+
+Every invocation may incur multiple model generations. Inspect progress with
+`routing_campaign_driver.py status`. The driver stops immediately on an
+`INFRA_FAILURE`; after correcting the infrastructure, retry only that planned
+unit while preserving its failed attempt:
+
+```bash
+python3 routing_campaign_driver.py retry-infra \
+  --plan runs/routing-plan.json --machine-id machine-a \
+  --run-id <failed-run-id> \
+  --preflight runs/routing-preflight-machine-a.json \
+  --auth-file /secure/path/benchmark-auth.json
+```
+
+The old result, transcript, metadata, and workspace move into a numbered
+`runs/routing/replacements/<run-id>/attempt-N/` directory with a hash inventory.
+Nothing is silently overwritten. `routing_runner.py` remains available for one
+explicit job and is what the driver invokes.
 
 Raw JSONL and stderr remain mode-0600 run artifacts. The strict public result
 contains their hashes, requested and observed runtime controls, token usage,

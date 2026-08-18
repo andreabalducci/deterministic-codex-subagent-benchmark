@@ -177,6 +177,18 @@ mutation coverage and prompt-similarity gates are satisfied. This remaining gate
 prevents deterministic rubric proxies from being presented as validated human
 quality judgments.
 
+## Distributed execution and infrastructure retries
+
+Run one persistent `routing_campaign_driver.py run-machine` process on each of
+the three preregistered physical hosts, using that host's exact preflight report.
+The driver walks only its assigned jobs in plan order and safely skips validated
+existing results when resumed. A first `INFRA_FAILURE` pauses that machine.
+After the operator corrects the external cause, `retry-infra --run-id ...`
+archives every current artifact in a numbered immutable attempt directory with
+a SHA-256 inventory and then reruns the same planned unit. Candidate failures
+are outcomes and are never retried. Do not reuse three logical machine labels on
+one host: the machine robustness analysis assumes genuinely distinct hosts.
+
 ## Independent samples
 
 An independent sample is a new model generation in a fresh ephemeral session
