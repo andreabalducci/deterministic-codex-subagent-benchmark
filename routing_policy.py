@@ -356,23 +356,24 @@ def resolve_route(
 def generated_block(policy: dict[str, Any]) -> str:
     rows = "\n".join(
         f"| `{route['id']}` | {route['summary']} | `{route['selectedConfigurationId']}`: `{route['model']}`, "
-        f"`reasoning_effort: \"{route['reasoningEffort']}\"` |"
+        f"`reasoning_effort: \"{route['reasoningEffort']}\"` | `{route['claimStrength']}` |"
         for route in policy["defaults"]
     )
     coordinator = policy["coordinatorDefaults"][0]
+    cost_order = " → ".join(f"`{item}`" for item in policy["configurationCostOrder"])
     return f"""## Routing defaults
 
 Status: `{policy['status']}`. Delegate only when parallelism materially helps.
 
-| Route | Use when | Default |
-| --- | --- | --- |
+| Route | Use when | Default | Evidence |
+| --- | --- | --- | --- |
 {rows}
 
 Coordinator hypothesis: `{coordinator['model']}` / `{coordinator['reasoningEffort']}` at session start; spawning cannot change the parent model.
 
 - Classify first. Break ties by safety rank, specificity, then precedence; uncertainty routes upward in risk.
-- Use the selected cheapest-sufficient configuration. Try only costlier fallbacks from `routing-policy.json`; otherwise keep the work with the coordinator.
-- Treat a row as evidence-backed only when `routing-policy.json` says so.
+- Cost order: {cost_order}. Use the selected configuration; if unavailable, try only later entries. If none is available, keep the work with the coordinator.
+- Treat a row as evidence-backed only when its table entry says so.
 - {FAST_MODE_TEXT}"""
 
 

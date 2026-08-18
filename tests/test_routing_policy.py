@@ -1,5 +1,6 @@
 import copy
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -359,9 +360,15 @@ class RoutingPolicyTests(unittest.TestCase):
         self.assertIn(routing_policy.FAST_MODE_TEXT, block)
         self.assertNotIn("<!--", current)
         self.assertNotIn(routing_policy.ROUTING_PLACEHOLDER, current)
+        self.assertNotIn("](", current)
+        self.assertIsNone(re.search(
+            r"\b[\w./-]+\.(?:json|md|ya?ml|toml|py)\b", current,
+            flags=re.IGNORECASE,
+        ))
         for route in self.policy["defaults"]:
             self.assertIn(f"`{route['id']}`", block)
             self.assertIn(f"`{route['selectedConfigurationId']}`", block)
+            self.assertIn(f"`{route['claimStrength']}`", block)
         with self.assertRaisesRegex(ValueError, "exactly one"):
             routing_policy.render_skill(
                 template + "\n" + routing_policy.ROUTING_PLACEHOLDER,
