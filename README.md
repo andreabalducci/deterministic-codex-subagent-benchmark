@@ -67,6 +67,62 @@ This is an expanded adaptation of Eric Provencher's original [`orchestrate` skil
 
 Do not pass your persistent default Codex login to generated code. Create a short-lived, least-privilege credential exclusively for the benchmark and provide it with `--auth-file` or `CODEX_BENCH_AUTH_FILE`. Codex itself requires outbound access to OpenAI, while model-generated commands run under the workspace sandbox without automatic approval. The container limits exposure but cannot make a credential invisible to code executing in the same container; strong adversarial operation requires an egress allowlist and credential broker outside this harness.
 
+## Quick start
+
+Start with the generation-free checks. These validate the fixture and evaluator without making model requests:
+
+```bash
+python3 harness.py manifest
+python3 -m unittest discover -s tests -v
+python3 harness.py verify --backend native --repeat 1 \
+  --output runs/verification-native.json
+python3 harness.py verify --backend docker --repeat 1 \
+  --output runs/verification-docker.json
+```
+
+Use `--repeat 20` for the full trusted-fixture calibration described below. The native check requires .NET SDK 10.0.301; the Docker check builds the pinned evaluator image automatically when needed.
+
+Running a benchmark campaign makes paid Codex model requests. Before starting, choose the campaign size and machine labels, prepare a dedicated short-lived credential, and freeze those choices. This example creates the documented 90-sample-per-configuration plan across three machines:
+
+```bash
+python3 harness.py plan \
+  --trials 90 \
+  --seed benchmark-v1 \
+  --machines mac-a,linux-b,mac-c \
+  --output runs/plan.json \
+  --blinded-output runs/plan.blinded.json \
+  --id-key-file runs/id-key
+
+export CODEX_BENCH_AUTH_FILE=/secure/path/benchmark-auth.json
+```
+
+Keep `runs/plan.json`, `runs/id-key`, and the credential private. On each machine, process its jobs in plan order using the exact assigned `runId` and `machineId` from `runs/plan.json`:
+
+```bash
+python3 harness.py run-job \
+  --plan runs/plan.json \
+  --run-id <assigned-run-id> \
+  --machine-id <assigned-machine-id> \
+  --backend docker \
+  --repeat 20
+```
+
+After every planned job has a resolved result, aggregate and publish the sanitized evidence bundle:
+
+```bash
+python3 harness.py aggregate \
+  --plan runs/plan.json \
+  runs/results/*.json \
+  --output runs/summary.json
+
+python3 harness.py publish \
+  --plan runs/plan.json \
+  runs/results/*.json \
+  --output runs/evidence.json
+```
+
+The commands below explain calibration, planning, execution, replacement handling, aggregation, and publication in detail. Do not treat the generation-free CLI flag check as proof that a model is available to the benchmark credential.
+
 ## Calibrate the evaluator
 
 ```bash
