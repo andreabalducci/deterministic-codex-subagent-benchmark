@@ -953,9 +953,18 @@ class HarnessTests(unittest.TestCase):
             "runId": run_id, "exitCode": 0, "durationSeconds": 2.0, "stderr": "",
             "timedOut": False, "launcherFailure": False, "outputLimitExceeded": False,
             "promptHash": harness.sha256_bytes(harness.AGENT_PROMPT.encode("utf-8")),
-            "generatorImage": {}, "isolation": "container-strong",
+            "generatorImage": self.image_info(
+                harness.GENERATOR_IMAGE, "docker/generator.Dockerfile"
+            ),
+            "isolation": "container-strong",
         }
         harness.save_json(root / "runs" / "generations" / f"{run_id}.meta.json", metadata)
+        (root / "runs" / "generations" / f"{run_id}.jsonl").write_text(
+            '{"type":"thread.started"}\n'
+            '{"type":"turn.started"}\n'
+            '{"type":"turn.completed"}\n',
+            encoding="utf-8",
+        )
         workspace = root / "runs" / "workspaces" / run_id
         harness.materialize(workspace)
         (workspace / "Cache.Core" / "AsyncExpiringCache.cs").write_bytes(
@@ -966,6 +975,11 @@ class HarnessTests(unittest.TestCase):
     def invoke_run_job(self, root, argv, *, evaluated=None, generated=None):
         """Drive main()'s run-job branch with no container, model, or credential."""
         calls = {"generate": 0, "evaluate": []}
+        provenance = harness.repository_provenance()
+        image_spec_hashes = {
+            dockerfile: harness.image_spec_hash(dockerfile)
+            for dockerfile in ("docker/evaluator.Dockerfile", "docker/generator.Dockerfile")
+        }
 
         def fake_generate(job, **_):
             calls["generate"] += 1
@@ -989,6 +1003,10 @@ class HarnessTests(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()), \
                 patch.object(harness, "ROOT", root), \
                 patch.object(harness, "RUNS", root / "runs"), \
+                patch.object(harness, "repository_provenance", lambda: provenance), \
+                patch.object(
+                    harness, "image_spec_hash", lambda dockerfile: image_spec_hashes[dockerfile]
+                ), \
                 patch.object(harness, "ensure_image", lambda *a, **k: None), \
                 patch.object(harness, "generate_candidate", fake_generate), \
                 patch.object(harness, "evaluate_candidate", fake_evaluate), \
@@ -1044,8 +1062,11 @@ class HarnessTests(unittest.TestCase):
                     self.invoke_run_job(root, argv)
 
             for kind in ("generation-launcher", "generation-inert"):
-                harness.save_json(output, self.campaign_result(
-                    job, plan_path, status="INFRA_FAILURE", failure_kind=kind))
+                generation_failure = self.campaign_result(
+                    job, plan_path, status="INFRA_FAILURE", failure_kind=kind
+                )
+                generation_failure["durationSeconds"] = None
+                harness.save_json(output, generation_failure)
                 with self.assertRaisesRegex(ValueError, "no sampled artifact"):
                     self.invoke_run_job(root, argv)
 
