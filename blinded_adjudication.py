@@ -130,6 +130,28 @@ def rating_template(assignment: dict[str, Any], rater_id: str) -> dict[str, Any]
     }
 
 
+def review_assignment(
+    assignment: dict[str, Any], rater_id: str, *, input_fn=input, output_fn=print
+) -> dict[str, Any]:
+    """Collect one complete independent rating without exposing the reveal."""
+    record = rating_template(assignment, rater_id)
+    total = len(assignment["cases"])
+    for index, case in enumerate(assignment["cases"], 1):
+        output_fn(f"\n=== Case {index}/{total}: {case['caseId']} ===")
+        output_fn(f"Family: {case['catalogFamilyId']}\nTask: {case['taskId']}")
+        for heading, files in (("STARTER", case["starterFiles"]), ("CANDIDATE", case["candidateFiles"])):
+            output_fn(f"\n--- {heading} ---")
+            for file in files:
+                output_fn(f"\n[{file['path']}]\n{file['text']}")
+        while True:
+            answer = input_fn("Does the candidate fully satisfy the task? [y/n]: ").strip().lower()
+            if answer in {"y", "yes", "n", "no"}:
+                record["ratings"][index - 1]["accepted"] = answer in {"y", "yes"}
+                break
+            output_fn("Please answer y or n.")
+    return record
+
+
 def validate_assignment(assignment: Any) -> dict[str, Any]:
     required = {"schemaVersion", "recordKind", "blinded", "protocolHash", "catalogHash", "cases"}
     if not isinstance(assignment, dict) or set(assignment) != required \
@@ -312,6 +334,10 @@ def parse_args() -> argparse.Namespace:
     rate_parser.add_argument("--assignment", type=Path, required=True)
     rate_parser.add_argument("--rater-id", required=True)
     rate_parser.add_argument("--output", type=Path, required=True)
+    review_parser = sub.add_parser("review")
+    review_parser.add_argument("--assignment", type=Path, required=True)
+    review_parser.add_argument("--rater-id", required=True)
+    review_parser.add_argument("--output", type=Path, required=True)
     aggregate_parser = sub.add_parser("aggregate")
     aggregate_parser.add_argument("--protocol", type=Path, default=routing_campaign.DEFAULT_PROTOCOL)
     aggregate_parser.add_argument("--catalog", type=Path, default=ROOT / "fixtures/catalog.json")
@@ -336,6 +362,10 @@ def main() -> int:
     elif args.command == "rating-template":
         template = rating_template(load_json(args.assignment), args.rater_id)
         save_json(args.output, template, private=True)
+    elif args.command == "review":
+        record = review_assignment(load_json(args.assignment), args.rater_id)
+        save_json(args.output, record, private=True)
+        print(json.dumps({"complete": True, "ratings": len(record["ratings"])}))
     elif args.command == "aggregate":
         artifact = aggregate(
             load_json(args.protocol), load_json(args.catalog), load_json(args.assignment),

@@ -154,8 +154,8 @@ full reasons. The planner then requires the passing report:
 
 The blinded adjudication is produced with `blinded_adjudication.py`: `prepare`
 creates an assignment containing no source labels or automated outcomes and a
-separate mode-0600 reveal; `rating-template` creates one complete decision form
-per human reviewer; `aggregate` requires two distinct complete reviewers and
+separate mode-0600 reveal; `review` interactively collects one complete decision
+form per human reviewer; `aggregate` requires two distinct complete reviewers and
 emits a replayable schema-v2 artifact. The verifier reconstructs all 36 sampled
 reference/mutant artifacts from the frozen catalog. Any reviewer disagreement
 or unanimous human verdict that differs from the deterministic evaluator is an

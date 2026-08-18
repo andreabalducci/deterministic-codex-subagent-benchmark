@@ -96,10 +96,10 @@ python3 blinded_adjudication.py prepare \
   --assignment runs/adjudication-assignment.json \
   --reveal runs/adjudication-reveal.json
 
-python3 blinded_adjudication.py rating-template \
+python3 blinded_adjudication.py review \
   --assignment runs/adjudication-assignment.json \
   --rater-id rater-a --output runs/rating-a.json
-python3 blinded_adjudication.py rating-template \
+python3 blinded_adjudication.py review \
   --assignment runs/adjudication-assignment.json \
   --rater-id rater-b --output runs/rating-b.json
 
@@ -111,8 +111,8 @@ python3 blinded_adjudication.py aggregate \
 python3 blinded_adjudication.py check runs/routing-blinded-adjudication.json
 ```
 
-Each reviewer sets every `accepted` field independently to `true` or `false`
-after inspecting the task, starter snapshot, and candidate artifact. The
+Each reviewer runs `review` independently and answers `y` or `n` after
+inspecting the task, starter snapshot, and candidate artifact. The
 aggregator rejects incomplete or duplicate raters and reports any human-human
 or human-evaluator disagreement as unresolved. The construct-readiness gate
 requires zero unresolved cases; synthetic or agent-authored ratings are not a

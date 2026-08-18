@@ -96,6 +96,16 @@ class BlindedAdjudicationTests(unittest.TestCase):
                 self.protocol, self.catalog, self.assignment, self.reveal, [first, incomplete]
             )
 
+    def test_interactive_review_reprompts_and_completes_every_case(self):
+        answers = iter(["maybe", "y"] + ["n"] * (len(self.assignment["cases"]) - 1))
+        output = []
+        record = adjudication.review_assignment(
+            self.assignment, "human-a", input_fn=lambda _: next(answers), output_fn=output.append
+        )
+        self.assertTrue(all(type(item["accepted"]) is bool for item in record["ratings"]))
+        self.assertIn("Please answer y or n.", output)
+        self.assertTrue(any("STARTER" in item for item in output))
+
 
 if __name__ == "__main__":
     unittest.main()
