@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "dispatcher-case",
+  "owner": "dispatcher",
+  "paths": [
+    "src/OutboxPump.cs",
+    "tests/OutboxContractTests.cs"
+  ]
+}

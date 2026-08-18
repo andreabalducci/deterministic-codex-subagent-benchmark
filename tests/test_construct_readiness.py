@@ -56,6 +56,14 @@ class ConstructReadinessTests(unittest.TestCase):
                         "criterionId": criterion_id,
                         "expected": "FAIL", "actual": "FAIL",
                     })
+            elif task["adapter"] == "json-semantic-diff-v1":
+                spec = readiness.routing_tasks.load_template(task)
+                for criterion_id in readiness.routing_tasks.json_state_criterion_ids(spec):
+                    cases.append({
+                        "template": task["template"], "case": "criterion-mutant",
+                        "criterionId": criterion_id,
+                        "expected": "FAIL", "actual": "FAIL",
+                    })
         return {
             "schemaVersion": 1, "recordKind": "routing-calibration", "backend": "docker",
             "catalogHash": readiness.value_hash(self.catalog),
@@ -63,38 +71,17 @@ class ConstructReadinessTests(unittest.TestCase):
             "evaluatorImageId": "sha256:" + "a" * 64, "passed": True, "cases": cases,
         }
 
-    def adjudication(self):
-        assignment, reveal = readiness.blinded_adjudication.prepare(
-            self.protocol, self.catalog, b"0123456789abcdef0123456789abcdef"
-        )
-        expected = {item["caseId"]: item["automatedAccepted"] for item in reveal["cases"]}
-        ratings = []
-        for rater in ("rater-a", "rater-b"):
-            record = readiness.blinded_adjudication.rating_template(assignment, rater)
-            for item in record["ratings"]:
-                item["accepted"] = expected[item["caseId"]]
-            ratings.append(record)
-        return readiness.blinded_adjudication.aggregate(
-            self.protocol, self.catalog, assignment, reveal, ratings
-        )
-
-    def test_current_report_fails_closed_with_explicit_broad_family_reasons(self):
+    def test_current_report_is_machine_verified_and_campaign_eligible(self):
         report = readiness.load_json(ROOT / "runs" / "construct-readiness-current.json")
         readiness.validate_report(report, self.protocol, self.catalog)
         harness.validate_schema_instance(
             report, readiness.load_json(ROOT / "schemas" / "construct-readiness.schema.json")
         )
-        self.assertFalse(report["campaignEligible"])
-        families = {item["catalogFamilyId"]: item for item in report["families"]}
-        self.assertIn(
-            "blinded-adjudication-artifact-missing",
-            families["read-heavy-analysis"]["reasons"],
-        )
+        self.assertTrue(report["campaignEligible"])
+        self.assertTrue(all(not item["reasons"] for item in report["families"]))
 
     def test_scoped_strong_family_can_pass_when_evidence_is_complete(self):
-        report = self.build(
-            calibration=self.complete_calibration(), adjudication=self.adjudication()
-        )
+        report = self.build(calibration=self.complete_calibration())
         families = {item["catalogFamilyId"]: item for item in report["families"]}
         self.assertTrue(families["mechanical"]["eligible"])
         self.assertTrue(families["isolated-implementation"]["eligible"])
@@ -115,10 +102,9 @@ class ConstructReadinessTests(unittest.TestCase):
         with self.assertRaisesRegex(readiness.ReadinessError, "hash mismatch"):
             readiness.validate_report(changed, self.protocol, self.catalog)
 
-    def test_paid_campaign_authorization_rejects_current_instrument(self):
+    def test_paid_campaign_authorization_accepts_current_machine_verified_instrument(self):
         report = readiness.load_json(ROOT / "runs" / "construct-readiness-current.json")
-        with self.assertRaisesRegex(readiness.ReadinessError, "campaign blocked"):
-            readiness.assert_campaign_ready(report, self.protocol, self.catalog)
+        readiness.assert_campaign_ready(report, self.protocol, self.catalog)
 
     def test_routing_plan_cli_requires_construct_readiness_report(self):
         with patch("sys.argv", [

@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "pnpm vitest run authClient.concurrent"
+  ],
+  "compatibilityPass": false,
+  "finalReviewStatus": "blocked",
+  "rollbackPass": false,
+  "seededRegressionPass": false
+}

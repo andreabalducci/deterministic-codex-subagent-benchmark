@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "dotnet test Commerce.sln --filter Outbox",
+  "conflictStatus": "resolved",
+  "distractor": "Legacy email sender TODO",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "contract",
+    "producer",
+    "dispatcher"
+  ],
+  "seededConflict": "Producer and dispatcher assume different header casing"
+}

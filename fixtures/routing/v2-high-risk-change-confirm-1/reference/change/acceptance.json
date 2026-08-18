@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "dotnet test Orders.sln --filter MixedVersion"
+  ],
+  "compatibilityPass": true,
+  "finalReviewStatus": "approved",
+  "rollbackPass": true,
+  "seededRegressionPass": true
+}

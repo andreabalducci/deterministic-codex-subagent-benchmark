@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "pnpm test --filter cart-summary",
+  "conflictStatus": "unresolved",
+  "distractor": "Footer copyright year",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "Client and UI branches each define DiscountBreakdown"
+}

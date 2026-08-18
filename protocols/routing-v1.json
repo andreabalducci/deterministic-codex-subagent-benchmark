@@ -78,7 +78,7 @@
     {
       "id": "read-heavy-exploration-synthesis",
       "catalogFamilyId": "read-heavy-analysis",
-      "label": "Read-heavy exploration, review, triage, and synthesis",
+      "label": "Structured defect localization with exact source evidence",
       "candidateId": "terra-medium",
       "heldOutFixtureIds": [
         "read-heavy-01", "read-heavy-02", "read-heavy-03", "read-heavy-04",
@@ -95,7 +95,7 @@
     {
       "id": "coordination-integration",
       "catalogFamilyId": "coordination-integration",
-      "label": "Multi-workstream coordination and integration",
+      "label": "Multi-file contract, producer, consumer, and acceptance state integration",
       "candidateId": "sol-medium",
       "heldOutFixtureIds": [
         "coordination-01", "coordination-02", "coordination-03", "coordination-04",
@@ -112,7 +112,7 @@
     {
       "id": "ambiguous-cross-cutting-high-risk",
       "catalogFamilyId": "high-risk-change",
-      "label": "Ambiguous cross-cutting high-risk work",
+      "label": "Compatibility, implementation, rollback, and acceptance state transitions",
       "candidateId": "sol-high",
       "heldOutFixtureIds": [
         "high-risk-01", "high-risk-02", "high-risk-03", "high-risk-04",

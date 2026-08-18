@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "canonical-lowercase",
+  "owner": "release-workflow",
+  "paths": [
+    "config/release.yml",
+    "scripts/verify-release.sh"
+  ]
+}

@@ -6,7 +6,7 @@ The planned campaign treats the six configurations as complete treatments. The m
 
 ## Evidence status
 
-The worker and coordinator protocols, 84 routing fixtures, runners, analysis, and evidence publisher are implemented, but no complete comparative campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any of the six routing rows in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. The pinned Docker calibration exercises 560 reference, negative, semantic-equivalence, strict-schema, and criterion-specific cases. Prompt diversity and criterion mutation coverage now meet their technical gates; the three rubric families remain blocked until a real blinded human adjudication is supplied. The paid campaign and broad policy promotion are therefore intentionally blocked.
+The worker and coordinator protocols, 84 routing fixtures, runners, analysis, and evidence publisher are implemented, but no complete comparative campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any of the six routing rows in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. All task outputs are now machine-verifiable: behavioral implementations run sealed tests, mapping and state tasks use semantic JSON contracts, and read-heavy tasks emit exact source-bound path/line/excerpt records. The pinned Docker calibration covers every reference, negative mutant, semantic-equivalence positive, and independently mutable JSON state. The paid campaign and policy promotion remain pending until the real comparative cohort exists.
 
 Keep these states distinct:
 
@@ -17,27 +17,26 @@ Keep these states distinct:
 ## Current handoff state
 
 The repository implementation is complete through campaign execution and
-evidence publication, and the full local suite last passed 138 tests. The
+evidence publication. The
 checked-in routing policy and bundled skill remain deliberately `provisional`.
-The operator has verified one authenticated preflight locally (`machine-a`),
-but preflight reports, credentials, adjudication keys, reveals, ratings, plans,
+The final machine-verifiable protocol revision invalidated the earlier local
+`machine-a` preflight by design. All preflight reports, credentials, plans,
 transcripts, and generated candidates are private run artifacts and are not
 committed.
 
 Promotion is currently waiting for external evidence, not another code change:
 
-1. Two human reviewers must independently complete all 36 blinded cases. Do
-   not use an AI agent or copy one review into the other.
-2. Two additional physical hosts must produce `machine-b` and `machine-c`
-   preflights. Logical labels on the same host are not substitutes.
-3. The resulting passing construct-readiness report and three preflight reports
+1. Three physical hosts must produce fresh `machine-a`, `machine-b`, and
+   `machine-c` preflights bound to the final protocol hash. Logical labels on
+   the same host are not substitutes.
+2. The passing machine-verifiable construct-readiness report and three preflight reports
    freeze the 648-job operational plan.
-4. Each host runs only its assigned 216 jobs. A complete resolved cohort is
+3. Each host runs only its assigned 216 jobs. A complete resolved cohort is
    analyzed and published before any routing row is promoted.
-5. `routing_policy.py` regenerates the skill only for `SUPPORTED` claims; the
+4. `routing_policy.py` regenerates the skill only for `SUPPORTED` claims; the
    repository skill is then copied to the local installation and hash-checked.
 
-Until all five steps are complete, the table in the skill is an explicit
+Until all four steps are complete, the table in the skill is an explicit
 working hypothesis. Model catalog availability—including Fast/`priority`
 support—does not establish comparative quality.
 
@@ -86,7 +85,6 @@ routing_runner.py    one-job Codex generation and provenance capture
 routing_campaign_driver.py sequential per-machine resume and audited infra retry
 routing_preflight.py authenticated model/effort/Fast capability check
 construct_readiness.py construct-validity report and paid-campaign gate
-blinded_adjudication.py blinded packet, independent ratings, and replayable adjudication
 routing_evidence.py  canonical evidence publisher and replay verifier
 coordinator_campaign.py  deterministic live-coordinator plan
 coordinator_runner.py    traced live delegation and integration runner
@@ -107,51 +105,13 @@ routing.
 
 Before creating a paid routing plan, generate a hash-bound construct-readiness
 report. The report checks fixture count, ecosystem/surface diversity, prompt
-trigram similarity, critical-criterion mutant coverage, equivalent-positive
-coverage, pinned Docker calibration, and blinded human adjudication for
-rubric-scored artifacts. `routing_campaign.py plan` requires this report and
-refuses every ineligible family. The current diagnostic report is
-`runs/construct-readiness-current.json`; it is evidence of a blocked campaign,
-not an authorization artifact.
-
-Prepare the remaining human-adjudication evidence without exposing evaluator
-labels to either reviewer. Keep the key and reveal private until both rating
-files are complete, and use pseudonymous rater IDs:
-
-```bash
-python3 blinded_adjudication.py prepare \
-  --key-file /secure/adjudication.key \
-  --assignment runs/adjudication-assignment.json \
-  --reveal runs/adjudication-reveal.json
-
-python3 blinded_adjudication.py review \
-  --assignment runs/adjudication-assignment.json \
-  --rater-id rater-a --output runs/rating-a.json
-python3 blinded_adjudication.py review \
-  --assignment runs/adjudication-assignment.json \
-  --rater-id rater-b --output runs/rating-b.json
-
-python3 blinded_adjudication.py aggregate \
-  --assignment runs/adjudication-assignment.json \
-  --reveal runs/adjudication-reveal.json \
-  --rating runs/rating-a.json --rating runs/rating-b.json \
-  --output runs/routing-blinded-adjudication.json
-python3 blinded_adjudication.py check runs/routing-blinded-adjudication.json
-```
-
-Each reviewer runs `review` independently and answers `y` or `n` after
-inspecting the task, starter snapshot, and candidate artifact. The
-aggregator rejects incomplete or duplicate raters and reports any human-human
-or human-evaluator disagreement as unresolved. The construct-readiness gate
-requires zero unresolved cases; synthetic or agent-authored ratings are not a
-substitute for the two human reviews.
-
-After both reviews are complete, generate the authorization artifact:
+trigram similarity, committed mutant rejection, equivalent-positive acceptance,
+and the catalog-bound Docker calibration. No human judgment enters scoring or
+campaign authorization. Generate the authorization artifact:
 
 ```bash
 python3 construct_readiness.py report \
   --docker-calibration runs/routing-docker-calibration-current.json \
-  --blinded-adjudication runs/routing-blinded-adjudication.json \
   --output runs/routing-construct-readiness.json
 python3 construct_readiness.py check \
   --report runs/routing-construct-readiness.json
@@ -463,15 +423,14 @@ The command refuses incomplete or unresolved cohorts. It emits the frozen plan, 
 ## Routing campaign required for routing claims
 
 The repository now contains 84 unique v2 fixtures: two development and twelve
-confirmatory fixtures for each of six families. Calibration checks 560 outcomes:
-references, negative mutants, semantic-equivalence positives for JSON/artifact
-tasks, and strict-schema mutants for artifact tasks. Mechanical JSON is compared
-semantically, while artifact scoring uses deterministic field predicates,
-criterion-level scores, and critical gates rather than whole-prose equality.
-Implementation fixtures execute .NET, Node, Python, JSON, or SQLite behavior;
-worker-authored coordination artifacts remain explicitly distinct from the
-live-coordinator experiment. These facts establish evaluator readiness, not a
-routing winner.
+confirmatory fixtures for each of six families. Calibration checks 392 outcomes:
+one reference, negative mutant, and semantic-equivalence positive for each task,
+plus 140 independently generated per-state mutants for every mutable JSON file.
+Mechanical, source-evidence, coordination-state, and high-risk-state outputs are
+semantic JSON contracts; no prose is scored. Implementation fixtures execute
+.NET, Node, Python, JSON, or SQLite behavior. The separate coordinator experiment
+requires an observable live delegation trace plus acceptance of the integrated
+multi-file state. These facts establish evaluator readiness, not a routing winner.
 
 The default operational worker campaign contains 648 independent generations:
 six preregistered fixtures per family, three fresh generations per fixture, six

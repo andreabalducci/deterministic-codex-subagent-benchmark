@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "dotnet test Payments.sln --filter MoneyPrecision"
+  ],
+  "compatibilityPass": true,
+  "finalReviewStatus": "approved",
+  "rollbackPass": true,
+  "seededRegressionPass": true
+}

@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Disable the preview workflow and delete the temporary cloud role session"
+  ],
+  "compatibility": "Keep fork previews available without secrets and preserve maintainer previews",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `./scripts/lint-workflow-trust.sh .github/workflows/pr-preview.yml` fails or the stated blast-radius symptom appears."
+}

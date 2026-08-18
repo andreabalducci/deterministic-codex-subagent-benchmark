@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Do not rebuild or resign artifacts during final review"
+  ],
+  "frozenBoundaryPreserved": true,
+  "mixedVersionSafe": true,
+  "seededDefect": "release manifest references an image digest not produced by the locked build",
+  "stratum": "final-review-security"
+}

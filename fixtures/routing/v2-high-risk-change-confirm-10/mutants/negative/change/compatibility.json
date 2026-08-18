@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Retain v3 draft entries and keep the message protocol backward compatible"
+  ],
+  "frozenBoundaryPreserved": true,
+  "mixedVersionSafe": true,
+  "seededDefect": "activate deletes v3 caches before all open tabs can read v4 responses",
+  "stratum": "migration"
+}

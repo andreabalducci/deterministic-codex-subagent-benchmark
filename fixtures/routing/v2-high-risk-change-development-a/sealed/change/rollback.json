@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Feature-flag the transactional claim and retain the old table for one release"
+  ],
+  "compatibility": "Keep the public charge() signature and existing SQLite test path",
+  "forwardOnly": false,
+  "rehearsed": true,
+  "trigger": "Rollback if `pytest -q tests/test_payment_idempotency.py` fails or the stated blast-radius symptom appears."
+}

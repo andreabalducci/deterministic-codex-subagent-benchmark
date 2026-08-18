@@ -1,28 +1,9 @@
 {
-  "uiDiagnosis": "read-heavy-02: Explain selection drift and stale totals in the invoice table",
-  "reactDefects": [
+  "defectLocations": [
     {
-      "factId": "memo-dependency",
-      "statement": "grandTotal reads taxRate but the memo dependency list contains only rows, so tax changes leave a stale total."
-    },
-    {
-      "factId": "index-key",
-      "statement": "Rows use array indexes as keys; sorting or insertion can move component identity to another invoice."
-    }
-  ],
-  "evidenceMap": [
-    {
-      "factId": "memo-dependency",
-      "path": "src/invoices/InvoiceTable.tsx",
+      "excerpt": "const grandTotal = useMemo(() => rows.reduce((n,r) => n + r.total * (1 + taxRate), 0), [rows]);",
       "line": 4,
-      "excerpt": "const grandTotal = useMemo(() => rows.reduce((n,r) => n + r.total * (1 + taxRate), 0), [rows]);"
-    },
-    {
-      "factId": "index-key",
-      "path": "src/invoices/InvoiceTable.tsx",
-      "line": 5,
-      "excerpt": "return <>{rows.map((row,index) => <InvoiceRow key={index} row={row} selected={selected} onSelect={setSelected}/>) }<output>{grandTotal}</output></>;"
+      "path": "src/invoices/InvoiceTable.tsx"
     }
-  ],
-  "distractorDisposition": []
+  ]
 }

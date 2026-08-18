@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Revert the workflow commit and revoke the generated release attestation"
+  ],
+  "compatibility": "Keep OIDC publication and the manual approval environment",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `./scripts/audit-release-workflow.sh` fails or the stated blast-radius symptom appears."
+}

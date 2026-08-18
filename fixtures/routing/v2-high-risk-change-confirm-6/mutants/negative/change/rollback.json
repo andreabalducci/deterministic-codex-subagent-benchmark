@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Force checkoutV2 false at the edge and redeploy the prior client bundle"
+  ],
+  "compatibility": "Preserve the server payload shape and the old checkout route",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `pnpm test --filter checkout-hydration` fails or the stated blast-radius symptom appears."
+}

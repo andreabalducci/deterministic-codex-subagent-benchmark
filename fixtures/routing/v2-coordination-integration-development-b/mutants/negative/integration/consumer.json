@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "canonical-lowercase",
+  "owner": "saved-search-api",
+  "paths": [
+    "src/savedSearchApi.ts",
+    "web/search/SearchPage.test.tsx"
+  ]
+}

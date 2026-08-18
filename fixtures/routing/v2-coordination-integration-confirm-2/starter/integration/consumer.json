@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "dispatcher-case",
+  "owner": "admin",
+  "paths": [
+    "src/AdminGate.tsx",
+    "apps/portal/auth/session.test.tsx"
+  ]
+}

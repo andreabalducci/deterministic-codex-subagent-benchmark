@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "./scripts/audit-release-workflow.sh"
+  ],
+  "compatibilityPass": false,
+  "finalReviewStatus": "blocked",
+  "rollbackPass": false,
+  "seededRegressionPass": false
+}

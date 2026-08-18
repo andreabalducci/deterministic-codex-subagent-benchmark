@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Preserve the server payload shape and the old checkout route"
+  ],
+  "frozenBoundaryPreserved": true,
+  "mixedVersionSafe": true,
+  "seededDefect": "server renders checkoutV2=false while client defaults missing flags to true",
+  "stratum": "compatibility"
+}

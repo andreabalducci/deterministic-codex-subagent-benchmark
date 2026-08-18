@@ -1,0 +1,9 @@
+{
+  "frozen": true,
+  "owner": "locale-schema",
+  "paths": [
+    "src/schema.ts"
+  ],
+  "scenario": "Generated locale-key adoption",
+  "version": 2
+}

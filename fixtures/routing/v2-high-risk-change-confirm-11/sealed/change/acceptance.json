@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "pytest -q tests/test_pay_period_boundaries.py"
+  ],
+  "compatibilityPass": true,
+  "finalReviewStatus": "approved",
+  "rollbackPass": true,
+  "seededRegressionPass": true
+}

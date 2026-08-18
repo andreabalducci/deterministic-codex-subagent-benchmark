@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Disable the claim path and replay only rows without provider receipt IDs"
+  ],
+  "compatibility": "Keep Celery acknowledgements-late and the current message schema",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `pytest -q tests/test_invoice_dispatch.py` fails or the stated blast-radius symptom appears."
+}

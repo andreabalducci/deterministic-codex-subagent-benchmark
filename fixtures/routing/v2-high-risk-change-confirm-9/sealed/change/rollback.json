@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Turn off the rotation flag and restore the previous certificate bundle"
+  ],
+  "compatibility": "Trust both pinned public keys without changing HttpClient call sites",
+  "forwardOnly": false,
+  "rehearsed": true,
+  "trigger": "Rollback if `dotnet test Gateway.sln --filter CertificateRotation` fails or the stated blast-radius symptom appears."
+}

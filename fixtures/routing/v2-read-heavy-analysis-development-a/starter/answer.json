@@ -1,6 +1,3 @@
 {
-  "diagnosis": null,
-  "failureChain": null,
-  "codeEvidence": null,
-  "excludedHypotheses": null
+  "defectLocations": []
 }

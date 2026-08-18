@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "dotnet test Gateway.sln --filter CertificateRotation"
+  ],
+  "compatibilityPass": false,
+  "finalReviewStatus": "blocked",
+  "rollbackPass": false,
+  "seededRegressionPass": false
+}

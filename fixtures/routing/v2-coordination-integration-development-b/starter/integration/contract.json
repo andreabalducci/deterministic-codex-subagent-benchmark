@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "model",
+  "paths": [
+    "src/queryKey.ts"
+  ],
+  "scenario": "Saved-search query key rollout",
+  "version": 1
+}

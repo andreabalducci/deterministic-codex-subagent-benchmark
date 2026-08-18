@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "contract",
+  "paths": [
+    "src/OutboxEnvelope.cs"
+  ],
+  "scenario": "Outbox envelope integration",
+  "version": 1
+}

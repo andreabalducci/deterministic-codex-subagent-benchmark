@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "contracts",
+  "paths": [
+    "src/contracts.py"
+  ],
+  "scenario": "Async job-result contract",
+  "version": 1
+}

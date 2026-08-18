@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Keep the public charge() signature and existing SQLite test path"
+  ],
+  "frozenBoundaryPreserved": false,
+  "mixedVersionSafe": false,
+  "seededDefect": "ledger/service.py charges before the idempotency row is committed",
+  "stratum": "concurrency"
+}

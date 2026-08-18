@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "./scripts/verify-config-contract.sh charts/service",
+  "conflictStatus": "unresolved",
+  "distractor": "Development-only compose port",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "Entrypoint and chart use different names for the same timeout"
+}

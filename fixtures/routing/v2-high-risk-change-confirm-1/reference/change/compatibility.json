@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Preserve the v1 DTO and mixed-version operation for 24 hours"
+  ],
+  "frozenBoundaryPreserved": true,
+  "mixedVersionSafe": true,
+  "seededDefect": "migration 042 changes int to bigint before the old binary is compatible",
+  "stratum": "migration"
+}

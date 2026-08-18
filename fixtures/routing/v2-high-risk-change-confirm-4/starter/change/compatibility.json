@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Keep fork previews available without secrets and preserve maintainer previews"
+  ],
+  "frozenBoundaryPreserved": false,
+  "mixedVersionSafe": false,
+  "seededDefect": "pr-preview.yml checks out fork code while holding cloud credentials",
+  "stratum": "security"
+}

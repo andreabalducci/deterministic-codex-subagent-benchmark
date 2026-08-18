@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Stop the backfill, restore original timestamp columns, and switch reads back"
+  ],
+  "compatibility": "Preserve exported CSV timestamps and support historical office zones",
+  "forwardOnly": false,
+  "rehearsed": true,
+  "trigger": "Rollback if `pytest -q tests/test_pay_period_boundaries.py` fails or the stated blast-radius symptom appears."
+}

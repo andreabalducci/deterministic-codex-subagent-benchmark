@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "dotnet test Inventory.sln --filter ReservationCompatibility",
+  "conflictStatus": "resolved",
+  "distractor": "Analyzer warning in an unrelated benchmark",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "proto",
+    "service",
+    "client"
+  ],
+  "seededConflict": "Client branch consumes field 4 before the proto branch reserves it"
+}

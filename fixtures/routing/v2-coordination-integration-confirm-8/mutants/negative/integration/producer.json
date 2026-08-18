@@ -1,0 +1,8 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "image-build",
+  "paths": [
+    ".github/workflows/image.yml"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "approvedScope": [
+    "src/client.ts",
+    "src/migration.ts",
+    "tests/risk.acceptance.test.tsx"
+  ],
+  "distractorChanged": false,
+  "regressionAdded": true,
+  "smallestCompatibleGuard": true
+}

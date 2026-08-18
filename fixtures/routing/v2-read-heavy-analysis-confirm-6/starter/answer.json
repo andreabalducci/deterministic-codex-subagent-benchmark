@@ -1,6 +1,3 @@
 {
-  "contentSafetySummary": null,
-  "cacheAndXssFindings": null,
-  "preciseCitations": null,
-  "safeSurfaces": null
+  "defectLocations": []
 }

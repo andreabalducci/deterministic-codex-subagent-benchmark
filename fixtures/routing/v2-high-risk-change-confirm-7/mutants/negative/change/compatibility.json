@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Keep Celery acknowledgements-late and the current message schema"
+  ],
+  "frozenBoundaryPreserved": true,
+  "mixedVersionSafe": true,
+  "seededDefect": "tasks/invoice.py records sent_at after publishing and retries publish duplicates",
+  "stratum": "concurrency"
+}

@@ -1,26 +1,9 @@
 {
-  "environmentDiagnosis": "read-heavy-08: Explain why the local API starts before its database is usable",
-  "composeFaults": [
+  "defectLocations": [
     {
-      "factId": "startup-order-only",
-      "statement": "Short depends_on syntax waits for container start, not the database healthcheck."
-    }
-  ],
-  "configurationEvidence": [
-    {
-      "factId": "startup-order-only",
-      "path": "compose.yaml",
+      "excerpt": "depends_on:",
       "line": 4,
-      "excerpt": "depends_on:"
-    },
-    {
-      "factId": "wrong-health-port",
-      "path": "compose.yaml",
-      "line": 9,
-      "excerpt": "test: ['CMD','curl','-f','http://localhost:3000/health']"
+      "path": "compose.yaml"
     }
-  ],
-  "irrelevantSignals": [
-    "The pinned Postgres 16.4 image is not evidence of this readiness race."
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "canonical-lowercase",
+  "owner": "reader",
+  "paths": [
+    "src/CustomerLookup.cs",
+    "tests/CustomerIdRolloutTests.cs"
+  ]
+}

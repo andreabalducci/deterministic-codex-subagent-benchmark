@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "worker",
+  "paths": [
+    "src/worker.py",
+    "tests/test_cursor_contract.py"
+  ]
+}

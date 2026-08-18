@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "./scripts/verify-release.sh --offline",
+  "conflictStatus": "resolved",
+  "distractor": "Stale issue-label configuration",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "version-action",
+    "build-workflow",
+    "release-workflow"
+  ],
+  "seededConflict": "Build and release jobs write the same artifact label differently"
+}

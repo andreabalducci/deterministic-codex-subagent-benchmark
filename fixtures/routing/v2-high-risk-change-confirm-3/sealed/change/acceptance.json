@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "pytest -q tests/test_payload_codec.py"
+  ],
+  "compatibilityPass": true,
+  "finalReviewStatus": "approved",
+  "rollbackPass": true,
+  "seededRegressionPass": true
+}

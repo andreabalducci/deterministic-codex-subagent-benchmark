@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "./scripts/verify-release.sh --offline",
+  "conflictStatus": "unresolved",
+  "distractor": "Stale issue-label configuration",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "Build and release jobs write the same artifact label differently"
+}

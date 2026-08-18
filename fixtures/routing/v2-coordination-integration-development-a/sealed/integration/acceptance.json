@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "dotnet test Billing.sln --filter InvoiceExport",
+  "conflictStatus": "resolved",
+  "distractor": "README typo in the reporting sample",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "contract",
+    "api",
+    "worker"
+  ],
+  "seededConflict": "The worker still reads the frozen v1 ExportRequest shape"
+}

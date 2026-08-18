@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Cancel the index build, drop only an INVALID index, then resume traffic"
+  ],
+  "compatibility": "Support PostgreSQL 14 and preserve rollback visibility",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `./scripts/check-online-migration.sh migrations/203_add_lookup.sql` fails or the stated blast-radius symptom appears."
+}

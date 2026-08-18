@@ -508,6 +508,29 @@ def artifact_criterion_mutants(
     return generated
 
 
+def json_state_criterion_ids(spec: dict[str, Any]) -> list[str]:
+    """Return the independently scored state criterion for every mutable JSON file."""
+    return [f"exact-json-state:{relative}" for relative in spec["mutable"]]
+
+
+def mutate_json_state(value: Any) -> Any:
+    """Create a deterministic semantically different JSON value for calibration."""
+    changed = json.loads(json.dumps(value))
+    if isinstance(changed, dict):
+        changed["__benchmark_mutation__"] = True
+    elif isinstance(changed, list):
+        changed.append("__benchmark_mutation__")
+    elif isinstance(changed, bool):
+        changed = not changed
+    elif isinstance(changed, (int, float)):
+        changed += 1
+    elif isinstance(changed, str):
+        changed += "__benchmark_mutation__"
+    else:
+        changed = {"__benchmark_mutation__": True}
+    return changed
+
+
 def evaluate_artifact(
     task_id: str,
     candidate: Path,
@@ -584,16 +607,20 @@ def evaluate_artifact(
             **_criterion("sealed-command", passed), "attempt": attempt,
         }]
     elif task["adapter"] == "json-semantic-diff-v1":
-        relative = spec["mutable"][0]
-        try:
-            actual = json.loads((candidate / relative).read_text(encoding="utf-8"))
-            expected = json.loads(
-                (template_root(task) / "sealed" / relative).read_text(encoding="utf-8")
-            )
-            report["schemaValid"] = True
-            report["outcomes"] = [_criterion("allowed-json-diff", actual == expected)]
-        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
-            report["outcomes"] = [_criterion("valid-json", False)]
+        outcomes = []
+        schema_valid = True
+        for relative in spec["mutable"]:
+            try:
+                actual = json.loads((candidate / relative).read_text(encoding="utf-8"))
+                expected = json.loads(
+                    (template_root(task) / "sealed" / relative).read_text(encoding="utf-8")
+                )
+                outcomes.append(_criterion(f"exact-json-state:{relative}", actual == expected))
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                schema_valid = False
+                outcomes.append(_criterion(f"valid-json:{relative}", False))
+        report["schemaValid"] = schema_valid
+        report["outcomes"] = outcomes
     else:
         relative = spec["mutable"][0]
         try: actual = json.loads((candidate / relative).read_text(encoding="utf-8"))
@@ -710,6 +737,29 @@ def calibrate(task_id: str | None = None, *, backend: str = "native") -> dict[st
                     relative = load_template(representative)["mutable"][0]
                     (mutant / relative).write_text(
                         json.dumps(mutant_value, indent=2) + "\n", encoding="utf-8"
+                    )
+                    actual = evaluate_artifact(
+                        representative["id"], mutant, catalog=catalog,
+                        backend=backend, trusted_native=True,
+                    )["status"]
+                    cases.append({
+                        "template": representative["template"],
+                        "case": "criterion-mutant", "criterionId": criterion_id,
+                        "expected": "FAIL", "actual": actual,
+                    })
+        elif representative["adapter"] == "json-semantic-diff-v1":
+            spec = load_template(representative)
+            for relative, criterion_id in zip(
+                spec["mutable"], json_state_criterion_ids(spec)
+            ):
+                with tempfile.TemporaryDirectory(prefix="routing-json-criterion-mutant-") as temporary:
+                    mutant = Path(temporary) / "candidate"
+                    shutil.copytree(root / "reference", mutant)
+                    artifact = mutant / relative
+                    value = json.loads(artifact.read_text(encoding="utf-8"))
+                    artifact.write_text(
+                        json.dumps(mutate_json_state(value), indent=2) + "\n",
+                        encoding="utf-8",
                     )
                     actual = evaluate_artifact(
                         representative["id"], mutant, catalog=catalog,

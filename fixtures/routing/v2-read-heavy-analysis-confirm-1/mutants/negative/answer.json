@@ -1,24 +1,9 @@
 {
-  "securityAssessment": "read-heavy-01: Find cross-tenant data exposure in the account-summary request path",
-  "tenantIsolationFindings": [
+  "defectLocations": [
     {
-      "factId": "cache-key",
-      "statement": "The process-wide cache is keyed only by accountId, allowing identical account IDs in different tenants to share a summary."
-    },
-    {
-      "factId": "cache-write",
-      "statement": "The tenant identifier is also omitted on cache insertion, confirming the lookup/write key mismatch."
-    }
-  ],
-  "sourceLocations": [
-    {
-      "factId": "cache-key",
-      "path": "src/Accounts/AccountSummaryService.cs",
+      "excerpt": "if (Cache.TryGetValue(accountId, out var hit)) return hit;",
       "line": 7,
-      "excerpt": "if (Cache.TryGetValue(accountId, out var hit)) return hit;"
+      "path": "src/Accounts/AccountSummaryService.cs"
     }
-  ],
-  "correctlyScopedCode": [
-    "AccountStore correctly filters by both tenant and account; the leak is introduced above it."
   ]
 }

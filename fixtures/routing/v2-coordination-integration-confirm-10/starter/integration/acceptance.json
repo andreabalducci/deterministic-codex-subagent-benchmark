@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "pnpm test --filter locale-picker",
+  "conflictStatus": "unresolved",
+  "distractor": "Missing translation for an out-of-scope marketing page",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "Generator and UI branches both modify generatedKeys.ts"
+}

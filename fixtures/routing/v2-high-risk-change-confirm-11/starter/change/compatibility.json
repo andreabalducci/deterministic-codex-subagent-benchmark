@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Preserve exported CSV timestamps and support historical office zones"
+  ],
+  "frozenBoundaryPreserved": false,
+  "mixedVersionSafe": false,
+  "seededDefect": "payroll.py treats naive timestamps as UTC although stored rows are local office time",
+  "stratum": "migration-compatibility"
+}

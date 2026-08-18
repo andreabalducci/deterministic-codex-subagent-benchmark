@@ -1,24 +1,9 @@
 {
-  "shutdownVerdict": "read-heavy-09: Trace a cancellation leak in the document-rendering pipeline",
-  "cancellationBreaks": [
+  "defectLocations": [
     {
-      "factId": "reader-token-omitted",
-      "statement": "ReadAllAsync is called without stoppingToken, so an idle worker cannot observe host shutdown."
-    },
-    {
-      "factId": "render-token-discarded",
-      "statement": "Each render receives CancellationToken.None, explicitly severing shutdown cancellation from downstream HTTP."
-    }
-  ],
-  "callSiteEvidence": [
-    {
-      "factId": "reader-token-omitted",
-      "path": "src/Render/RenderQueue.cs",
+      "excerpt": "await foreach (var job in channel.Reader.ReadAllAsync())",
       "line": 6,
-      "excerpt": "await foreach (var job in channel.Reader.ReadAllAsync())"
+      "path": "src/Render/RenderQueue.cs"
     }
-  ],
-  "componentExoneration": [
-    "Renderer accepts and forwards a token to HttpClient; the queue is what discards it."
   ]
 }

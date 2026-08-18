@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "dispatcher-case",
+  "owner": "worker",
+  "paths": [
+    "src/worker.py",
+    "tests/test_cursor_contract.py"
+  ]
+}

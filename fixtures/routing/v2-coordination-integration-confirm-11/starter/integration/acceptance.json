@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "pytest -q tests/test_job_result_contract.py",
+  "conflictStatus": "unresolved",
+  "distractor": "Formatter upgrade proposal",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "Executor returns error_detail while API reads error"
+}

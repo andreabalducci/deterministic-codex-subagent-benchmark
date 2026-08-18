@@ -1,0 +1,8 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "writer",
+  "paths": [
+    "src/CustomerRepository.cs"
+  ]
+}

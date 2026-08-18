@@ -1,23 +1,14 @@
-# Cart promotion type consolidation: integration assignment
+# Integration checkpoint: Cart promotion type consolidation
 
-Produce a preflight integration record: boundaries first, then owner order, transferred evidence, and checks.
+Use the ownership graph as the merge schedule. Complete each state handoff and leave a fully accepted, conflict-free integration record.
 
-The repository evidence is split between `repo.snapshot.json` and `WORK_ITEM.md`.
-For this react-typescript scenario, the dependency shape is `packages/promo-types -> services/cart-client -> apps/store/cart`.
-The item `Footer copyright year` is a deliberate non-goal. Do not spawn agents: this task
-measures the quality of the written decomposition, not live delegation.
+Read `WORK_ITEM.md` and `repo.snapshot.json`, then edit exactly the four existing JSON
+documents below `integration/`. Keep every supplied scenario, owner, path, conflict,
+distractor, and command string byte-for-byte; change only the state fields required by the
+work item. The accepted repository freezes contract version 2, makes both consumers use
+version 2 and `canonical-lowercase`, follows the declared owner order, resolves
+`Client and UI branches each define DiscountBreakdown`, rejects `Footer copyright year`, and finishes as
+`accepted`.
 
-Write only `answer.json`, with exactly these top-level keys:
-
-1. `summary` — identify the integration and state that conclusions are limited
-   to the supplied snapshot.
-2. `workPlan` — give three ordered `workers` with exclusive `owns` paths and
-   concrete `actions`; also record `frozenDependencies` and `conflictChecks`.
-3. `integration` — provide owner-id `mergeOrder`, the single authorized
-   `acceptanceCommands` entry, boundary-specific `handoffs`, and an
-   `evidenceBoundary` that does not claim execution occurred.
-
-Respect the owner ids, dependency direction, frozen contract, seeded conflict,
-and authorized command in `WORK_ITEM.md`. Reject the non-goal explicitly. A path
-cannot have two owners, a consumer cannot precede its producer, and invented
-commands or runtime results invalidate the artifact.
+Do not write an explanation or add files. Semantic JSON equality across all four files is
+the sole score: partial merges, alternate commands, stale versions, or unresolved state fail.

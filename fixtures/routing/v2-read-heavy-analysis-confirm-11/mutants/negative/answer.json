@@ -1,30 +1,9 @@
 {
-  "authAudit": "read-heavy-11: Audit authorization failure handling and credential logging (unsupported mutant claim)",
-  "exposureFindings": [
+  "defectLocations": [
     {
-      "factId": "fail-open",
-      "statement": "The broad exception handler logs authorization failures and then continues to invoke the protected handler."
-    },
-    {
-      "factId": "credential-log",
-      "statement": "Middleware logs all request headers, which includes Authorization credentials in normal deployments."
-    }
-  ],
-  "supportingLines": [
-    {
-      "factId": "fail-open",
-      "path": "src/api/auth.py",
+      "excerpt": "except Exception as error:",
       "line": 8,
-      "excerpt": "except Exception as error:"
-    },
-    {
-      "factId": "credential-log",
-      "path": "src/api/middleware.py",
-      "line": 4,
-      "excerpt": "log.info(\"request headers=%r\", request.headers)"
+      "path": "src/api/auth.py"
     }
-  ],
-  "falsePositives": [
-    "The health response contains no secrets and is a distractor."
   ]
 }

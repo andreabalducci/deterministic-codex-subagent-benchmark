@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "./scripts/verify-candidate.sh release/candidate.json"
+  ],
+  "compatibilityPass": true,
+  "finalReviewStatus": "approved",
+  "rollbackPass": true,
+  "seededRegressionPass": true
+}

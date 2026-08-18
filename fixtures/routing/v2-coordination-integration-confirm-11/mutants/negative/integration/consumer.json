@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "canonical-lowercase",
+  "owner": "status-api",
+  "paths": [
+    "src/status.py",
+    "tests/test_job_result_contract.py"
+  ]
+}

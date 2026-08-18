@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Do not change the fetch wrapper API or persist tokens to localStorage"
+  ],
+  "frozenBoundaryPreserved": false,
+  "mixedVersionSafe": false,
+  "seededDefect": "authClient.ts starts one refresh per failed request and overwrites rotated tokens",
+  "stratum": "concurrency-security"
+}

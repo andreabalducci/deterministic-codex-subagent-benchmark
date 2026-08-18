@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "pytest -q tests/test_cursor_contract.py",
+  "conflictStatus": "unresolved",
+  "distractor": "Unused CSV delimiter setting",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "HTTP source emits inclusive cursors while worker assumes exclusive"
+}

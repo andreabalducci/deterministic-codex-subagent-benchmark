@@ -1,0 +1,8 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "producer-case",
+  "owner": "entrypoint",
+  "paths": [
+    ".github/workflows/entrypoint.sh"
+  ]
+}

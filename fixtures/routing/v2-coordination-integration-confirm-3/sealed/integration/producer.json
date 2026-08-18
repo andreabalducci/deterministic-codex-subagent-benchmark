@@ -1,0 +1,8 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "http-source",
+  "paths": [
+    "src/http_source.py"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "pnpm test --filter checkout-hydration"
+  ],
+  "compatibilityPass": false,
+  "finalReviewStatus": "blocked",
+  "rollbackPass": false,
+  "seededRegressionPass": false
+}

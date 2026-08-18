@@ -1,0 +1,8 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "producer-case",
+  "owner": "portal",
+  "paths": [
+    "src/PortalGate.tsx"
+  ]
+}

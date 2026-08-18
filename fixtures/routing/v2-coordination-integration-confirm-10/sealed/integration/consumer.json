@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "account-ui",
+  "paths": [
+    "src/LocalePicker.tsx",
+    "apps/account/LocalePicker.test.tsx"
+  ]
+}

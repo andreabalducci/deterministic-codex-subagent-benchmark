@@ -1,9 +1,5 @@
 {
-  "schemaVersion": 1,
-  "adapter": "artifact-rubric-v1",
-  "mutable": [
-    "answer.json"
-  ],
+  "adapter": "json-semantic-diff-v1",
   "immutable": [
     "TASK.md",
     "db/README.md",
@@ -11,11 +7,12 @@
     "db/migrations/002_orders.sql",
     "deploy/db-backup.yaml"
   ],
+  "mutable": [
+    "answer.json"
+  ],
   "required": [],
   "rubric": [
-    "bootstrapDecision",
-    "databaseDefects",
-    "sqlEvidence",
-    "scopeExclusions"
-  ]
+    "exact-machine-state"
+  ],
+  "schemaVersion": 1
 }

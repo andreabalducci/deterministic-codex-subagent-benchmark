@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "./scripts/check-provenance.sh fixtures/provenance",
+  "conflictStatus": "resolved",
+  "distractor": "Renovate grouping preference",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "metadata",
+    "image-build",
+    "attestation"
+  ],
+  "seededConflict": "Image and attestation jobs derive different subject digests"
+}

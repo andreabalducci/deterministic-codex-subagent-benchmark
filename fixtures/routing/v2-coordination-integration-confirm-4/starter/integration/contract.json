@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "version-action",
+  "paths": [
+    ".github/action.yml"
+  ],
+  "scenario": "Release-channel workflow alignment",
+  "version": 1
+}

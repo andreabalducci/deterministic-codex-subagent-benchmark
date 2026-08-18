@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "pnpm test --filter locale-picker",
+  "conflictStatus": "resolved",
+  "distractor": "Missing translation for an out-of-scope marketing page",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "locale-schema",
+    "generator",
+    "account-ui"
+  ],
+  "seededConflict": "Generator and UI branches both modify generatedKeys.ts"
+}

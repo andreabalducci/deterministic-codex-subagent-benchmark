@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "helm",
+  "paths": [
+    "config/values.yaml",
+    "scripts/verify-config-contract.sh"
+  ]
+}

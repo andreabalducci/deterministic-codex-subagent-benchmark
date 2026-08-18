@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Disable the single-flight flag and restore the previous in-memory token module"
+  ],
+  "compatibility": "Do not change the fetch wrapper API or persist tokens to localStorage",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `pnpm vitest run authClient.concurrent` fails or the stated blast-radius symptom appears."
+}

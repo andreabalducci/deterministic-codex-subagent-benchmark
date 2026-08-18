@@ -1,0 +1,9 @@
+{
+  "frozen": true,
+  "owner": "session-core",
+  "paths": [
+    "src/sessionState.ts"
+  ],
+  "scenario": "Session-state boundary extraction",
+  "version": 2
+}

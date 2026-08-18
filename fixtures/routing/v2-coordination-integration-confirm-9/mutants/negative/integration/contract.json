@@ -1,0 +1,9 @@
+{
+  "frozen": true,
+  "owner": "contract",
+  "paths": [
+    "src/CustomerId.cs"
+  ],
+  "scenario": "Customer-id dual-write rollout",
+  "version": 2
+}

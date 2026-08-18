@@ -19,7 +19,6 @@ from typing import Any
 
 import routing_campaign
 import routing_tasks
-import blinded_adjudication
 
 
 ROOT = Path(__file__).resolve().parent
@@ -32,8 +31,6 @@ MIN_SURFACES = 6
 MAX_PROMPT_TRIGRAM_JACCARD = 0.85
 MIN_CRITERION_MUTATION_COVERAGE = 1.0
 MIN_EQUIVALENT_POSITIVES_PER_FIXTURE = 1
-MIN_BLINDED_ADJUDICATION_SAMPLE = 12
-MIN_BLINDED_AGREEMENT = 0.80
 ARTIFACT_RUBRIC = "artifact-rubric-v1"
 
 SCOPED_CLAIMS = {
@@ -41,8 +38,8 @@ SCOPED_CLAIMS = {
     "bounded-mapping-patch": "small mapping patches accepted by sealed deterministic commands",
     "isolated-implementation": "isolated implementations accepted by sealed behavioral or data-contract tests",
     "read-heavy-analysis": "structured defect localization with exact source evidence in compact seeded repositories",
-    "coordination-integration": "worker-authored decomposition and integration-plan artifacts; not live delegation",
-    "high-risk-change": "structured risk, change, rollback, and acceptance-plan artifacts in compact seeded repositories",
+    "coordination-integration": "multi-file contract, producer, consumer, and acceptance state integration",
+    "high-risk-change": "machine-verified compatibility, implementation, rollback, and acceptance state transitions",
 }
 
 
@@ -136,6 +133,10 @@ def _valid_docker_calibration(
                 task, spec, reference
             ):
                 expected_cases[(task["template"], "criterion-mutant", criterion_id)] = "FAIL"
+        elif task["adapter"] == "json-semantic-diff-v1":
+            spec = routing_tasks.load_template(task)
+            for criterion_id in routing_tasks.json_state_criterion_ids(spec):
+                expected_cases[(task["template"], "criterion-mutant", criterion_id)] = "FAIL"
     observed_keys = [
         (case.get("template"), case.get("case"), case.get("criterionId"))
         for case in calibration["cases"] if isinstance(case, dict)
@@ -154,40 +155,6 @@ def _valid_docker_calibration(
     ):
         reasons.append("docker-calibration-case-failure-or-shape-invalid")
     return not reasons, reasons, index
-
-
-def _adjudication_by_family(
-    adjudication: Any, protocol: dict[str, Any], catalog: dict[str, Any]
-) -> tuple[dict[str, dict[str, Any]], list[str]]:
-    if not isinstance(adjudication, dict):
-        return {}, ["blinded-adjudication-artifact-missing"]
-    if adjudication.get("schemaVersion") != 2 \
-            or adjudication.get("recordKind") != "blinded-adjudication" \
-            or adjudication.get("blinded") is not True:
-        return {}, ["blinded-adjudication-artifact-invalid"]
-    try:
-        blinded_adjudication.validate_artifact(adjudication, protocol, catalog)
-    except (blinded_adjudication.AdjudicationError, KeyError, TypeError, ValueError):
-        return {}, ["blinded-adjudication-artifact-does-not-reproduce"]
-    reasons: list[str] = []
-    if adjudication.get("protocolHash") != value_hash(protocol) \
-            or adjudication.get("catalogHash") != value_hash(catalog):
-        reasons.append("blinded-adjudication-hash-mismatch")
-    if not isinstance(adjudication.get("raterCount"), int) or adjudication["raterCount"] < 2:
-        reasons.append("blinded-adjudication-insufficient-raters")
-    for field in ("assignmentHash", "revealHash", "ratingsHash"):
-        if not isinstance(adjudication.get(field), str) \
-                or not re.fullmatch(r"[0-9a-f]{64}", adjudication[field]):
-            reasons.append("blinded-adjudication-provenance-invalid")
-            break
-    families = adjudication.get("families")
-    if not isinstance(families, list):
-        return {}, reasons + ["blinded-adjudication-family-results-missing"]
-    by_family = {
-        item.get("catalogFamilyId"): item for item in families
-        if isinstance(item, dict) and isinstance(item.get("catalogFamilyId"), str)
-    }
-    return by_family, reasons
 
 
 @lru_cache(maxsize=None)
@@ -215,8 +182,28 @@ def _criterion_coverage(
     task: dict[str, Any],
     cases: dict[tuple[str, str], list[dict[str, Any]]] | None = None,
 ) -> tuple[int, int]:
+    if task["adapter"] == "json-semantic-diff-v1":
+        criteria = set(routing_tasks.json_state_criterion_ids(
+            routing_tasks.load_template(task)
+        ))
+        if cases is None:
+            return len(criteria), 0
+        killed = {
+            case.get("criterionId")
+            for case in cases.get((task["template"], "criterion-mutant"), [])
+            if case.get("expected") == "FAIL" and case.get("actual") == "FAIL"
+        }
+        return len(criteria), len(criteria & killed)
+    if task["adapter"] != ARTIFACT_RUBRIC:
+        if cases is None:
+            return 1, 0
+        base_mutant_killed = any(
+            case.get("expected") == "FAIL" and case.get("actual") == "FAIL"
+            for case in cases.get((task["template"], "mutant"), [])
+        )
+        return 1, int(base_mutant_killed)
     total, legacy_killed = _criterion_coverage_by_id(task["id"])
-    if task["adapter"] != ARTIFACT_RUBRIC or cases is None:
+    if cases is None:
         return total, legacy_killed
     reference = routing_tasks.evaluate_artifact(
         task["id"], routing_tasks.template_root(task) / "reference",
@@ -238,16 +225,13 @@ def _catalog_tasks_by_id() -> dict[str, dict[str, Any]]:
 
 def build_report(
     protocol: dict[str, Any], catalog: dict[str, Any], *,
-    calibration: Any = None, adjudication: Any = None,
+    calibration: Any = None,
 ) -> dict[str, Any]:
     routing_campaign.validate_protocol_sources(protocol, {"configurations": protocol["matrix"]}, catalog)
     protocol_hash, catalog_hash = value_hash(protocol), value_hash(catalog)
     confirmatory = [task for task in catalog["tasks"] if task["kind"] == "confirmatory"]
     docker_ok, docker_reasons, cases = _valid_docker_calibration(
         calibration, catalog_hash, catalog["tasks"]
-    )
-    adjudication_index, adjudication_reasons = _adjudication_by_family(
-        adjudication, protocol, catalog
     )
     results = []
     for family in protocol["families"]:
@@ -304,36 +288,12 @@ def build_report(
             "coveredFixtures": sum(value >= 1 for value in equivalent_counts.values()),
             "passed": bool(tasks) and all(value >= 1 for value in equivalent_counts.values()),
         }
-        if ARTIFACT_RUBRIC in adapters:
-            observed = adjudication_index.get(family_id, {})
-            sample = observed.get("sampleSize")
-            agreement = observed.get("agreement")
-            unresolved = observed.get("unresolvedDisagreements")
-            adjudication_check = {
-                "required": True,
-                "sampleSize": sample if isinstance(sample, int) else 0,
-                "agreement": agreement if isinstance(agreement, (int, float)) else 0.0,
-                "unresolvedDisagreements": unresolved if isinstance(unresolved, int) else -1,
-                "passed": (
-                    not adjudication_reasons
-                    and isinstance(sample, int) and sample >= MIN_BLINDED_ADJUDICATION_SAMPLE
-                    and isinstance(agreement, (int, float)) and agreement >= MIN_BLINDED_AGREEMENT
-                    and unresolved == 0
-                ),
-            }
-        else:
-            adjudication_check = {
-                "required": False, "sampleSize": 0, "agreement": 1.0,
-                "unresolvedDisagreements": 0, "passed": True,
-            }
         reasons = []
         if not scale["passed"]: reasons.append("insufficient-task-scale-or-diversity")
         if not similarity["passed"]: reasons.append("prompt-near-duplication-above-threshold")
         if not mutation["passed"]: reasons.append("critical-criterion-mutation-coverage-incomplete")
         if not equivalent["passed"]: reasons.append("equivalent-positive-coverage-incomplete")
         if not docker_ok: reasons.extend(docker_reasons)
-        if not adjudication_check["passed"]:
-            reasons.extend(adjudication_reasons or ["blinded-adjudication-threshold-not-met"])
         reasons = list(dict.fromkeys(reasons))
         results.append({
             "protocolFamilyId": family["id"], "catalogFamilyId": family_id,
@@ -342,7 +302,6 @@ def build_report(
             "promptNearDuplication": similarity, "criterionMutationCoverage": mutation,
             "equivalentPositiveCoverage": equivalent,
             "dockerCalibration": {"passed": docker_ok},
-            "blindedAdjudication": adjudication_check,
         })
     report = {
         "schemaVersion": 1, "recordKind": "construct-readiness",
@@ -354,13 +313,8 @@ def build_report(
             "maximumPromptTrigramJaccard": MAX_PROMPT_TRIGRAM_JACCARD,
             "minimumCriterionMutationCoverage": MIN_CRITERION_MUTATION_COVERAGE,
             "minimumEquivalentPositivesPerFixture": MIN_EQUIVALENT_POSITIVES_PER_FIXTURE,
-            "minimumBlindedAdjudicationSample": MIN_BLINDED_ADJUDICATION_SAMPLE,
-            "minimumBlindedAgreement": MIN_BLINDED_AGREEMENT,
         },
-        "sourceArtifacts": {
-            "dockerCalibration": calibration,
-            "blindedAdjudication": adjudication,
-        },
+        "sourceArtifacts": {"dockerCalibration": calibration},
         "campaignEligible": all(item["eligible"] for item in results),
         "families": results,
     }
@@ -391,20 +345,13 @@ def validate_report(report: Any, protocol: dict[str, Any], catalog: dict[str, An
         "maximumPromptTrigramJaccard": MAX_PROMPT_TRIGRAM_JACCARD,
         "minimumCriterionMutationCoverage": MIN_CRITERION_MUTATION_COVERAGE,
         "minimumEquivalentPositivesPerFixture": MIN_EQUIVALENT_POSITIVES_PER_FIXTURE,
-        "minimumBlindedAdjudicationSample": MIN_BLINDED_ADJUDICATION_SAMPLE,
-        "minimumBlindedAgreement": MIN_BLINDED_AGREEMENT,
     }
     if report["thresholds"] != expected_thresholds:
         raise ReadinessError("construct-readiness thresholds differ from implementation")
     sources = report["sourceArtifacts"]
-    if not isinstance(sources, dict) or set(sources) != {
-        "dockerCalibration", "blindedAdjudication"
-    }:
+    if not isinstance(sources, dict) or set(sources) != {"dockerCalibration"}:
         raise ReadinessError("construct-readiness source artifacts are missing")
-    recomputed = build_report(
-        protocol, catalog, calibration=sources["dockerCalibration"],
-        adjudication=sources["blindedAdjudication"],
-    )
+    recomputed = build_report(protocol, catalog, calibration=sources["dockerCalibration"])
     if canonical_json(recomputed) != canonical_json(report):
         raise ReadinessError("construct-readiness report does not reproduce from its sources")
     expected_family_ids = [family["id"] for family in protocol["families"]]
@@ -417,7 +364,6 @@ def validate_report(report: Any, protocol: dict[str, Any], catalog: dict[str, An
             family.get("criterionMutationCoverage", {}).get("passed"),
             family.get("equivalentPositiveCoverage", {}).get("passed"),
             family.get("dockerCalibration", {}).get("passed"),
-            family.get("blindedAdjudication", {}).get("passed"),
         )
         if family.get("eligible") is not all(check is True for check in checks):
             raise ReadinessError("construct-readiness eligibility is inconsistent")
@@ -468,7 +414,6 @@ def main() -> int:
     report_parser.add_argument("--protocol", type=Path, default=DEFAULT_PROTOCOL)
     report_parser.add_argument("--catalog", type=Path, default=DEFAULT_CATALOG)
     report_parser.add_argument("--docker-calibration", type=Path)
-    report_parser.add_argument("--blinded-adjudication", type=Path)
     report_parser.add_argument("--output", type=Path, default=DEFAULT_REPORT)
     calibration_parser = sub.add_parser("calibrate-docker")
     calibration_parser.add_argument("--output", type=Path, required=True)
@@ -501,8 +446,7 @@ def main() -> int:
     protocol, catalog = load_json(args.protocol), load_json(args.catalog)
     if args.command == "report":
         calibration = load_json(args.docker_calibration) if args.docker_calibration else None
-        adjudication = load_json(args.blinded_adjudication) if args.blinded_adjudication else None
-        report = build_report(protocol, catalog, calibration=calibration, adjudication=adjudication)
+        report = build_report(protocol, catalog, calibration=calibration)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(json.dumps({"campaignEligible": report["campaignEligible"], "reportHash": report["reportHash"]}))

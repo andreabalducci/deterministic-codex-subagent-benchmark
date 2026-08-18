@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "./scripts/check-online-migration.sh migrations/203_add_lookup.sql"
+  ],
+  "compatibilityPass": true,
+  "finalReviewStatus": "approved",
+  "rollbackPass": true,
+  "seededRegressionPass": true
+}

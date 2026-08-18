@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Unregister v4, serve the v3 worker, and retain both cache namespaces"
+  ],
+  "compatibility": "Retain v3 draft entries and keep the message protocol backward compatible",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `pnpm vitest run service-worker-migration` fails or the stated blast-radius symptom appears."
+}

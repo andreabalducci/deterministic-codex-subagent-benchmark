@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "canonical-lowercase",
+  "owner": "cart-ui",
+  "paths": [
+    "src/CartSummary.tsx",
+    "apps/store/cart/CartSummary.test.tsx"
+  ]
+}

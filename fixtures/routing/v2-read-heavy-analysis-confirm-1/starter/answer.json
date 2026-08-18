@@ -1,6 +1,3 @@
 {
-  "securityAssessment": null,
-  "tenantIsolationFindings": null,
-  "sourceLocations": null,
-  "correctlyScopedCode": null
+  "defectLocations": []
 }

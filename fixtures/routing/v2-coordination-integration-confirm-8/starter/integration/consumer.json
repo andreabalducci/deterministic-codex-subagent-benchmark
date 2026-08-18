@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "dispatcher-case",
+  "owner": "attestation",
+  "paths": [
+    "config/attest.yml",
+    "scripts/check-provenance.sh"
+  ]
+}

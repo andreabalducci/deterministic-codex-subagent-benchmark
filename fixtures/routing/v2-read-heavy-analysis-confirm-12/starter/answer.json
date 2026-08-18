@@ -1,6 +1,3 @@
 {
-  "bootstrapDecision": null,
-  "databaseDefects": null,
-  "sqlEvidence": null,
-  "scopeExclusions": null
+  "defectLocations": []
 }

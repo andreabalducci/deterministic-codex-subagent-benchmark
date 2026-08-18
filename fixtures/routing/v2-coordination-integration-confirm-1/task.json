@@ -1,18 +1,19 @@
 {
-  "adapter": "artifact-rubric-v1",
+  "adapter": "json-semantic-diff-v1",
   "immutable": [
     "TASK.md",
     "WORK_ITEM.md",
     "repo.snapshot.json"
   ],
   "mutable": [
-    "answer.json"
+    "integration/acceptance.json",
+    "integration/consumer.json",
+    "integration/contract.json",
+    "integration/producer.json"
   ],
   "required": [],
   "rubric": [
-    "summary",
-    "workPlan",
-    "integration"
+    "exact-machine-state"
   ],
   "schemaVersion": 1
 }

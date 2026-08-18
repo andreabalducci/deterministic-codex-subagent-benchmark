@@ -1,9 +1,5 @@
 {
-  "schemaVersion": 1,
-  "adapter": "artifact-rubric-v1",
-  "mutable": [
-    "answer.json"
-  ],
+  "adapter": "json-semantic-diff-v1",
   "immutable": [
     "TASK.md",
     "src/billing/idempotency.py",
@@ -11,11 +7,12 @@
     "src/billing/worker.py",
     "tests/test_currency.py"
   ],
+  "mutable": [
+    "answer.json"
+  ],
   "required": [],
   "rubric": [
-    "diagnosis",
-    "failureChain",
-    "codeEvidence",
-    "excludedHypotheses"
-  ]
+    "exact-machine-state"
+  ],
+  "schemaVersion": 1
 }

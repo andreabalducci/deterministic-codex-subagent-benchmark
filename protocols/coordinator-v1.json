@@ -1,79 +1,116 @@
 {
-  "schemaVersion": 1,
-  "recordKind": "coordinator-protocol",
-  "protocolId": "coordinator-v1-live-delegation",
-  "seed": "coordinator-v1-plan-seed",
-  "bootstrapSeed": "coordinator-v1-bootstrap-seed",
-  "bootstrapSamples": 10000,
-  "familywiseAlpha": 0.05,
-  "replicatesPerFixture": 9,
-  "machines": ["machine-a", "machine-b", "machine-c"],
-  "fixtureIds": [
-    "coordination-01", "coordination-02", "coordination-03", "coordination-04",
-    "coordination-05", "coordination-06", "coordination-07", "coordination-08",
-    "coordination-09", "coordination-10", "coordination-11", "coordination-12"
-  ],
-  "sourceBinding": {
-    "catalogHash": "791815875177753f42d4e4c71fc3fd606dab058c8ad183e832aec714bda0ad5e",
-    "fixtureManifestHashes": {
-      "coordination-01": "73d26606e7cc548744a0a66b364fbcf5812eeabad42c6a75dd4287d9c1087faf",
-      "coordination-02": "2d9aaca7f70db37dc84663cec95a152e36e3544d737f2c543014af965034bf39",
-      "coordination-03": "f6c96ceba314d4d70118fab0d478679ffb080a1edeb997e5e9795377785293f9",
-      "coordination-04": "0d21e7677a547c9ade932fef01850e81faff07c239dae2a593cbc35e734ee4f2",
-      "coordination-05": "c568cb7e69c5eb35714cff799131b64383f028ef4679830e9169750aa64c45e2",
-      "coordination-06": "95187c2a7da26eeb5c7a84c12757a3e8c216a2322b2c25881284d964a36107e4",
-      "coordination-07": "6467317949c02dfb809311ecb667f61b713b778d8c627e22f5b728a001c62a25",
-      "coordination-08": "e6657d69b65715573ad0fccde08ae3ec8677dcd752a1685bbbe44d5b93870add",
-      "coordination-09": "7985ba6c398764e1c9fe451b87fe5e50843a0d4ce2a232b52f7ceeeeed3cb4af",
-      "coordination-10": "b4e4694955586130a27348e801df8a1cfc8ea5c39b323556819c612dda47bb37",
-      "coordination-11": "47cf18d8f26ce0a66e3d894edebdef0b981e52dd1af71585ad9c916dc8443453",
-      "coordination-12": "610435ca6146e92bbd50b441bcbb86d700b47beaa285494dda633986ce0333ab"
-    }
-  },
-  "coordinatorTreatments": [
-    {"id": "luna-low", "model": "gpt-5.6-luna", "reasoningEffort": "low"},
-    {"id": "luna-medium", "model": "gpt-5.6-luna", "reasoningEffort": "medium"},
-    {"id": "luna-high", "model": "gpt-5.6-luna", "reasoningEffort": "high"},
-    {"id": "terra-medium", "model": "gpt-5.6-terra", "reasoningEffort": "medium"},
-    {"id": "sol-medium", "model": "gpt-5.6-sol", "reasoningEffort": "medium"},
-    {"id": "sol-high", "model": "gpt-5.6-sol", "reasoningEffort": "high"}
-  ],
-  "workerPolicy": {
-    "treatmentId": "luna-high",
-    "model": "gpt-5.6-luna",
-    "reasoningEffort": "high",
-    "workerCount": 3,
-    "concurrency": 3,
-    "maxSpawnDepth": 1,
-    "freshContext": true,
-    "prompts": [
-      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, and repo.snapshot.json. Analyze only the first upstream ownership stream named by TASK.md. Return concrete owned paths, actions, dependency handoff, conflicts, and acceptance evidence to the coordinator; do not edit answer.json.",
-      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, and repo.snapshot.json. Analyze only the middle consumer ownership stream named by TASK.md. Return concrete owned paths, actions, dependency handoff, conflicts, and acceptance evidence to the coordinator; do not edit answer.json.",
-      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, and repo.snapshot.json. Analyze only the downstream integration and acceptance ownership stream named by TASK.md. Return concrete owned paths, actions, dependency handoff, conflicts, and acceptance evidence to the coordinator; do not edit answer.json."
-    ]
-  },
-  "executionEnvelope": {
-    "codexVersion": "codex-cli 0.147.0",
-    "serviceTier": "priority",
-    "fastMode": true,
-    "multiAgent": true,
-    "ephemeral": true,
-    "ignoreUserConfig": true,
-    "ignoreRules": true,
-    "network": true
-  },
   "acceptance": {
-    "requireExactWorkerPrompts": true,
+    "maximumUnresolvedConflicts": 0,
     "requireAllWorkersCompleted": true,
-    "requireNoNestedDelegation": true,
+    "requireExactWorkerPrompts": true,
     "requireIntegrationPass": true,
-    "maximumUnresolvedConflicts": 0
+    "requireNoNestedDelegation": true
   },
   "analysis": {
-    "candidateId": "sol-medium",
     "absoluteQualityFloor": 0.85,
-    "nonInferiorityMargin": 0.1,
+    "candidateId": "sol-medium",
     "decisionComparatorId": "terra-medium",
-    "minimumDecisionGain": 0.1
+    "minimumDecisionGain": 0.1,
+    "nonInferiorityMargin": 0.1
+  },
+  "bootstrapSamples": 10000,
+  "bootstrapSeed": "coordinator-v1-bootstrap-seed",
+  "coordinatorTreatments": [
+    {
+      "id": "luna-low",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "luna-medium",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "luna-high",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "terra-medium",
+      "model": "gpt-5.6-terra",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "sol-medium",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "sol-high",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "high"
+    }
+  ],
+  "executionEnvelope": {
+    "codexVersion": "codex-cli 0.147.0",
+    "ephemeral": true,
+    "fastMode": true,
+    "ignoreRules": true,
+    "ignoreUserConfig": true,
+    "multiAgent": true,
+    "network": true,
+    "serviceTier": "priority"
+  },
+  "familywiseAlpha": 0.05,
+  "fixtureIds": [
+    "coordination-01",
+    "coordination-02",
+    "coordination-03",
+    "coordination-04",
+    "coordination-05",
+    "coordination-06",
+    "coordination-07",
+    "coordination-08",
+    "coordination-09",
+    "coordination-10",
+    "coordination-11",
+    "coordination-12"
+  ],
+  "machines": [
+    "machine-a",
+    "machine-b",
+    "machine-c"
+  ],
+  "protocolId": "coordinator-v1-live-delegation",
+  "recordKind": "coordinator-protocol",
+  "replicatesPerFixture": 9,
+  "schemaVersion": 1,
+  "seed": "coordinator-v1-plan-seed",
+  "sourceBinding": {
+    "catalogHash": "4b6e4fcbe39e50234b8d400344b46baf1cb07f38e79fff313c7967a07055096e",
+    "fixtureManifestHashes": {
+      "coordination-01": "263bc9e732c3c5768071ceb7f35d2a6062eb677122af3443505d2a805a416e21",
+      "coordination-02": "091e4af70662ab7a8c9a1163239aed0665fd2a37f0d331f8dc13f554128d41f2",
+      "coordination-03": "228bdaa59567501981ae7faed26f96fef04b086733edf80add83da3c63bc236a",
+      "coordination-04": "c8594e0571997bc99eacd5af11ced38438ff0369b186607f6bcb9b2dab35702b",
+      "coordination-05": "4960a705b6ae7383c1f9c22e1fd4fa5857c2b786eb53bd3ced7c1acb20969153",
+      "coordination-06": "764a78943b9ac9ceb97b656611222cdb6e53a50f1557bd7480d1fd4394d79ef7",
+      "coordination-07": "85dd81c63cb30681f0c647a9e6f5a2ad8ca379a4817075fbab2fd4233297fbcd",
+      "coordination-08": "47857163807e1e2f043d4eba0239be32bad020f1274dd555f3b22cb8aa64e6dc",
+      "coordination-09": "a64ce5cbddba29f42f45b5bfbb7fed0a3945398cb739eda945fda7f89986db51",
+      "coordination-10": "8a46ea687ecacc5a9e6756482ff997e90d6cb5e62a8a72f7ec162973870fb662",
+      "coordination-11": "1ed59dff73f0ab8112e727a6f064810046b7a9a1bff8919cd07cb3dacc5db8b4",
+      "coordination-12": "3db998e174e48120332f548c47cdffbdeb4e0a1209796b8188bd1fab71a57d22"
+    }
+  },
+  "workerPolicy": {
+    "concurrency": 3,
+    "freshContext": true,
+    "maxSpawnDepth": 1,
+    "model": "gpt-5.6-luna",
+    "prompts": [
+      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, repo.snapshot.json, and integration/contract.json. Own only the upstream contract stream. Edit only integration/contract.json to publish and freeze the required contract version, then report the exact handoff and any conflict to the coordinator.",
+      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, repo.snapshot.json, and integration/producer.json. Own only the middle producer stream. Edit only integration/producer.json to consume the frozen contract and resolve its side of the seeded conflict, then report the exact handoff to the coordinator.",
+      "Complete this assignment directly. Do not spawn other agents. Inspect TASK.md, WORK_ITEM.md, repo.snapshot.json, integration/consumer.json, and integration/acceptance.json. Own only downstream consumption and acceptance. Edit only those two files, preserve the authorized command, and report remaining conflicts and acceptance evidence to the coordinator."
+    ],
+    "reasoningEffort": "high",
+    "treatmentId": "luna-high",
+    "workerCount": 3
   }
 }

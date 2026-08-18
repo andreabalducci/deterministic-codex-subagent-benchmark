@@ -1,0 +1,10 @@
+{
+  "approvedScope": [
+    ".github/workflows/change.yml",
+    "config/rollback.yml",
+    "scripts/check-risk-change.sh"
+  ],
+  "distractorChanged": false,
+  "regressionAdded": true,
+  "smallestCompatibleGuard": true
+}

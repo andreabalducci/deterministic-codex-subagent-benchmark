@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "canonical-lowercase",
+  "owner": "worker",
+  "paths": [
+    "src/InvoiceExportJob.cs",
+    "tests/Billing.IntegrationTests.cs"
+  ]
+}

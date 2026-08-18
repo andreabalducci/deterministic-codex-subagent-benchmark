@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Support PostgreSQL 14 and preserve rollback visibility"
+  ],
+  "frozenBoundaryPreserved": false,
+  "mixedVersionSafe": false,
+  "seededDefect": "migration.sql creates a blocking index inside the deploy transaction",
+  "stratum": "migration"
+}

@@ -1,6 +1,3 @@
 {
-  "rolloutVerdict": null,
-  "manifestDefects": null,
-  "lineProof": null,
-  "nonCauses": null
+  "defectLocations": []
 }

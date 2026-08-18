@@ -1,0 +1,10 @@
+{
+  "approvedScope": [
+    "src/Migration.cs",
+    "src/Service.cs",
+    "tests/RiskAcceptanceTests.cs"
+  ],
+  "distractorChanged": false,
+  "regressionAdded": true,
+  "smallestCompatibleGuard": true
+}

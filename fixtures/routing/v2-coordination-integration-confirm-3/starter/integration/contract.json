@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "protocol",
+  "paths": [
+    "src/protocol.py"
+  ],
+  "scenario": "Ingestion cursor protocol",
+  "version": 1
+}

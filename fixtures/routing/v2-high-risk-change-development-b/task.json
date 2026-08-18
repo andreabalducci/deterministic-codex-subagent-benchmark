@@ -1,20 +1,19 @@
 {
-  "adapter": "artifact-rubric-v1",
+  "adapter": "json-semantic-diff-v1",
   "immutable": [
     "TASK.md",
     "WORK_ITEM.md",
     "repo.snapshot.json"
   ],
   "mutable": [
-    "answer.json"
+    "change/acceptance.json",
+    "change/compatibility.json",
+    "change/implementation.json",
+    "change/rollback.json"
   ],
   "required": [],
   "rubric": [
-    "summary",
-    "riskAssessment",
-    "changePlan",
-    "rollback",
-    "acceptance"
+    "exact-machine-state"
   ],
   "schemaVersion": 1
 }

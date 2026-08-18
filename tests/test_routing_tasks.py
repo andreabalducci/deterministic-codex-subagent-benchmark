@@ -23,18 +23,18 @@ class RoutingTaskTests(unittest.TestCase):
     def test_calibration_references_pass_and_mutants_fail(self):
         report = routing_tasks.calibrate()
         self.assertTrue(report["passed"])
-        self.assertEqual(560, len(report["cases"]))
+        self.assertEqual(392, len(report["cases"]))
         self.assertEqual({"PASS", "FAIL"}, {case["actual"] for case in report["cases"]})
         self.assertEqual(
             84,
             sum(case["case"] == "equivalent-positive" for case in report["cases"]),
         )
         self.assertEqual(
-            42,
+            0,
             sum(case["case"] == "schema-extra-mutant" for case in report["cases"]),
         )
         self.assertEqual(
-            266,
+            140,
             sum(case["case"] == "criterion-mutant" for case in report["cases"]),
         )
         self.assertTrue(all(
@@ -187,40 +187,47 @@ class RoutingTaskTests(unittest.TestCase):
             self.assertNotEqual("source-contract", kind)
         self.assertEqual(expected_kinds, actual_kinds)
 
-    def test_artifact_rubric_requires_all_sealed_fields(self):
+    def test_coordination_state_requires_every_frozen_file_and_invariant(self):
         task_id = "coordination-01"
         task = routing_tasks.task_by_id(task_id)
         with tempfile.TemporaryDirectory() as temporary:
             candidate = Path(temporary) / "candidate"
             routing_tasks.materialize(task_id, candidate)
-            sealed = json.loads((routing_tasks.template_root(task) / "sealed" / "expected.json").read_text())
-            (candidate / "answer.json").write_text(json.dumps(sealed), encoding="utf-8")
+            spec = routing_tasks.load_template(task)
+            for relative in spec["mutable"]:
+                source = routing_tasks.template_root(task) / "sealed" / relative
+                target = candidate / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
             self.assertEqual("PASS", routing_tasks.evaluate_artifact(task_id, candidate)["status"])
-            # Change a field that is actually part of this fixture's frozen rubric.
-            sealed["integration"] = "wrong"
-            (candidate / "answer.json").write_text(json.dumps(sealed), encoding="utf-8")
+            consumer = candidate / "integration/consumer.json"
+            value = json.loads(consumer.read_text())
+            value["consumesContractVersion"] = 1
+            consumer.write_text(json.dumps(value), encoding="utf-8")
             self.assertEqual("FAIL", routing_tasks.evaluate_artifact(task_id, candidate)["status"])
 
-    def test_artifact_rubric_allows_restated_prose_but_rejects_extra_fields(self):
+    def test_high_risk_state_is_semantic_json_and_rejects_unplanned_files(self):
         task_id = "high-risk-01"
         task = routing_tasks.task_by_id(task_id)
         with tempfile.TemporaryDirectory() as temporary:
             candidate = Path(temporary) / "candidate"
             routing_tasks.materialize(task_id, candidate)
-            expected = json.loads(
-                (routing_tasks.template_root(task) / "sealed" / "expected.json").read_text()
-            )
-            expected["summary"] += " — same evidence, restated."
-            (candidate / "answer.json").write_text(json.dumps(expected))
+            spec = routing_tasks.load_template(task)
+            for relative in spec["mutable"]:
+                source = routing_tasks.template_root(task) / "sealed" / relative
+                target = candidate / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                value = json.loads(source.read_text())
+                if isinstance(value, dict): value = dict(reversed(list(value.items())))
+                target.write_text(json.dumps(value, separators=(",", ":")))
             report = routing_tasks.evaluate_artifact(task_id, candidate)
             self.assertEqual("PASS", report["status"])
             self.assertTrue(report["criticalPassed"])
             self.assertEqual(1.0, report["rubricScore"])
-            expected["unexpected"] = True
-            (candidate / "answer.json").write_text(json.dumps(expected))
+            (candidate / "unplanned.json").write_text("{}")
             report = routing_tasks.evaluate_artifact(task_id, candidate)
             self.assertEqual("FAIL", report["status"])
-            self.assertFalse(report["schemaValid"])
+            self.assertTrue(report["integrityViolations"])
 
 
 if __name__ == "__main__":

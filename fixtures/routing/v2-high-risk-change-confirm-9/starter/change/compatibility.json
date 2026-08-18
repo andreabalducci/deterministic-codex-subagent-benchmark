@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Trust both pinned public keys without changing HttpClient call sites"
+  ],
+  "frozenBoundaryPreserved": false,
+  "mixedVersionSafe": false,
+  "seededDefect": "TlsPolicy.cs accepts any certificate when the rotation flag is set",
+  "stratum": "security-compatibility"
+}

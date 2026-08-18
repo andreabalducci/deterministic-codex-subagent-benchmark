@@ -1,0 +1,10 @@
+{
+  "approvedScope": [
+    "src/migration.py",
+    "src/service.py",
+    "tests/test_risk_acceptance.py"
+  ],
+  "distractorChanged": false,
+  "regressionAdded": false,
+  "smallestCompatibleGuard": false
+}

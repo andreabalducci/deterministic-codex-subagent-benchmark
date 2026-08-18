@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Keep OIDC publication and the manual approval environment"
+  ],
+  "frozenBoundaryPreserved": true,
+  "mixedVersionSafe": true,
+  "seededDefect": "release.yml grants write-all and runs an unpinned third-party signer",
+  "stratum": "security"
+}

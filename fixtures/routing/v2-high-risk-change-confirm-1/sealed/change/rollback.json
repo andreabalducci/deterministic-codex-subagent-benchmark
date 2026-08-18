@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Stop new writers, restore the compatibility view, then roll back binaries"
+  ],
+  "compatibility": "Preserve the v1 DTO and mixed-version operation for 24 hours",
+  "forwardOnly": false,
+  "rehearsed": true,
+  "trigger": "Rollback if `dotnet test Orders.sln --filter MixedVersion` fails or the stated blast-radius symptom appears."
+}

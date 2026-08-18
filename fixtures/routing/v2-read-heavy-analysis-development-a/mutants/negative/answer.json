@@ -1,30 +1,9 @@
 {
-  "diagnosis": "read-heavy-analysis-development-a: Trace invoice retry duplication across worker, ledger, and idempotency layers (unsupported mutant claim)",
-  "failureChain": [
+  "defectLocations": [
     {
-      "factId": "duplicate-capture",
-      "statement": "The gateway capture occurs before acknowledgement and no stable idempotency key is passed; redelivery can charge twice."
-    },
-    {
-      "factId": "attempt-scoped-key",
-      "statement": "The available idempotency key changes with attempt, so it cannot deduplicate retries for the same invoice."
-    }
-  ],
-  "codeEvidence": [
-    {
-      "factId": "duplicate-capture",
-      "path": "src/billing/worker.py",
-      "line": 4,
-      "excerpt": "charge = gateway.capture(message[\"payment_id\"], message[\"amount\"])"
-    },
-    {
-      "factId": "attempt-scoped-key",
-      "path": "src/billing/idempotency.py",
+      "excerpt": "return f'invoice:{message[\"invoice_id\"]}:attempt:{message[\"attempt\"]}'",
       "line": 2,
-      "excerpt": "return f'invoice:{message[\"invoice_id\"]}:attempt:{message[\"attempt\"]}'"
+      "path": "src/billing/idempotency.py"
     }
-  ],
-  "excludedHypotheses": [
-    "tests/test_currency.py is unrelated; integer minor units do not address retry identity."
   ]
 }

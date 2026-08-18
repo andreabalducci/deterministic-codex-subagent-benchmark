@@ -1,24 +1,13 @@
-# Online index migration: controlled-change assignment
+# Safety transition: Online index migration
 
-Treat this as a rollback-first review: define the stop condition before sequencing the smallest repair.
+Apply a risk-gated transition: preserve the frozen boundary, add only the approved guard, rehearse rollback, then evaluate acceptance.
 
-Use only `repo.snapshot.json` and `WORK_ITEM.md`. The deterministic signal to
-explain is `migration.sql creates a blocking index inside the deploy transaction`. `Reorder YAML keys` is intentionally unrelated. This is a
-planning/evidence task for a compact repository-artifacts snapshot; do not
-claim that code was changed, deployed, or observed in production.
+Use `WORK_ITEM.md` and `repo.snapshot.json` as immutable evidence. Update exactly the four
+existing JSON documents under `change/`, preserving their schemas and all supplied defect,
+constraint, scope, command, trigger, action, and compatibility strings. The final state must
+preserve the frozen boundary, make mixed-version operation safe, add the seeded regression
+and smallest compatible guard, leave the distractor unchanged, record a rehearsed non-forward-
+only rollback, pass regression/compatibility/rollback, and set review to `approved`.
 
-Return only `answer.json`. Its exact sections are:
-
-- `summary`: a bounded description of the proposed repair;
-- `riskAssessment`: risk stratum, seeded defect, blast radius, compatibility
-  constraints, and disposition of the distractor;
-- `changePlan`: approved path scope and regression-first ordered steps;
-- `rollback`: deterministic trigger, safe actions, and the compatibility state
-  that must survive reversal;
-- `acceptance`: only the authorized offline command, required evidence
-  artifacts, and a final-review condition tied to defect, rollback, and
-  compatibility proof.
-
-Keep frozen boundaries unchanged. Do not widen the approved paths, replace
-rollback with a forward-only migration, repair the distractor, or manufacture
-operational evidence.
+No prose is graded and no new artifact is allowed. The evaluator compares the complete
+semantic state; skipped reversal, widened scope, premature approval, or evidence edits fail.

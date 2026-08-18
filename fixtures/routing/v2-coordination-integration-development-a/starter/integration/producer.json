@@ -1,0 +1,8 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "producer-case",
+  "owner": "api",
+  "paths": [
+    "src/ExportController.cs"
+  ]
+}

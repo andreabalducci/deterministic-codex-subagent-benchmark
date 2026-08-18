@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "pytest -q tests/test_profile_resolution.py",
+  "conflictStatus": "resolved",
+  "distractor": "Optional color output request",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "schema",
+    "loader",
+    "cli"
+  ],
+  "seededConflict": "Loader and CLI disagree on missing-profile behavior"
+}

@@ -1,16 +1,17 @@
-# Trace invoice retry duplication across worker, ledger, and idempotency layers
+# read-heavy-analysis-development-a: exact source-evidence localization
 
-## Assignment
+Inspect every visible source and test file before answering. Locate only the executable
+statements that directly implement the seeded defect described by this assignment:
+`read-heavy-analysis-development-a: Trace invoice retry duplication across worker, ledger, and idempotency layers`. Nearby declarations, tests, comments, callers, and correctly scoped layers
+are context, not defect locations.
 
-Read the entire repository snapshot before answering. Produce only `answer.json`; do not modify source or configuration. Identify the exact architectural or defect facts requested, connect them across files where necessary, and distinguish seeded distractors from causal evidence.
+Write only `answer.json` with this exact schema and no additional keys:
 
-## Evidence rules
+```json
+{"defectLocations":[{"path":"relative/path","line":1,"excerpt":"exact source line"}]}
+```
 
-- Every reported fact must cite a repository-relative path and an exact 1-based line number.
-- The cited line must contain the supplied excerpt verbatim after trimming whitespace.
-- Do not infer a vulnerability or failure from filenames alone.
-- Report all and only the material facts supported by this snapshot.
-
-## Output contract
-
-Return one JSON object with exactly these top-level fields: `diagnosis`, `failureChain`, `codeEvidence`, `excludedHypotheses`. Facts and evidence must remain structured arrays; prose without path/line evidence is not accepted.
+Use repository-relative paths, one-based line numbers, and the complete source line after
+trimming surrounding whitespace. Sort records by path, line, then excerpt. Include every
+direct defect statement and no benign statement. The evaluator checks the structured
+records against the frozen source bytes; prose similarity is never scored.

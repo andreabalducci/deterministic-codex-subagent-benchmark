@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "attestation",
+  "paths": [
+    "config/attest.yml",
+    "scripts/check-provenance.sh"
+  ]
+}

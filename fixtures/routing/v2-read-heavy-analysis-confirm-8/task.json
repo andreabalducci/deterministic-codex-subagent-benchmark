@@ -1,20 +1,17 @@
 {
-  "schemaVersion": 1,
-  "adapter": "artifact-rubric-v1",
-  "mutable": [
-    "answer.json"
-  ],
+  "adapter": "json-semantic-diff-v1",
   "immutable": [
     "Dockerfile",
     "TASK.md",
     "compose.yaml",
     "server.mjs"
   ],
+  "mutable": [
+    "answer.json"
+  ],
   "required": [],
   "rubric": [
-    "environmentDiagnosis",
-    "composeFaults",
-    "configurationEvidence",
-    "irrelevantSignals"
-  ]
+    "exact-machine-state"
+  ],
+  "schemaVersion": 1
 }

@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "dispatcher-case",
+  "owner": "cli",
+  "paths": [
+    "src/main.py",
+    "tests/test_profile_resolution.py"
+  ]
+}

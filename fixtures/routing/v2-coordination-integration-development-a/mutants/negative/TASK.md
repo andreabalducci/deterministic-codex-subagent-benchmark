@@ -1,24 +1,14 @@
-# coordination-integration-development-a: Invoice export contract split
+# Integration checkpoint: Invoice export contract split
 
-## Role and evidence boundary
+Work contract-first. Publish and freeze version 2, then align producer and consumer before recording acceptance.
 
-Produce only `answer.json`. This fixture scores the quality of a worker-authored coordination and integration artifact. It does **not** ask you to spawn workers and must not claim that a live coordinator delegated, monitored, or merged anything.
+Read `WORK_ITEM.md` and `repo.snapshot.json`, then edit exactly the four existing JSON
+documents below `integration/`. Keep every supplied scenario, owner, path, conflict,
+distractor, and command string byte-for-byte; change only the state fields required by the
+work item. The accepted repository freezes contract version 2, makes both consumers use
+version 2 and `canonical-lowercase`, follows the declared owner order, resolves
+`The worker still reads the frozen v1 ExportRequest shape`, rejects `README typo in the reporting sample`, and finishes as
+`accepted`.
 
-## Repository/work-item snapshot
-
-Read `repo.snapshot.json` and `WORK_ITEM.md`. The snapshot represents multiple synthetic repository files. Treat every listed path and constraint as frozen evidence. The topology is `Billing.Contracts -> Billing.Api -> Billing.Worker`.
-
-## Required artifact
-
-Return a JSON object with exactly `summary`, `workPlan`, and `integration`:
-
-- `summary`: one sentence naming the integration and its evidence limitation.
-- `workPlan.workers`: three ordered worker records. Each needs an id, exclusive owned paths, and concrete actions.
-- `workPlan.frozenDependencies`: the precise contract-freeze gate.
-- `workPlan.conflictChecks`: identify the seeded conflict and explicitly reject the distractor.
-- `integration.mergeOrder`: dependency-safe owner ids, not file names.
-- `integration.acceptanceCommands`: only the offline command authorized by the work item.
-- `integration.handoffs`: producer/consumer evidence transferred at each boundary.
-- `integration.evidenceBoundary`: explicitly limit claims to the authored artifact.
-
-Use the owner ids and wording supported by the two snapshot files. Do not widen scope, assign one path to two owners, reorder a consumer before its dependency, add commands, or treat the distractor as work.
+Do not write an explanation or add files. Semantic JSON equality across all four files is
+the sole score: partial merges, alternate commands, stale versions, or unresolved state fail.

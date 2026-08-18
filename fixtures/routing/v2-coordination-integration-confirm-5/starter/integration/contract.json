@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "proto",
+  "paths": [
+    "src/reservation.proto"
+  ],
+  "scenario": "gRPC reservation contract update",
+  "version": 1
+}

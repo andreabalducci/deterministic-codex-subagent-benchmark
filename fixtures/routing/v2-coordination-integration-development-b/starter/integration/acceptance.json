@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "pnpm test --filter saved-search",
+  "conflictStatus": "unresolved",
+  "distractor": "Unrelated Storybook button padding",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "Both UI branches edit the query-key adapter"
+}

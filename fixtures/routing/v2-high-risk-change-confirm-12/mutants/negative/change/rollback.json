@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Reject the candidate, revoke its approval record, and retain evidence for audit"
+  ],
+  "compatibility": "Do not rebuild or resign artifacts during final review",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `./scripts/verify-candidate.sh release/candidate.json` fails or the stated blast-radius symptom appears."
+}

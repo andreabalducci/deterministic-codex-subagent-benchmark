@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "contract",
+  "paths": [
+    "src/ExportRequest.cs"
+  ],
+  "scenario": "Invoice export contract split",
+  "version": 1
+}

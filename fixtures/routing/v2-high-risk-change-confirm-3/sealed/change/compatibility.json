@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Continue accepting signed JSON payload version 1"
+  ],
+  "frozenBoundaryPreserved": true,
+  "mixedVersionSafe": true,
+  "seededDefect": "worker/codec.py calls pickle.loads on a queue-controlled payload",
+  "stratum": "security"
+}

@@ -1,9 +1,5 @@
 {
-  "schemaVersion": 1,
-  "adapter": "artifact-rubric-v1",
-  "mutable": [
-    "answer.json"
-  ],
+  "adapter": "json-semantic-diff-v1",
   "immutable": [
     "TASK.md",
     "deploy/deployment.yaml",
@@ -11,11 +7,12 @@
     "deploy/service.yaml",
     "deploy/values.yaml"
   ],
+  "mutable": [
+    "answer.json"
+  ],
   "required": [],
   "rubric": [
-    "rolloutVerdict",
-    "manifestDefects",
-    "lineProof",
-    "nonCauses"
-  ]
+    "exact-machine-state"
+  ],
+  "schemaVersion": 1
 }

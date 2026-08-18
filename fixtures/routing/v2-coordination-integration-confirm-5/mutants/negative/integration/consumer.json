@@ -1,0 +1,9 @@
+{
+  "consumesContractVersion": 1,
+  "headerCase": "canonical-lowercase",
+  "owner": "client",
+  "paths": [
+    "src/ReservationClient.cs",
+    "tests/ReservationCompatibilityTests.cs"
+  ]
+}

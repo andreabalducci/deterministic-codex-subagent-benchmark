@@ -1,6 +1,3 @@
 {
-  "environmentDiagnosis": null,
-  "composeFaults": null,
-  "configurationEvidence": null,
-  "irrelevantSignals": null
+  "defectLocations": []
 }

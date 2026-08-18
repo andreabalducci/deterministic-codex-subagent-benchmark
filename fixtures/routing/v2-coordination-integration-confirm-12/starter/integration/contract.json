@@ -1,0 +1,9 @@
+{
+  "frozen": false,
+  "owner": "config-schema",
+  "paths": [
+    ".github/config.schema.json"
+  ],
+  "scenario": "Helm environment-key convergence",
+  "version": 1
+}

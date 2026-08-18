@@ -1,0 +1,13 @@
+{
+  "authorizedCommand": "dotnet test Identity.sln --filter CustomerIdRollout",
+  "conflictStatus": "resolved",
+  "distractor": "Nullable annotation in a sample",
+  "distractorStatus": "rejected",
+  "integrationStatus": "accepted",
+  "mergeOrder": [
+    "contract",
+    "writer",
+    "reader"
+  ],
+  "seededConflict": "Reader branch switches before writer populates the new column"
+}

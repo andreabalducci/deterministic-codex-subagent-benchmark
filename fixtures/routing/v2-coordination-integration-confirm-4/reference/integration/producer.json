@@ -1,0 +1,8 @@
+{
+  "consumesContractVersion": 2,
+  "headerCase": "canonical-lowercase",
+  "owner": "build-workflow",
+  "paths": [
+    ".github/workflows/build.yml"
+  ]
+}

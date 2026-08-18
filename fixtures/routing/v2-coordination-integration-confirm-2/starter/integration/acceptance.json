@@ -1,0 +1,9 @@
+{
+  "authorizedCommand": "pnpm vitest run session",
+  "conflictStatus": "unresolved",
+  "distractor": "Deprecated icon import",
+  "distractorStatus": "pending",
+  "integrationStatus": "pending",
+  "mergeOrder": [],
+  "seededConflict": "Both applications currently declare SessionStatus"
+}

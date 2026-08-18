@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "pytest -q tests/test_payment_idempotency.py"
+  ],
+  "compatibilityPass": false,
+  "finalReviewStatus": "blocked",
+  "rollbackPass": false,
+  "seededRegressionPass": false
+}

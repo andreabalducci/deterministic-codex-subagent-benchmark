@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "pnpm vitest run service-worker-migration"
+  ],
+  "compatibilityPass": false,
+  "finalReviewStatus": "blocked",
+  "rollbackPass": false,
+  "seededRegressionPass": false
+}

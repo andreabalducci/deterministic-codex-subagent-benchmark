@@ -1,0 +1,9 @@
+{
+  "frozen": true,
+  "owner": "metadata",
+  "paths": [
+    ".github/metadata.json"
+  ],
+  "scenario": "Container provenance pipeline",
+  "version": 2
+}

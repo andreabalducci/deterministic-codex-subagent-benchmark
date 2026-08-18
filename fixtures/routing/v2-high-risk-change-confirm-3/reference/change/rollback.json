@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Route version 2 messages to quarantine and redeploy the v1-only decoder"
+  ],
+  "compatibility": "Continue accepting signed JSON payload version 1",
+  "forwardOnly": false,
+  "rehearsed": true,
+  "trigger": "Rollback if `pytest -q tests/test_payload_codec.py` fails or the stated blast-radius symptom appears."
+}

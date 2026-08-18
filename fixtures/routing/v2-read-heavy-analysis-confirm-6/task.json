@@ -1,9 +1,5 @@
 {
-  "schemaVersion": 1,
-  "adapter": "artifact-rubric-v1",
-  "mutable": [
-    "answer.json"
-  ],
+  "adapter": "json-semantic-diff-v1",
   "immutable": [
     "TASK.md",
     "src/articles/ArticleBody.tsx",
@@ -11,11 +7,12 @@
     "src/articles/routes.ts",
     "src/articles/useArticle.ts"
   ],
+  "mutable": [
+    "answer.json"
+  ],
   "required": [],
   "rubric": [
-    "contentSafetySummary",
-    "cacheAndXssFindings",
-    "preciseCitations",
-    "safeSurfaces"
-  ]
+    "exact-machine-state"
+  ],
+  "schemaVersion": 1
 }

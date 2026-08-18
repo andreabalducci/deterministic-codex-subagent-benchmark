@@ -1,0 +1,9 @@
+{
+  "frozen": true,
+  "owner": "schema",
+  "paths": [
+    "src/schema.py"
+  ],
+  "scenario": "CLI profile resolution integration",
+  "version": 2
+}

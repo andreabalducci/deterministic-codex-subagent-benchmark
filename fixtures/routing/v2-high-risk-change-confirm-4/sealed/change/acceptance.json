@@ -1,0 +1,9 @@
+{
+  "authorizedCommands": [
+    "./scripts/lint-workflow-trust.sh .github/workflows/pr-preview.yml"
+  ],
+  "compatibilityPass": true,
+  "finalReviewStatus": "approved",
+  "rollbackPass": true,
+  "seededRegressionPass": true
+}

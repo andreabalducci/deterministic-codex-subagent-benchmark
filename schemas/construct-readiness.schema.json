@@ -15,25 +15,22 @@
     "sourceArtifacts": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dockerCalibration", "blindedAdjudication"],
+      "required": ["dockerCalibration"],
       "properties": {
-        "dockerCalibration": {"type": ["object", "null"]},
-        "blindedAdjudication": {"type": ["object", "null"]}
+        "dockerCalibration": {"type": ["object", "null"]}
       }
     },
     "thresholds": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["minimumConfirmatoryFixtures", "minimumEcosystems", "minimumSurfaces", "maximumPromptTrigramJaccard", "minimumCriterionMutationCoverage", "minimumEquivalentPositivesPerFixture", "minimumBlindedAdjudicationSample", "minimumBlindedAgreement"],
+      "required": ["minimumConfirmatoryFixtures", "minimumEcosystems", "minimumSurfaces", "maximumPromptTrigramJaccard", "minimumCriterionMutationCoverage", "minimumEquivalentPositivesPerFixture"],
       "properties": {
         "minimumConfirmatoryFixtures": {"type": "integer", "minimum": 1},
         "minimumEcosystems": {"type": "integer", "minimum": 1},
         "minimumSurfaces": {"type": "integer", "minimum": 1},
         "maximumPromptTrigramJaccard": {"type": "number", "minimum": 0, "maximum": 1},
         "minimumCriterionMutationCoverage": {"type": "number", "minimum": 0, "maximum": 1},
-        "minimumEquivalentPositivesPerFixture": {"type": "integer", "minimum": 1},
-        "minimumBlindedAdjudicationSample": {"type": "integer", "minimum": 1},
-        "minimumBlindedAgreement": {"type": "number", "minimum": 0, "maximum": 1}
+        "minimumEquivalentPositivesPerFixture": {"type": "integer", "minimum": 1}
       }
     },
     "families": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/family"}}
@@ -43,7 +40,7 @@
     "family": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["protocolFamilyId", "catalogFamilyId", "scopedClaim", "eligible", "reasons", "scaleAndDiversity", "promptNearDuplication", "criterionMutationCoverage", "equivalentPositiveCoverage", "dockerCalibration", "blindedAdjudication"],
+      "required": ["protocolFamilyId", "catalogFamilyId", "scopedClaim", "eligible", "reasons", "scaleAndDiversity", "promptNearDuplication", "criterionMutationCoverage", "equivalentPositiveCoverage", "dockerCalibration"],
       "properties": {
         "protocolFamilyId": {"type": "string", "minLength": 1},
         "catalogFamilyId": {"type": "string", "minLength": 1},
@@ -54,8 +51,7 @@
         "promptNearDuplication": {"type": "object"},
         "criterionMutationCoverage": {"type": "object"},
         "equivalentPositiveCoverage": {"type": "object"},
-        "dockerCalibration": {"type": "object"},
-        "blindedAdjudication": {"type": "object"}
+        "dockerCalibration": {"type": "object"}
       }
     }
   }

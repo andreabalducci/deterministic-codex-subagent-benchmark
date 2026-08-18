@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "Keep JSON amounts as strings and support old rows during backfill"
+  ],
+  "frozenBoundaryPreserved": false,
+  "mixedVersionSafe": false,
+  "seededDefect": "Price.Amount is decimal but migration 118 creates real and rounds refunds",
+  "stratum": "migration"
+}

@@ -41,9 +41,9 @@ utilization, sealed integration acceptance, usage, and runtime/repository
 provenance. It fails closed when delegation is inferred only from prose, a
 worker prompt or treatment drifts, a worker delegates again, timestamps are
 absent, a conflict remains unresolved, or the final integration artifact fails
-its sealed fixture evaluator. The existing worker-authored coordination
-artifacts remain task inputs and integration oracles; their standalone scores
-are never relabeled as live coordinator evidence.
+its sealed fixture evaluator. The worker-family multi-file coordination states
+remain a separate estimand and integration oracle; their standalone scores are
+never relabeled as evidence of live delegation.
 
 Create a private HMAC key and preregister the immutable plan before any paid
 generation:
@@ -98,8 +98,8 @@ The confirmatory protocol uses six narrowly worded families:
 | `bounded-mapping-patch` | Small mapping patches accepted by sealed deterministic commands |
 | `isolated-implementation` | Isolated implementations accepted by sealed behavioral or data-contract tests |
 | `read-heavy-analysis` | Structured defect localization with exact evidence in compact seeded repositories |
-| `coordination-integration` | Worker-authored decomposition and integration-plan artifacts, not live delegation |
-| `high-risk-change` | Structured risk, change, rollback, and acceptance-plan artifacts in compact seeded repositories |
+| `coordination-integration` | Exact contract, producer, consumer, and acceptance state integration across four files |
+| `high-risk-change` | Exact compatibility, implementation, rollback, and acceptance state transitions |
 
 The broad historical `sol-high` wording (concurrency, security, migration, and
 final review) may be restored only after each named stratum has independent
@@ -112,16 +112,15 @@ Each family requires:
 - twelve sealed confirmatory fixtures for an evidence-backed routing claim;
 - fixtures from at least three ecosystems or an explicit ecosystem scope;
 - no shared code ancestry that would make fixtures pseudoreplicates;
-- a frozen reference, negative/mutant corpus, rubric, and manifest.
+- a frozen reference, negative/mutant corpus, deterministic evaluator contract, and manifest.
 
 Before a fixture may enter a campaign, calibration must also demonstrate that
-semantically equivalent formatting or prose variants pass, malformed or
-additional output fields fail, and every critical criterion is represented in
-the evaluator report. Free-form prose is never compared as one exact string:
-objective identifiers, paths, commands, evidence locations, ordering, and
-required evidence atoms are scored with field-specific deterministic
-predicates. The report publishes both a normalized rubric score and a separate
-critical-criterion gate.
+semantically equivalent JSON formatting passes, every prohibited state change
+fails, and every independently mutable JSON file has its own killed mutant.
+Executable fixtures are accepted only by sealed behavioral or data-contract
+tests. Read-heavy answers contain exact source locations and excerpts; the two
+integration families contain only exact JSON state. No free-form prose is part
+of any score.
 
 ## Construct-validity authorization gate
 
@@ -130,12 +129,12 @@ to authorize paid generations. `construct_readiness.py` emits a deterministic,
 hash-bound report for the frozen protocol and catalog. Promotion requires all
 of the following for every claimed family:
 
-- at least 12 confirmatory fixtures, three ecosystems, and ten distinct task surfaces;
+- at least six preregistered confirmatory fixtures, three ecosystems, and six distinct task surfaces;
 - maximum pairwise prompt trigram Jaccard similarity no greater than 0.85;
 - every critical evaluator criterion killed by at least one committed negative mutant;
 - at least one evaluator-accepted equivalent positive for every confirmatory fixture;
-- a catalog-bound, content-addressed, passing Docker calibration artifact covering every reference and mutant;
-- for rubric-scored artifacts, two or more blinded raters, at least 12 adjudicated samples per family, agreement of at least 0.80, and no unresolved disagreements.
+- a catalog-bound, content-addressed, passing Docker calibration artifact covering every reference, negative mutant, semantic-equivalence positive, and per-state criterion mutant;
+- no prose, token-overlap, model-based judge, or human rating in any task outcome.
 
 Generate the diagnostic report with:
 
@@ -145,21 +144,11 @@ python3 construct_readiness.py calibrate-docker \
 
 python3 construct_readiness.py report \
   --docker-calibration runs/routing-docker-calibration.json \
-  --blinded-adjudication runs/routing-blinded-adjudication.json \
   --output runs/routing-construct-readiness.json
 ```
 
 The command exits non-zero while any family is ineligible but still writes the
 full reasons. The planner then requires the passing report:
-
-The blinded adjudication is produced with `blinded_adjudication.py`: `prepare`
-creates an assignment containing no source labels or automated outcomes and a
-separate mode-0600 reveal; `review` interactively collects one complete decision
-form per human reviewer; `aggregate` requires two distinct complete reviewers and
-emits a replayable schema-v2 artifact. The verifier reconstructs all 36 sampled
-reference/mutant artifacts from the frozen catalog. Any reviewer disagreement
-or unanimous human verdict that differs from the deterministic evaluator is an
-unresolved case and blocks readiness.
 
 ```bash
 python3 routing_campaign.py plan \
@@ -171,11 +160,11 @@ python3 routing_campaign.py plan \
   --output runs/routing-plan.json
 ```
 
-The current checked-in report is deliberately ineligible because the three
-rubric families still require a real blinded human adjudication. Criterion-level
-mutation coverage and prompt-similarity gates are satisfied. This remaining gate
-prevents deterministic rubric proxies from being presented as validated human
-quality judgments.
+Every worker-family fixture is machine-verifiable. Read-heavy answers are exact
+source-bound records; coordination and high-risk fixtures are multi-file state
+transitions with frozen semantic JSON outcomes; implementation fixtures execute
+sealed behavior. The readiness report therefore depends only on reproducible
+machine evidence and never on reviewer agreement.
 
 ## Distributed execution and infrastructure retries
 

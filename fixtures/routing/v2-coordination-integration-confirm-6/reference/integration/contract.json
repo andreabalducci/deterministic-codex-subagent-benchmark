@@ -1,0 +1,9 @@
+{
+  "frozen": true,
+  "owner": "promo-types",
+  "paths": [
+    "src/promotion.ts"
+  ],
+  "scenario": "Cart promotion type consolidation",
+  "version": 2
+}

@@ -1,0 +1,9 @@
+{
+  "actions": [
+    "Pause backfill, restore decimal shadow reads, and leave new columns intact"
+  ],
+  "compatibility": "Keep JSON amounts as strings and support old rows during backfill",
+  "forwardOnly": true,
+  "rehearsed": false,
+  "trigger": "Rollback if `dotnet test Payments.sln --filter MoneyPrecision` fails or the stated blast-radius symptom appears."
+}

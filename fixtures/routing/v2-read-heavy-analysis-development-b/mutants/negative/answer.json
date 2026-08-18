@@ -1,26 +1,9 @@
 {
-  "rolloutVerdict": "read-heavy-analysis-development-b: Audit a Kubernetes rollout whose pods never become ready",
-  "manifestDefects": [
+  "defectLocations": [
     {
-      "factId": "service-port-name",
-      "statement": "Service targetPort web does not match the container port name api, so endpoints cannot route by named port."
-    }
-  ],
-  "lineProof": [
-    {
-      "factId": "service-port-name",
-      "path": "deploy/service.yaml",
-      "line": 7,
-      "excerpt": "- {name: http, port: 80, targetPort: web}"
-    },
-    {
-      "factId": "pdb-selector",
-      "path": "deploy/pdb.yaml",
+      "excerpt": "selector: {matchLabels: {app: report}}",
       "line": 6,
-      "excerpt": "selector: {matchLabels: {app: report}}"
+      "path": "deploy/pdb.yaml"
     }
-  ],
-  "nonCauses": [
-    "Replica count and resource requests are plausible distractors and do not explain the named-port failure."
   ]
 }
