@@ -14,6 +14,33 @@ Keep these states distinct:
 - **Campaign evidence:** independently generated, planned jobs and their immutable result records are needed to compare configurations. None are published yet.
 - **Published evidence:** a reviewable archive of a frozen campaign, its provenance, aggregate analysis, and the mapping disclosure. None exists yet.
 
+## Current handoff state
+
+The repository implementation is complete through campaign execution and
+evidence publication, and the full local suite last passed 138 tests. The
+checked-in routing policy and bundled skill remain deliberately `provisional`.
+The operator has verified one authenticated preflight locally (`machine-a`),
+but preflight reports, credentials, adjudication keys, reveals, ratings, plans,
+transcripts, and generated candidates are private run artifacts and are not
+committed.
+
+Promotion is currently waiting for external evidence, not another code change:
+
+1. Two human reviewers must independently complete all 36 blinded cases. Do
+   not use an AI agent or copy one review into the other.
+2. Two additional physical hosts must produce `machine-b` and `machine-c`
+   preflights. Logical labels on the same host are not substitutes.
+3. The resulting passing construct-readiness report and three preflight reports
+   freeze the 648-job operational plan.
+4. Each host runs only its assigned 216 jobs. A complete resolved cohort is
+   analyzed and published before any routing row is promoted.
+5. `routing_policy.py` regenerates the skill only for `SUPPORTED` claims; the
+   repository skill is then copied to the local installation and hash-checked.
+
+Until all five steps are complete, the table in the skill is an explicit
+working hypothesis. Model catalog availability—including Fast/`priority`
+support—does not establish comparative quality.
+
 The repository now separates the legacy single-fixture evaluator from the
 multi-family routing experiment. The latter is governed by
 [`docs/ROUTING_EXPERIMENT.md`](docs/ROUTING_EXPERIMENT.md): it requires sealed
@@ -118,6 +145,33 @@ aggregator rejects incomplete or duplicate raters and reports any human-human
 or human-evaluator disagreement as unresolved. The construct-readiness gate
 requires zero unresolved cases; synthetic or agent-authored ratings are not a
 substitute for the two human reviews.
+
+After both reviews are complete, generate the authorization artifact:
+
+```bash
+python3 construct_readiness.py report \
+  --docker-calibration runs/routing-docker-calibration-current.json \
+  --blinded-adjudication runs/routing-blinded-adjudication.json \
+  --output runs/routing-construct-readiness.json
+python3 construct_readiness.py check \
+  --report runs/routing-construct-readiness.json
+```
+
+The command must report `campaignEligible: true`; do not bypass it.
+
+Run the authenticated preflight independently on each physical host and collect
+the three reports without editing them:
+
+```bash
+python3 routing_preflight.py \
+  --machine-id machine-a \
+  --auth-file /secure/path/benchmark-auth.json \
+  --output runs/routing-preflight-machine-a.json
+```
+
+Repeat only on the hosts assigned `machine-b` and `machine-c`. The planner
+validates the reverse protocol binding, common capability digest, image/runtime
+identity, requested model/effort pairs, and Fast/`priority` availability.
 
 After producing a private HMAC-keyed routing plan, execute its assigned jobs
 with a dedicated credential. Normally use the machine driver, which preserves
