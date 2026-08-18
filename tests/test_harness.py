@@ -1,3 +1,5 @@
+import contextlib
+import io
 import json
 import os
 import sys
@@ -552,6 +554,28 @@ class HarnessTests(unittest.TestCase):
             relative = Path(environment[variable]).relative_to("/workspace")
             self.assertIn(relative.parts[0], harness.IGNORED_PARTS)
 
+    def passing_campaign_result(self, job, plan_path):
+        result = self.campaign_result(job, plan_path, status="PASS", failure_kind=None)
+        attempt = {
+            "command": ["dotnet"], "exitCode": 0, "stdout": harness.PUBLIC_PASS_MARKER,
+            "stderr": "", "timedOut": False, "launcherFailure": False,
+            "outputLimitExceeded": False, "durationSeconds": 0.1,
+        }
+        hidden = {**attempt, "stdout": "\n".join(
+            [f"PASS {behavior}" for behavior in harness.HIDDEN_BEHAVIORS]
+            + [harness.HIDDEN_PASS_MARKER]
+        )}
+        plain = {"attempts": [attempt], "hadTimeout": False, "confirmedTimeout": False}
+        result["repeatCount"] = 1
+        result["tests"] = [
+            {"name": "public-build", **plain},
+            {"name": "public", **plain},
+            {"name": "hidden-build", **plain},
+            {"name": "hidden-1", "behaviors": self.all_pass_behaviors(),
+             "attempts": [hidden], "hadTimeout": False, "confirmedTimeout": False},
+        ]
+        return result
+
     @staticmethod
     def clean_generation():
         return {"launcherFailure": False, "timedOut": False,
@@ -740,6 +764,166 @@ class HarnessTests(unittest.TestCase):
             command = self.generator_command(auth)
         self.assertIn("--user", command)
         self.assertIn(f"{os.getuid()}:{os.getgid()}", command)
+
+    def stage_campaign(self, root, *, seed="queue"):
+        """On-disk state a run-job invocation expects, laid out as RUNS beneath ROOT."""
+        runs = root / "runs"
+        plan = harness.make_plan(6, seed, ["machine-a"], self.id_key)
+        plan_path = runs / "plan.json"
+        harness.save_json(plan_path, plan)
+        for name in ("results", "generations", "workspaces"):
+            (runs / name).mkdir(parents=True, exist_ok=True)
+        return plan, plan_path
+
+    def stage_generation(self, root, run_id, candidate_hash_value):
+        metadata = {
+            "runId": run_id, "exitCode": 0, "durationSeconds": 2.0, "stderr": "",
+            "timedOut": False, "launcherFailure": False, "outputLimitExceeded": False,
+            "promptHash": harness.sha256_bytes(harness.AGENT_PROMPT.encode("utf-8")),
+            "generatorImage": {}, "isolation": "container-strong",
+        }
+        harness.save_json(root / "runs" / "generations" / f"{run_id}.meta.json", metadata)
+        workspace = root / "runs" / "workspaces" / run_id
+        harness.materialize(workspace)
+        (workspace / "Cache.Core" / "AsyncExpiringCache.cs").write_bytes(
+            harness.REFERENCE.read_bytes()
+        )
+        return workspace
+
+    def invoke_run_job(self, root, argv, *, evaluated=None, generated=None):
+        """Drive main()'s run-job branch with no container, model, or credential."""
+        calls = {"generate": 0, "evaluate": []}
+
+        def fake_generate(job, **_):
+            calls["generate"] += 1
+            if generated is not None:
+                return generated
+            return root / "runs" / "workspaces" / job["runId"]
+
+        def fake_evaluate(candidate, **kwargs):
+            calls["evaluate"].append(kwargs)
+            report = evaluated(kwargs) if evaluated else self.passing_campaign_result(
+                {"runId": kwargs["run_id"], "model": kwargs["model"],
+                 "reasoningEffort": kwargs["effort"], "machineId": kwargs["machine"],
+                 "trial": 0, "orderPosition": 0},
+                root / "runs" / "plan.json",
+            )
+            # evaluate_candidate merges campaign metadata into the record; the queue and
+            # replacement audits ride there, so the stub must too or it tests nothing.
+            report.update(kwargs.get("campaign_metadata") or {})
+            return report
+
+        with contextlib.redirect_stdout(io.StringIO()), \
+                patch.object(harness, "ROOT", root), \
+                patch.object(harness, "RUNS", root / "runs"), \
+                patch.object(harness, "ensure_image", lambda *a, **k: None), \
+                patch.object(harness, "generate_candidate", fake_generate), \
+                patch.object(harness, "evaluate_candidate", fake_evaluate), \
+                patch.object(sys, "argv", ["harness.py", "run-job", *argv]):
+            return harness.main(), calls
+
+    def test_unresolved_predecessor_blocks_the_queue_until_explicitly_continued(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()  # production ROOT is already resolved
+            plan, plan_path = self.stage_campaign(root)
+            blocked, following = plan["jobs"][0], plan["jobs"][1]
+            harness.save_json(
+                root / "runs" / "results" / f"{blocked['runId']}.json",
+                self.campaign_result(blocked, plan_path, status="INFRA_FAILURE",
+                                     failure_kind="build-timeout"),
+            )
+            self.stage_generation(root, following["runId"], "c" * 64)
+            argv = ["--plan", str(plan_path), "--run-id", following["runId"],
+                    "--machine-id", "machine-a", "--repeat", "1"]
+            with self.assertRaisesRegex(ValueError, "Predecessor result is unresolved"):
+                self.invoke_run_job(root, argv)
+            # The override must record which runs were skipped, so a published cohort cannot
+            # hide that the queue continued past an unresolved result.
+            code, _ = self.invoke_run_job(root, argv + ["--continue-after-unresolved"])
+            self.assertEqual(0, code)
+            written = json.loads(
+                (root / "runs" / "results" / f"{following['runId']}.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                [blocked["runId"]],
+                written["queueAudit"]["continuedAfterUnresolvedRunIds"],
+            )
+
+    def test_replacement_only_reevaluates_a_retained_infrastructure_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()  # production ROOT is already resolved
+            plan, plan_path = self.stage_campaign(root, seed="replace")
+            job = plan["jobs"][0]
+            workspace = self.stage_generation(root, job["runId"], None)
+            retained_hash = harness.candidate_hash(workspace)
+            output = root / "runs" / "results" / f"{job['runId']}.json"
+            argv = ["--plan", str(plan_path), "--run-id", job["runId"],
+                    "--machine-id", "machine-a", "--repeat", "1", "--replace",
+                    "--replacement-reason", "evaluator host lost power"]
+
+            with self.assertRaises(FileNotFoundError):
+                self.invoke_run_job(root, argv)  # nothing to replace yet
+
+            for stored in (self.passing_campaign_result(job, plan_path),
+                           self.campaign_result(job, plan_path)):
+                harness.save_json(output, stored)
+                with self.assertRaisesRegex(ValueError, "infrastructure-failure result"):
+                    self.invoke_run_job(root, argv)
+
+            for kind in ("generation-launcher", "generation-inert"):
+                harness.save_json(output, self.campaign_result(
+                    job, plan_path, status="INFRA_FAILURE", failure_kind=kind))
+                with self.assertRaisesRegex(ValueError, "no sampled artifact"):
+                    self.invoke_run_job(root, argv)
+
+            replaceable = self.campaign_result(
+                job, plan_path, status="INFRA_FAILURE", failure_kind="build-timeout")
+            replaceable["candidateHash"] = "0" * 64  # disagrees with the retained workspace
+            harness.save_json(output, replaceable)
+            with self.assertRaisesRegex(ValueError, "differs from archived result"):
+                self.invoke_run_job(root, argv)
+
+            replaceable["candidateHash"] = retained_hash
+            harness.save_json(output, replaceable)
+            previous_hash = harness.sha256_file(output)
+            code, calls = self.invoke_run_job(root, argv)
+            self.assertEqual(0, code)
+            # The point of --replace is reusing the paid sample, not drawing a new one.
+            self.assertEqual(0, calls["generate"])
+            written = json.loads(output.read_text(encoding="utf-8"))
+            audit = written["replacementAudit"]
+            self.assertEqual(previous_hash, audit["previousResultHash"])
+            self.assertEqual("INFRA_FAILURE", audit["previousStatus"])
+            self.assertEqual("evaluator host lost power", audit["reason"])
+            archived = root / "runs" / "replacements" / job["runId"] / f"{previous_hash}.json"
+            self.assertTrue(archived.is_file(), "the superseded record must survive")
+            self.assertEqual(previous_hash, harness.sha256_file(archived))
+
+    def test_run_job_refuses_a_machine_it_was_not_assigned(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()  # production ROOT is already resolved
+            plan, plan_path = self.stage_campaign(root, seed="machine")
+            job = plan["jobs"][0]
+            with self.assertRaisesRegex(ValueError, "Plan assigns"):
+                self.invoke_run_job(root, [
+                    "--plan", str(plan_path), "--run-id", job["runId"],
+                    "--machine-id", "machine-b", "--repeat", "1",
+                ])
+
+    def test_run_job_refuses_to_overwrite_an_existing_result(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()  # production ROOT is already resolved
+            plan, plan_path = self.stage_campaign(root, seed="overwrite")
+            job = plan["jobs"][0]
+            harness.save_json(
+                root / "runs" / "results" / f"{job['runId']}.json",
+                self.campaign_result(job, plan_path),
+            )
+            with self.assertRaises(FileExistsError):
+                self.invoke_run_job(root, [
+                    "--plan", str(plan_path), "--run-id", job["runId"],
+                    "--machine-id", "machine-a", "--repeat", "1",
+                ])
 
     def test_private_create_only_json_refuses_overwrite(self):
         with tempfile.TemporaryDirectory() as temporary:
