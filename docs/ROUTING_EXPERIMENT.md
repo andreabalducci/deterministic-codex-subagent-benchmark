@@ -2,14 +2,32 @@
 
 This document defines the evidence required before the bundled `orchestrate`
 skill may describe a model/reasoning pair as an evidence-backed default. The
-legacy `async-cache-v1` campaign remains a valid evaluator benchmark, but one
-coding fixture cannot establish task-family routing.
+policy objective is *lowest-cost machine-verified sufficient*: classify the
+task family first, then accept the first configuration in the frozen ordinal
+cost order that passes its fixed complete-stage gate. The legacy `async-cache-v1`
+campaign remains a valid evaluator benchmark, but one coding fixture cannot
+establish task-family routing.
 
 ## Claims and estimands
 
-The matrix contains complete treatments. Results may support a specific pair
-such as `gpt-5.6-luna` plus `high`; they must not be interpreted as independent
-causal effects of model family or reasoning effort.
+The policy-facing worker workflow is a deterministic sequential experiment.
+`routing_sequential.py` derives its stages only from the frozen matrix order in
+the protocol and `routing_campaign_driver.py` executes only the currently
+authorized stage. A configuration is accepted only when it meets the family's
+fixed overall-quality floor and its machine and ecosystem boundary. Otherwise
+the next configuration is authorized. No human judge, score override, optional
+stopping rule, or operator model choice participates in the transition.
+
+The ordinal cost order is frozen by the benchmark operator. It is a routing
+order, not a claim about monetary model prices, token rates, subscription
+credits, or latency. Results can support a specific pair such as
+`gpt-5.6-luna` plus `high`; they must not be interpreted as independent causal
+effects of model family or reasoning effort.
+
+The existing complete-treatment matrix remains a separate comparative and
+extended analysis. It estimates model/effort configurations under the same
+envelope, but it is not sufficient to promote a cheapest-sufficient policy:
+promotion consumes terminal, replayable sequential evidence.
 
 Two experiments are required:
 
@@ -81,8 +99,10 @@ the separate coordinator experiment enables it under a frozen worker policy.
 
 After the protocol is frozen, every registered worker machine must produce its
 own authenticated model-list preflight. The report reverse-binds the protocol,
-runtime manifest, matrix, and machine ID. Only then may the planner create the
-schedule: it commits each report hash and a common normalized capability digest.
+runtime manifest, matrix, and machine ID. A sequential protocol-hash revision
+invalidates all prior reports, so `machine-a`, `machine-b`, and `machine-c` must
+each regenerate their preflight before a new plan is created. Only then may the
+planner create the schedule: it commits each report hash and a common normalized capability digest.
 The runner rejects a job unless the supplied report matches its assigned-machine
 binding, and every v2 result repeats both digests. Publication includes all
 reports and verifies the complete chain. This ordering prevents a capability
@@ -166,6 +186,87 @@ transitions with frozen semantic JSON outcomes; implementation fixtures execute
 sealed behavior. The readiness report therefore depends only on reproducible
 machine evidence and never on reviewer agreement.
 
+## Sequential execution state
+
+`routing_campaign.py plan` creates the immutable six-treatment maximum envelope;
+`routing_sequential.py` never edits it, creates new run IDs, or changes a
+treatment assignment. It derives one stage per family and configuration from
+that envelope. The first state authorizes the first (least-cost ordinal) stage
+for each family. A complete stage is evaluated only from planned result records:
+
+- the overall pass rate must meet the family's frozen absolute-quality floor;
+- every machine pass rate and every ecosystem pass rate must meet the frozen
+  floor-minus-shortfall boundary;
+- `PASS` and `CANDIDATE_FAILURE` are resolved outcomes; `INFRA_FAILURE` pauses
+  the state and cannot be counted or advanced past.
+
+If all conditions hold, the family is terminal with `ACCEPT` and its selected
+treatment. If they do not, the exact next stage is authorized. The last failure
+is terminal `EXHAUSTED`. These transitions, decisions, source hashes, and result
+hashes form a replayable hash chain; no discretionary model selection is
+available after initialization.
+
+Use the driver commands in this fixed order after planning:
+
+```bash
+python3 routing_campaign_driver.py sequential-init \
+  --plan runs/routing-plan.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json
+
+# Run on each physical host, only for its currently authorized jobs.
+python3 routing_campaign_driver.py run-machine \
+  --plan runs/routing-plan.json --machine-id machine-a \
+  --preflight runs/routing-preflight-machine-a.json \
+  --auth-file /secure/path/benchmark-auth.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json
+
+# Run once after all authorized jobs resolve, then repeat run/advance as needed.
+python3 routing_campaign_driver.py sequential-advance \
+  --plan runs/routing-plan.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json
+
+# Only after every family is terminal.
+python3 routing_campaign_driver.py sequential-analyze \
+  --plan runs/routing-plan.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json \
+  > runs/routing-sequential-analysis.json
+```
+
+The central transition commands have no machine identity; only `run-machine`
+and `retry-infra` accept one. After the terminal analysis, publish and verify
+the replayable executed prefix:
+
+```bash
+python3 routing_sequential_evidence.py publish runs/routing/results/*.json \
+  --protocol protocols/routing-operational-v1.json \
+  --runtime-manifest protocols/routing-runtime-v1.json \
+  --preflight runs/routing-preflight-machine-a.json \
+  --preflight runs/routing-preflight-machine-b.json \
+  --preflight runs/routing-preflight-machine-c.json \
+  --plan runs/routing-plan.json \
+  --matrix matrix.json --catalog fixtures/catalog.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --terminal-state runs/routing-sequential-state.json \
+  --analysis runs/routing-sequential-analysis.json \
+  --provenance runs/routing-provenance.json \
+  --fixture-root fixtures \
+  --candidate-root runs/routing/workspaces \
+  --output runs/routing-sequential-evidence
+
+python3 routing_sequential_evidence.py verify \
+  runs/routing-sequential-evidence
+```
+
+The 648 jobs are the immutable maximum envelope. Sequential execution needs
+108 jobs when all six families accept their first stage, 378 under the current
+hypothesis ladder, and 648 when every family reaches the final stage. These are
+fixed consequences of the registered stage order, not a post-hoc sample-size
+choice.
+
 ## Distributed execution and infrastructure retries
 
 Run one persistent `routing_campaign_driver.py run-machine` process on each of
@@ -184,14 +285,17 @@ An independent sample is a new model generation in a fresh ephemeral session
 and workspace. Re-running an evaluator against one generated artifact is a
 stability check, not another model sample.
 
-The default operational protocol uses six fixtures per family and three fresh
-generations per fixture across three machines. With six treatments and six
-families this is 648 generations, with every Williams order represented once
-per family on every machine. The six unused confirmatory fixtures per family are
-reserved. The extended protocol uses all twelve fixtures and nine generations,
-for 3,888 total, when operational bounds are inconclusive or publication-grade
-precision is required. A row is promoted only by the preregistered gates; rank
-order alone is never evidence.
+The default operational plan uses six fixtures per family and three fresh
+generations per fixture across three machines. Its 648 jobs are an immutable
+maximum envelope: six stages for each of six families, with every Williams
+order represented once per family on every machine. The policy-facing sequential
+run executes a prefix of that envelope only. It requires 108 jobs if every
+family accepts stage one, 378 jobs for the current hypothesis ladder, and at
+most 648 jobs if all families exhaust the ordered ladder. The six unused
+confirmatory fixtures per family are reserved. The complete-treatment extended
+protocol uses all twelve fixtures and nine generations, for 3,888 total, when
+comparative or publication-grade precision is required. Rank order alone is
+never a policy recommendation.
 
 ## Primary and secondary metrics
 
@@ -215,63 +319,20 @@ behaviors, regressions, and API compatibility for code; and final acceptance,
 conflicts, interventions, critical-path time, utilization, and trace compliance
 for coordination. Agent count never earns quality credit.
 
-## Preregistered routing decision
+## Preregistered cheapest-sufficient decision
 
-Every family has a preregistered candidate route. Analysis compares that
-candidate with all five alternatives; it does not choose a winner and invent a
-hypothesis afterward.
+For a classified family, the decision is made at each complete stage without looking ahead to later configurations:
 
-For each family:
+1. Evaluate every immutable job authorized for that stage.
+2. Compute strict verified-success rates overall and by preregistered machine and fixture ecosystem.
+3. Accept exactly when the overall rate reaches the frozen family floor and every machine and ecosystem rate reaches the frozen boundary.
+4. Otherwise advance exactly once to the next ordinal-cost stage. At the final stage, record `EXHAUSTED` rather than inventing a new route.
 
-1. Average replicate success within each fixture, then average fixtures.
-2. Estimate candidate-minus-comparator contrasts for all alternatives.
-3. Use a deterministic hierarchical bootstrap that resamples fixtures and then
-   paired trial blocks within fixtures. One-sided bootstrap tests use centered
-   deviations (`draw - estimate`) against the preregistered null boundary; raw
-   percentile-tail proportions are not reported as p-values.
-4. Treat the six absolute-quality gates, 30 candidate-versus-alternative
-   noninferiority gates, and six economy/capability gates as one family of 42
-   support claims. Apply Holm to all 42 centered-bootstrap p-values, not just
-   the pairwise contrasts. Apply a separate Holm procedure to the corresponding
-   42 lower-tail contradiction claims.
-5. Report Bonferroni simultaneous one-sided 95% bounds across each 42-claim
-   family. In analysis schema v2, policy-facing `lower95` and `upper95` are
-   these simultaneous bounds; `nominalLower95` and `nominalUpper95` are
-   diagnostics only. A gate passes only when both its Holm-adjusted p-value and
-   its simultaneous bound exclude the preregistered boundary.
-6. Report leave-one-fixture-out sensitivity and treatment-by-fixture
-   heterogeneity.
+The fixed floors remain `0.80` for routine work, `0.85` for code, and `0.90` for high-risk work. The machine/ecosystem boundary is the family floor minus the frozen maximum quality-floor shortfall. Changing the order, floors, shortfall, family classification, or stage sample changes the protocol and requires a new plan, state chain, and preflights.
 
-The frozen robustness gate records the ecosystem of every held-out fixture and
-reports the candidate quality and preregistered decision contrast separately by
-preregistered machine label, ecosystem, omitted fixture, and individual fixture. A
-route cannot be `SUPPORTED` when any machine or ecosystem is more than `0.10`
-below its absolute-quality floor, when any machine, ecosystem, or
-leave-one-fixture-out contrast is more than `0.05` below the required decision
-gain, or when the across-fixture candidate-rate or decision-gain range exceeds
-`0.75`. These tolerances are conservative first-version guardrails; changing
-them creates a new protocol rather than modifying a published campaign.
+The terminal state is accepted only if it replays from the hashes and resolved results of the immutable plan. The policy publication maps each family to its terminal `ACCEPT` treatment (or reports `EXHAUSTED`); it does not choose the highest observed score or rely on a human reviewer.
 
-The checked-in product thresholds are normative and frozen before deblinding:
-
-- simultaneous lower quality bound: `0.80` for routine work, `0.85` for code,
-  and `0.90` for high-risk work;
-- noninferiority margin: no more than `0.10` below any relevant comparator;
-- economy claim: quality noninferiority plus at least `15%` latency or cost
-  improvement with the simultaneous lower bound above the preregistered gain;
-- capability claim: a costlier route improves success by at least `0.10` over
-  the cheapest acceptable route or materially reduces a preregistered critical
-  failure;
-- the conclusion is stable across ecosystems, machines, and leave-one-fixture-
-  out analysis.
-
-Each row resolves to exactly one of:
-
-- `SUPPORTED`: all preregistered gates pass;
-- `CONTRADICTED`: a preregistered superiority or safety gate rejects the row;
-- `INCONCLUSIVE`: evidence is complete but does not pass either decision gate.
-
-Rank order alone is never a routing recommendation.
+The legacy complete-treatment analysis continues to report comparative estimates, noninferiority, robustness, and economy/capability contrasts across all six configurations. Those analyses are valuable extended evidence, but they do not replace the sequential terminal-state evidence required to promote the routing policy.
 
 ## Blinding and stopping
 

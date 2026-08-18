@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/deterministic-subagent-benchmark/routing-sequential-evidence-audit.schema.json",
+  "title": "Sequential routing evidence audit",
+  "type": "object",
+  "required": ["schemaVersion", "recordKind", "hashAlgorithm", "artifacts", "sanitization", "replay"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "recordKind": { "const": "routing-sequential-evidence-audit" },
+    "hashAlgorithm": { "const": "sha256" },
+    "artifacts": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "bytes", "mediaType"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "$ref": "#/$defs/hash" },
+          "bytes": { "type": "integer", "minimum": 0 },
+          "mediaType": { "const": "application/json" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sanitization": {
+      "type": "object",
+      "required": ["allowedResultFields", "discardedFields", "inputDocumentHashes"],
+      "properties": {
+        "allowedResultFields": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "discardedFields": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "inputDocumentHashes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/hash" } }
+      },
+      "additionalProperties": false
+    },
+    "replay": {
+      "type": "object",
+      "required": [
+        "estimand", "transitionAlgorithm", "analysisAlgorithm", "sequentialImplementationSha256",
+        "evaluationAlgorithm", "evaluationImplementationSha256", "bundleImplementationSha256"
+      ],
+      "properties": {
+        "estimand": { "const": "worker" },
+        "transitionAlgorithm": { "const": "routing_sequential.replay_state" },
+        "analysisAlgorithm": { "const": "routing_sequential.analyze_state" },
+        "sequentialImplementationSha256": { "$ref": "#/$defs/hash" },
+        "evaluationAlgorithm": { "const": "routing_sequential_evidence._replay_evaluation" },
+        "evaluationImplementationSha256": { "$ref": "#/$defs/hash" },
+        "bundleImplementationSha256": { "$ref": "#/$defs/hash" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "additionalProperties": false
+}

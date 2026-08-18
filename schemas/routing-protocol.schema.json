@@ -5,7 +5,7 @@
   "required": [
     "schemaVersion", "recordKind", "protocolId", "runtimeManifestHash", "seed", "bootstrapSeed",
     "bootstrapSamples", "familywiseAlpha", "replicatesPerFixture", "machines",
-    "matrix", "families", "robustness"
+    "matrix", "families", "robustness", "selection"
   ],
   "properties": {
     "schemaVersion": {"const": 1},
@@ -17,6 +17,19 @@
     "bootstrapSamples": {"type": "integer", "minimum": 100},
     "familywiseAlpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
     "replicatesPerFixture": {"type": "integer", "minimum": 1},
+    "selection": {
+      "type": "object", "additionalProperties": false,
+      "required": ["objective", "costOrder", "gate", "stageDecision", "requireMachineAndEcosystemStability"],
+      "properties": {
+        "objective": {"const": "lowest-cost-machine-verified-sufficient"},
+        "costOrder": {
+          "const": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]
+        },
+        "gate": {"const": "fixed-complete-stage-v1"},
+        "stageDecision": {"const": "accept-or-escalate"},
+        "requireMachineAndEcosystemStability": {"const": true}
+      }
+    },
     "robustness": {
       "type": "object", "additionalProperties": false,
       "required": ["maximumQualityFloorShortfall", "maximumDecisionGainShortfall", "maximumFixtureCandidateRateRange", "maximumFixtureDecisionGainRange"],

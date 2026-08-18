@@ -15,6 +15,7 @@ import harness
 import coordinator_evidence
 import construct_readiness
 import routing_evidence
+import routing_sequential_evidence
 
 
 ROOT = Path(__file__).resolve().parent
@@ -22,6 +23,9 @@ DEFAULT_ARTIFACT = ROOT / "skills" / "orchestrate" / "routing-policy.json"
 DEFAULT_SCHEMA = ROOT / "schemas" / "routing-policy.schema.json"
 DEFAULT_MATRIX = ROOT / "matrix.json"
 DEFAULT_SKILL = ROOT / "skills" / "orchestrate" / "SKILL.md"
+EXPECTED_CONFIGURATION_COST_ORDER = [
+    "luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high",
+]
 BEGIN_MARKER = "<!-- BEGIN GENERATED ROUTING"
 END_MARKER = "<!-- END GENERATED ROUTING -->"
 FAST_MODE_TEXT = (
@@ -65,25 +69,37 @@ def load_matrix(path: Path = DEFAULT_MATRIX) -> list[dict[str, str]]:
     return configurations
 
 
-def _validate_fallback_graph(routes_by_id: Mapping[str, dict[str, Any]]) -> None:
-    visiting: set[str] = set()
-    visited: set[str] = set()
+def _validate_configuration_selection(
+    routes: list[dict[str, Any]], matrix: list[dict[str, str]], cost_order: list[str]
+) -> None:
+    """Bind each task route to a matrix configuration and ordered fallbacks.
 
-    def visit(route_id: str) -> None:
-        if route_id in visiting:
-            raise ValueError(f"Routing fallback cycle includes {route_id}")
-        if route_id in visited:
-            return
-        visiting.add(route_id)
-        for fallback_id in routes_by_id[route_id]["fallbackRouteIds"]:
-            if fallback_id not in routes_by_id:
-                raise ValueError(f"Unknown fallback route {fallback_id} from {route_id}")
-            visit(fallback_id)
-        visiting.remove(route_id)
-        visited.add(route_id)
-
-    for route_id in routes_by_id:
-        visit(route_id)
+    Route IDs classify work; configuration IDs select a treatment.  They are
+    deliberately not one-to-one: multiple task classes may use the same
+    cheapest sufficient configuration.
+    """
+    expected = {item["id"]: (item["model"], item["reasoningEffort"]) for item in matrix}
+    if cost_order != EXPECTED_CONFIGURATION_COST_ORDER:
+        raise ValueError("Configuration cost order must use the frozen cheapest-to-costliest order")
+    if len(cost_order) != len(set(cost_order)) or set(cost_order) != set(expected):
+        raise ValueError("Configuration cost order must cover every matrix configuration exactly once")
+    cost_rank = {configuration_id: index for index, configuration_id in enumerate(cost_order)}
+    for route in routes:
+        configuration_id = route["selectedConfigurationId"]
+        selection = expected.get(configuration_id)
+        if selection is None:
+            raise ValueError(f"Route {route['id']} selects an unknown configuration")
+        if (route["model"], route["reasoningEffort"]) != selection:
+            raise ValueError(f"Route {route['id']} model and effort must match its selected configuration")
+        fallback_ids = route["availabilityFallbackConfigurationIds"]
+        if any(fallback_id not in expected for fallback_id in fallback_ids):
+            raise ValueError(f"Route {route['id']} has an unknown availability fallback configuration")
+        if any(cost_rank[fallback_id] <= cost_rank[configuration_id] for fallback_id in fallback_ids):
+            raise ValueError(
+                f"Route {route['id']} availability fallbacks must be costlier than its selected configuration"
+            )
+        if fallback_ids != sorted(fallback_ids, key=cost_rank.__getitem__):
+            raise ValueError(f"Route {route['id']} availability fallbacks must be in increasing cost order")
 
 
 def _validate_evidence_claims(
@@ -128,7 +144,13 @@ def _validate_evidence_claims(
                 bundle_path = evidence_paths[bundle_id]
                 try:
                     if metadata["estimand"] == "worker":
-                        bundle = routing_evidence.verify_bundle(bundle_path)
+                        index_path = bundle_path / "bundle.json"
+                        bundle_index = load_json(index_path) if index_path.is_file() else {}
+                        if bundle_index.get("recordKind") \
+                                == routing_sequential_evidence.BUNDLE_KIND:
+                            bundle = routing_sequential_evidence.verify_bundle(bundle_path)
+                        else:
+                            bundle = routing_evidence.verify_bundle(bundle_path)
                     elif metadata["estimand"] == coordinator_evidence.ESTIMAND:
                         bundle = coordinator_evidence.verify_bundle(bundle_path)
                     else:
@@ -162,8 +184,11 @@ def _validate_evidence_claims(
                 if not isinstance(analysis_relative, str):
                     raise ValueError(f"Evidence bundle has no analysis artifact for {bundle_id}")
                 analysis = load_json(bundle_path / analysis_relative)
+                sequential = bundle.get("recordKind") \
+                    == routing_sequential_evidence.BUNDLE_KIND
                 expected_kind = (
-                    "routing-analysis" if metadata["estimand"] == "worker"
+                    "routing-sequential-analysis" if sequential
+                    else "routing-analysis" if metadata["estimand"] == "worker"
                     else "coordinator-analysis"
                 )
                 estimand_valid = metadata["estimand"] == "worker" \
@@ -171,22 +196,44 @@ def _validate_evidence_claims(
                 if analysis.get("recordKind") != expected_kind \
                         or analysis.get("complete") is not True or not estimand_valid:
                     raise ValueError(f"Evidence {bundle_id} is not a complete routing analysis")
-                if metadata["estimand"] == "worker":
-                    families = {
-                        item.get("familyId"): item for item in analysis.get("families", [])
-                        if isinstance(item, dict)
-                    }
-                    support = families.get(reference["taskFamily"])
-                else:
-                    support = analysis if bundle["decision"]["taskFamily"] \
-                        == reference["taskFamily"] else None
-                resolved[bundle_id] = (analysis, support)
-            analysis, family = resolved[bundle_id]
-            expected_configuration = route.get("configurationId", route["id"])
+                resolved[bundle_id] = (analysis, bundle)
+            analysis, bundle = resolved[bundle_id]
+            if metadata["estimand"] == "worker":
+                families = {
+                    item.get("familyId"): item for item in analysis.get("families", [])
+                    if isinstance(item, dict)
+                }
+                family = families.get(reference["taskFamily"])
+            else:
+                family = analysis if bundle["decision"]["taskFamily"] \
+                    == reference["taskFamily"] else None
+            expected_configuration = route.get("configurationId", route.get("selectedConfigurationId"))
+            if bundle.get("recordKind") == routing_sequential_evidence.BUNDLE_KIND:
+                cheapest = None if family is None else family.get(
+                    "cheapestSufficientConfigurationId"
+                )
+                if family is None or family.get("selectedTreatmentId") != expected_configuration \
+                        or cheapest != expected_configuration \
+                        or family.get("decision") != "ACCEPT":
+                    raise ValueError(
+                        f"Evidence {bundle_id} does not support route {route['id']} "
+                        "as the cheapest sufficient configuration"
+                    )
+                if reference.get("analysisId") != bundle.get("protocolId") \
+                        or reference.get("configurationId") != expected_configuration \
+                        or reference.get("decision") != "ACCEPT":
+                    raise ValueError(f"Evidence reference does not reproduce route {route['id']}")
+                continue
             if family is None or family.get("candidateId") != expected_configuration \
                     or family.get("decision") != "SUPPORTED":
                 raise ValueError(
                     f"Evidence {bundle_id} does not support route {route['id']}"
+                )
+            if metadata["estimand"] == "worker" and (
+                family.get("cheapestSufficientConfigurationId") != expected_configuration
+            ):
+                raise ValueError(
+                    f"Evidence {bundle_id} does not record {expected_configuration} as the cheapest sufficient selection"
                 )
             gate = family.get("decisionGate", {})
             comparators = {
@@ -221,22 +268,14 @@ def validate_policy(
     if len(precedences) != len(set(precedences)):
         raise ValueError("Routing precedence values must be unique")
 
-    expected = {
-        item["id"]: (item["model"], item["reasoningEffort"])
-        for item in matrix
-    }
-    actual = {
-        route["id"]: (route["model"], route["reasoningEffort"])
-        for route in routes
-    }
-    if actual != expected:
-        raise ValueError("Routing defaults must exactly match the benchmark matrix")
+    _validate_configuration_selection(routes, matrix, policy["configurationCostOrder"])
     if any(route["estimand"] != "worker" for route in routes):
         raise ValueError("Spawned-worker routing defaults must use the worker estimand")
     coordinator_routes = policy["coordinatorDefaults"]
     if len(coordinator_routes) != 1:
         raise ValueError("Exactly one live-coordinator session claim is required")
     coordinator_route = coordinator_routes[0]
+    expected = {item["id"]: (item["model"], item["reasoningEffort"]) for item in matrix}
     coordinator_matrix = expected.get(coordinator_route["configurationId"])
     if coordinator_matrix != (coordinator_route["model"], coordinator_route["reasoningEffort"]):
         raise ValueError("Live-coordinator configuration must match the benchmark matrix")
@@ -244,8 +283,6 @@ def validate_policy(
     high_risk_route = policy["decisionRules"]["uncertainty"]["unknownHighRiskRouteId"]
     if high_risk_route not in routes_by_id:
         raise ValueError("Uncertainty rule references an unknown route")
-    _validate_fallback_graph(routes_by_id)
-
     strengths = {route["claimStrength"] for route in routes + coordinator_routes}
     expected_status = (
         "provisional" if strengths == {"hypothesis"}
@@ -279,10 +316,10 @@ def resolve_route(
     policy: dict[str, Any],
     candidate_route_ids: list[str],
     *,
-    available_route_ids: set[str] | None = None,
+    available_configuration_ids: set[str] | None = None,
     uncertain_high_risk: bool = False,
 ) -> dict[str, Any] | None:
-    """Resolve explicit candidates, then walk the selected route's fallbacks in order."""
+    """Classify a task route, then select its cheapest available configuration."""
     routes_by_id = {route["id"]: route for route in policy["defaults"]}
     candidates = list(dict.fromkeys(candidate_route_ids))
     unknown = [route_id for route_id in candidates if route_id not in routes_by_id]
@@ -302,25 +339,27 @@ def resolve_route(
             -route["safetyRank"], -route["specificity"], route["precedence"], route["id"]
         ),
     )
-    available = set(routes_by_id) if available_route_ids is None else available_route_ids
-
-    def first_available(route_id: str) -> dict[str, Any] | None:
-        route = routes_by_id[route_id]
-        if route_id in available:
-            return route
-        for fallback_id in route["fallbackRouteIds"]:
-            found = first_available(fallback_id)
-            if found is not None:
-                return found
-        return None
-
-    return first_available(selected["id"])
+    configurations = {
+        item["id"]: (item["model"], item["reasoningEffort"])
+        for item in load_matrix()
+    }
+    available = set(configurations) if available_configuration_ids is None else available_configuration_ids
+    for configuration_id in [selected["selectedConfigurationId"], *selected["availabilityFallbackConfigurationIds"]]:
+        if configuration_id in available:
+            model, effort = configurations[configuration_id]
+            return {
+                **selected,
+                "resolvedConfigurationId": configuration_id,
+                "resolvedModel": model,
+                "resolvedReasoningEffort": effort,
+            }
+    return None
 
 
 def generated_block(policy: dict[str, Any]) -> str:
     digest = canonical_sha256(policy)
     rows = "\n".join(
-        f"| `{route['id']}` | {route['summary']} | `{route['model']}`, "
+        f"| `{route['id']}` | {route['summary']} | `{route['selectedConfigurationId']}`: `{route['model']}`, "
         f"`reasoning_effort: \"{route['reasoningEffort']}\"` |"
         for route in policy["defaults"]
     )
@@ -345,9 +384,9 @@ workers independently. This is a session-start choice: `spawn_agent` cannot chan
 model of the already-running parent coordinator. Its evidence status is
 `{coordinator['claimStrength']}` and it must never promote the spawned-worker `sol-medium` row.
 
-If multiple rows match, choose the highest safety rank, then the most specific match, then the lowest precedence number. If uncertainty leaves a higher-risk row plausible, select that row; unknown potentially high-risk traits route to `sol-high`.
+First classify the task: if multiple task classes match, choose the highest safety rank, then the most specific match, then the lowest precedence number. If uncertainty leaves a higher-risk class plausible, select that class; unknown potentially high-risk traits route to `ambiguous-cross-cutting-high-risk`.
 
-If a selected configuration is unavailable, try its declared fallback routes in order. Never silently substitute an unlisted configuration. If no fallback is available, do not delegate; keep the work with the coordinator or ask for direction.
+Then use that task class's evidence-selected cheapest sufficient configuration. A promoted row must be backed by a replayed machine-verifiable analysis that records this exact configuration as the cheapest sufficient selection. If it is unavailable, try only its declared cost-increasing availability fallback configurations in order. Never silently substitute an unlisted configuration. If no fallback is available, do not delegate; keep the work with the coordinator or ask for direction.
 
 {FAST_MODE_TEXT}
 

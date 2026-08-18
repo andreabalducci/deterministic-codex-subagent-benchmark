@@ -7,6 +7,13 @@
   "bootstrapSeed": "routing-operational-v1-bootstrap-20260818",
   "bootstrapSamples": 5000,
   "familywiseAlpha": 0.05,
+  "selection": {
+    "objective": "lowest-cost-machine-verified-sufficient",
+    "costOrder": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"],
+    "gate": "fixed-complete-stage-v1",
+    "stageDecision": "accept-or-escalate",
+    "requireMachineAndEcosystemStability": true
+  },
   "robustness": {
     "maximumQualityFloorShortfall": 0.1,
     "maximumDecisionGainShortfall": 0.05,

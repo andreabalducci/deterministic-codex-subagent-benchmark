@@ -13,7 +13,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import harness
 import routing_campaign
+import routing_sequential
 
 
 ROOT = Path(__file__).resolve().parent
@@ -36,10 +38,8 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def save_json(path: Path, value: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    path.chmod(0o600)
+def save_json(path: Path, value: Any, *, replace: bool = True) -> None:
+    harness.save_json(path, value, private=True, replace=replace)
 
 
 def machine_jobs(plan: dict[str, Any], machine_id: str) -> list[dict[str, Any]]:
@@ -56,10 +56,14 @@ def result_path(run_root: Path, run_id: str) -> Path:
 def status(
     plan: dict[str, Any], machine_id: str, run_root: Path,
     protocol: dict[str, Any] | None = None,
+    authorized_run_ids: set[str] | None = None,
 ) -> dict[str, Any]:
     counts = {"pending": 0, "pass": 0, "candidateFailure": 0, "infraFailure": 0, "invalid": 0}
     next_run_id = None
-    for job in machine_jobs(plan, machine_id):
+    jobs = machine_jobs(plan, machine_id)
+    if authorized_run_ids is not None:
+        jobs = [job for job in jobs if job["runId"] in authorized_run_ids]
+    for job in jobs:
         path = result_path(run_root, job["runId"])
         if not path.exists():
             counts["pending"] += 1
@@ -82,11 +86,11 @@ def status(
         counts[key] += 1
         if key == "infraFailure" and next_run_id is None:
             next_run_id = job["runId"]
-    return {"machineId": machine_id, "jobs": len(machine_jobs(plan, machine_id)), **counts, "nextRunId": next_run_id}
+    return {"machineId": machine_id, "jobs": len(jobs), **counts, "nextRunId": next_run_id}
 
 
 def runner_command(args: argparse.Namespace, run_id: str) -> list[str]:
-    return [
+    command = [
         sys.executable, str(ROOT / "routing_runner.py"),
         "--protocol", str(args.protocol), "--plan", str(args.plan),
         "--run-id", run_id, "--machine-id", args.machine_id,
@@ -94,12 +98,51 @@ def runner_command(args: argparse.Namespace, run_id: str) -> list[str]:
         "--runtime-manifest", str(args.runtime_manifest), "--preflight", str(args.preflight),
         "--agent-timeout", str(args.agent_timeout),
     ]
+    sequential_state = getattr(args, "sequential_state", None)
+    sequential_manifest = getattr(args, "sequential_manifest", None)
+    if sequential_state is not None:
+        if sequential_manifest is None:
+            raise DriverError("--sequential-state requires --sequential-manifest")
+        command.extend(["--sequential-state", str(sequential_state), "--sequential-manifest", str(sequential_manifest)])
+    return command
+
+
+def _sequential_inputs(args: argparse.Namespace, plan: dict[str, Any], protocol: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    state_path = getattr(args, "sequential_state", None)
+    if state_path is None:
+        return None
+    manifest_path = getattr(args, "sequential_manifest", None)
+    if manifest_path is None:
+        raise DriverError("--sequential-state requires --sequential-manifest")
+    manifest = load_json(manifest_path)
+    state = load_json(state_path)
+    routing_sequential.validate_manifest(manifest, plan, protocol)
+    routing_sequential.validate_state(state, manifest, plan, protocol)
+    results = {}
+    for path in (args.run_root / "results").glob("*.json"):
+        try:
+            result = load_json(path)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(result, dict) and isinstance(result.get("runId"), str):
+            results[result["runId"]] = result
+    routing_sequential.replay_state(state, manifest, plan, protocol, results)
+    return manifest, state
 
 
 def run_machine(
     args: argparse.Namespace, plan: dict[str, Any], protocol: dict[str, Any] | None = None
 ) -> int:
-    for job in machine_jobs(plan, args.machine_id):
+    sequential = _sequential_inputs(args, plan, protocol) if protocol is not None else None
+    jobs = machine_jobs(plan, args.machine_id)
+    if sequential is not None:
+        _, state = sequential
+        authorized = {
+            run_id for item in state["authorized"] for run_id in item["runIds"]
+            if next(job for job in plan["jobs"] if job["runId"] == run_id)["machineId"] == args.machine_id
+        }
+        jobs = [job for job in jobs if job["runId"] in authorized]
+    for job in jobs:
         path = result_path(args.run_root, job["runId"])
         if path.exists():
             result = load_json(path)
@@ -191,16 +234,18 @@ def archive_infra_attempt(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("status", "run-machine", "retry-infra"))
+    parser.add_argument("command", choices=("status", "run-machine", "retry-infra", "sequential-init", "sequential-advance", "sequential-analyze"))
     parser.add_argument("--protocol", type=Path, default=routing_campaign.DEFAULT_PROTOCOL)
     parser.add_argument("--plan", type=Path, required=True)
-    parser.add_argument("--machine-id", required=True)
+    parser.add_argument("--machine-id")
     parser.add_argument("--run-root", type=Path, default=DEFAULT_RUN_ROOT)
     parser.add_argument("--auth-file", type=Path)
     parser.add_argument("--preflight", type=Path)
     parser.add_argument("--runtime-manifest", type=Path, default=ROOT / "protocols/routing-runtime-v1.json")
     parser.add_argument("--agent-timeout", type=int, default=1800)
     parser.add_argument("--run-id")
+    parser.add_argument("--sequential-state", type=Path)
+    parser.add_argument("--sequential-manifest", type=Path)
     return parser.parse_args()
 
 
@@ -210,8 +255,53 @@ def main() -> int:
     plan = load_json(args.plan)
     routing_campaign.validate_plan(plan, protocol)
     args.run_root = args.run_root.resolve()
+    if args.command == "sequential-init":
+        if args.sequential_manifest is None or args.sequential_state is None:
+            raise DriverError("sequential-init requires --sequential-manifest and --sequential-state")
+        if args.sequential_manifest.exists() or args.sequential_state.exists():
+            raise DriverError("sequential-init never overwrites an existing manifest or state")
+        manifest = routing_sequential.make_manifest(plan, protocol)
+        state = routing_sequential.make_initial_state(manifest, plan, protocol)
+        save_json(args.sequential_manifest, manifest, replace=False)
+        save_json(args.sequential_state, state, replace=False)
+        print(json.dumps({"manifestHash": manifest["manifestHash"], "stateHash": state["stateHash"]}, sort_keys=True))
+        return 0
+    if args.command in {"sequential-advance", "sequential-analyze"}:
+        if args.sequential_manifest is None or args.sequential_state is None:
+            raise DriverError(f"{args.command} requires --sequential-manifest and --sequential-state")
+        manifest, state = _sequential_inputs(args, plan, protocol)  # type: ignore[assignment]
+        results = {}
+        for path in (args.run_root / "results").glob("*.json"):
+            try:
+                result = load_json(path)
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(result, dict) and "runId" in result:
+                results[result["runId"]] = result
+        if args.command == "sequential-analyze":
+            print(json.dumps(
+                routing_sequential.analyze_state(
+                    state, manifest, plan, protocol, results
+                ), indent=2, sort_keys=True,
+            ))
+            return 0
+        next_state = routing_sequential.advance_state(state, manifest, plan, protocol, results)
+        save_json(args.sequential_state, next_state)
+        print(json.dumps({"stateHash": next_state["stateHash"], "complete": next_state["complete"]}, sort_keys=True))
+        return 0
+    if not args.machine_id:
+        raise DriverError(f"{args.command} requires --machine-id")
     if args.command == "status":
-        print(json.dumps(status(plan, args.machine_id, args.run_root, protocol), indent=2, sort_keys=True))
+        sequential = _sequential_inputs(args, plan, protocol)
+        authorized = None if sequential is None else {
+            run_id
+            for item in sequential[1]["authorized"]
+            for run_id in item["runIds"]
+        }
+        print(json.dumps(
+            status(plan, args.machine_id, args.run_root, protocol, authorized),
+            indent=2, sort_keys=True,
+        ))
         return 0
     if args.auth_file is None or args.preflight is None:
         raise DriverError("run-machine and retry-infra require --auth-file and --preflight")

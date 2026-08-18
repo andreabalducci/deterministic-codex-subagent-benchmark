@@ -49,6 +49,15 @@ class RoutingCampaignDriverTests(unittest.TestCase):
         self.assertEqual(1, observed["pending"])
         self.assertEqual("c" * 24, observed["nextRunId"])
 
+    def test_status_can_limit_progress_to_the_authorized_stage(self):
+        observed = driver.status(
+            self.plan, "machine-a", self.root,
+            authorized_run_ids={"c" * 24},
+        )
+        self.assertEqual(1, observed["jobs"])
+        self.assertEqual(1, observed["pending"])
+        self.assertEqual("c" * 24, observed["nextRunId"])
+
     def test_run_machine_resumes_successes_and_stops_on_infra(self):
         self.write_result("a" * 24, "PASS")
         with patch.object(driver.subprocess, "run") as run:
@@ -81,6 +90,19 @@ class RoutingCampaignDriverTests(unittest.TestCase):
             driver.archive_infra_attempt(self.plan, "machine-a", self.root, run_id)
         with self.assertRaisesRegex(driver.DriverError, "not assigned"):
             driver.archive_infra_attempt(self.plan, "machine-b", self.root, run_id)
+
+    def test_sequential_driver_launches_only_authorized_run_ids(self):
+        args = self.args()
+        args.sequential_state = self.root / "state.json"
+        args.sequential_manifest = self.root / "manifest.json"
+        state = {"authorized": [{"runIds": ["c" * 24]}]}
+        with patch.object(driver, "_sequential_inputs", return_value=(None, state)), \
+                patch.object(driver.subprocess, "run") as run:
+            run.return_value.returncode = 0
+            self.assertEqual(0, driver.run_machine(args, self.plan, object()))
+        run.assert_called_once()
+        self.assertIn("c" * 24, run.call_args.args[0])
+        self.assertNotIn("a" * 24, run.call_args.args[0])
 
 
 if __name__ == "__main__":

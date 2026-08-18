@@ -81,7 +81,7 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         {
             "schemaVersion", "recordKind", "protocolId", "runtimeManifestHash", "seed", "bootstrapSeed",
             "bootstrapSamples", "familywiseAlpha", "replicatesPerFixture", "machines",
-            "matrix", "families", "robustness",
+            "matrix", "families", "robustness", "selection",
         },
         "$",
     )
@@ -133,6 +133,20 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         treatment_pairs.append((treatment["model"], treatment["reasoningEffort"]))
     if len(set(treatment_ids)) != 6 or len(set(treatment_pairs)) != 6:
         raise ValidationError("Treatment IDs and model/effort pairs must be unique")
+
+    selection = _exact_keys(protocol["selection"], {
+        "objective", "costOrder", "gate", "stageDecision",
+        "requireMachineAndEcosystemStability",
+    }, "$.selection")
+    if selection["objective"] != "lowest-cost-machine-verified-sufficient" \
+            or selection["gate"] != "fixed-complete-stage-v1" \
+            or selection["stageDecision"] != "accept-or-escalate" \
+            or selection["requireMachineAndEcosystemStability"] is not True:
+        raise ValidationError("Unsupported sequential selection contract")
+    if selection["costOrder"] != treatment_ids:
+        raise ValidationError(
+            "Selection cost order must exactly match matrix order from cheapest to costliest"
+        )
 
     families = protocol["families"]
     if not isinstance(families, list) or len(families) != 6:

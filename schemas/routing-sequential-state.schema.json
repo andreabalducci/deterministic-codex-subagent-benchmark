@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/routing-sequential-state.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "protocolHash", "planHash", "manifestHash", "sequence", "previousStateHash", "authorized", "decisions", "history", "complete", "stateHash"],
+  "properties": {
+    "schemaVersion": {"const": 1}, "recordKind": {"const": "routing-sequential-state"},
+    "protocolHash": {"$ref": "#/$defs/hash"}, "planHash": {"$ref": "#/$defs/hash"}, "manifestHash": {"$ref": "#/$defs/hash"},
+    "sequence": {"type": "integer", "minimum": 0}, "previousStateHash": {"oneOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]},
+    "authorized": {"type": "array", "items": {"$ref": "#/$defs/authorized"}},
+    "decisions": {"type": "array", "items": {"$ref": "#/$defs/decision"}},
+    "history": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+    "complete": {"type": "boolean"}, "stateHash": {"$ref": "#/$defs/hash"}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "authorized": {"type": "object", "additionalProperties": false, "required": ["familyId", "stageIndex", "stageId", "treatmentId", "runIds"], "properties": {"familyId": {"type": "string"}, "stageIndex": {"type": "integer", "minimum": 0}, "stageId": {"type": "string"}, "treatmentId": {"type": "string"}, "runIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[0-9a-f]{16}$"}}}},
+    "decision": {"type": "object", "additionalProperties": false, "required": ["familyId", "decision", "selectedTreatmentId"], "properties": {"familyId": {"type": "string"}, "decision": {"enum": ["PENDING", "CONTINUE", "ACCEPT", "EXHAUSTED"]}, "selectedTreatmentId": {"type": ["string", "null"]}}},
+    "resultHash": {"type": "object", "additionalProperties": false, "required": ["runId", "resultHash", "status"], "properties": {"runId": {"type": "string", "pattern": "^[0-9a-f]{16}$"}, "resultHash": {"$ref": "#/$defs/hash"}, "status": {"enum": ["PASS", "CANDIDATE_FAILURE"]}}},
+    "event": {"type": "object", "additionalProperties": false, "required": ["sequence", "previousEventHash", "resultHashes", "metrics", "decisions", "eventHash"], "properties": {"sequence": {"type": "integer", "minimum": 1}, "previousEventHash": {"oneOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]}, "resultHashes": {"type": "array", "items": {"$ref": "#/$defs/resultHash"}}, "metrics": {"type": "array"}, "decisions": {"type": "array"}, "eventHash": {"$ref": "#/$defs/hash"}}}
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/deterministic-subagent-benchmark/routing-sequential-evidence-bundle.schema.json",
+  "title": "Sequential cheapest-sufficient routing evidence bundle",
+  "type": "object",
+  "required": [
+    "schemaVersion", "recordKind", "estimand", "bundleId", "protocolId", "complete",
+    "protocolHash", "runtimeManifestHash", "planHash", "catalogHash",
+    "sequentialManifestHash", "terminalStateHash", "resultsHash", "analysisHash",
+    "provenanceHash", "auditHash", "counts", "decisions", "artifacts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "recordKind": { "const": "routing-sequential-evidence-bundle" },
+    "estimand": { "const": "worker" },
+    "bundleId": { "type": "string", "minLength": 1 },
+    "protocolId": { "type": "string", "minLength": 1 },
+    "complete": { "const": true },
+    "protocolHash": { "$ref": "#/$defs/hash" },
+    "runtimeManifestHash": { "$ref": "#/$defs/hash" },
+    "planHash": { "$ref": "#/$defs/hash" },
+    "catalogHash": { "$ref": "#/$defs/hash" },
+    "sequentialManifestHash": { "$ref": "#/$defs/hash" },
+    "terminalStateHash": { "$ref": "#/$defs/hash" },
+    "resultsHash": { "$ref": "#/$defs/hash" },
+    "analysisHash": { "$ref": "#/$defs/hash" },
+    "provenanceHash": { "$ref": "#/$defs/hash" },
+    "auditHash": { "$ref": "#/$defs/hash" },
+    "counts": {
+      "type": "object",
+      "required": ["families", "fixtures", "potentialResults", "executedResults", "savedResults"],
+      "properties": {
+        "families": { "type": "integer", "minimum": 1 },
+        "fixtures": { "type": "integer", "minimum": 1 },
+        "potentialResults": { "type": "integer", "minimum": 1 },
+        "executedResults": { "type": "integer", "minimum": 1 },
+        "savedResults": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "decisions": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["familyId", "selectedTreatmentId", "decision"],
+        "properties": {
+          "familyId": { "type": "string", "minLength": 1 },
+          "selectedTreatmentId": { "type": ["string", "null"], "minLength": 1 },
+          "decision": { "enum": ["ACCEPT", "EXHAUSTED"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "artifacts": {
+      "const": {
+        "protocol": "protocol.json",
+        "runtimeManifest": "runtime-manifest.json",
+        "preflightReports": "preflight-reports.json",
+        "plan": "plan.json",
+        "matrix": "matrix.json",
+        "catalog": "catalog.json",
+        "manifestIndex": "manifest-index.json",
+        "sequentialManifest": "sequential-manifest.json",
+        "terminalState": "terminal-state.json",
+        "results": "results.json",
+        "evaluationInputs": "evaluation-inputs.json",
+        "analysis": "analysis.json",
+        "provenance": "provenance.json",
+        "audit": "audit.json"
+      }
+    }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "additionalProperties": false
+}

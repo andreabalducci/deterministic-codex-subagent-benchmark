@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex-benchmark/routing-sequential-analysis.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "protocolHash", "planHash", "manifestHash", "stateHash", "complete", "potentialJobs", "executedJobs", "savedJobs", "savingsFraction", "families"],
+  "properties": {
+    "schemaVersion": {"const": 1}, "recordKind": {"const": "routing-sequential-analysis"},
+    "protocolHash": {"$ref": "#/$defs/hash"}, "planHash": {"$ref": "#/$defs/hash"}, "manifestHash": {"$ref": "#/$defs/hash"}, "stateHash": {"$ref": "#/$defs/hash"},
+    "complete": {"const": true}, "potentialJobs": {"type": "integer", "minimum": 1}, "executedJobs": {"type": "integer", "minimum": 1}, "savedJobs": {"type": "integer", "minimum": 0}, "savingsFraction": {"type": "number", "minimum": 0, "maximum": 1},
+    "families": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["familyId", "selectedTreatmentId", "cheapestSufficientConfigurationId", "decision"], "properties": {"familyId": {"type": "string"}, "selectedTreatmentId": {"type": ["string", "null"]}, "cheapestSufficientConfigurationId": {"type": ["string", "null"]}, "decision": {"enum": ["ACCEPT", "EXHAUSTED"]}}}}
+  },
+  "$defs": {"hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

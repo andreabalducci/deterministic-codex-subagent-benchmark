@@ -20,6 +20,7 @@ from typing import Any, Protocol
 
 import harness
 import routing_campaign
+import routing_sequential
 import routing_tasks
 
 
@@ -333,6 +334,8 @@ def run_job(
     evaluator=routing_tasks.evaluate_artifact,
     runtime_manifest: dict[str, Any] | None = None,
     preflight_report: dict[str, Any],
+    sequential_state: dict[str, Any] | None = None,
+    sequential_manifest: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     import routing_preflight  # lazy import: preflight uses runner runtime/image helpers
 
@@ -366,6 +369,30 @@ def run_job(
     if routing_campaign.value_hash(preflight_report) != binding["reportHash"] \
             or preflight_report["capabilityDigest"] != binding["capabilityDigest"]:
         raise ValueError("assigned-machine preflight does not match the frozen plan binding")
+    authorized_run_ids: set[str] | None = None
+    if sequential_state is not None or sequential_manifest is not None:
+        if sequential_state is None or sequential_manifest is None:
+            raise ValueError("sequential state and manifest must be supplied together")
+        routing_sequential.validate_manifest(sequential_manifest, plan, protocol)
+        routing_sequential.validate_state(sequential_state, sequential_manifest, plan, protocol)
+        prior_results: dict[str, dict[str, Any]] = {}
+        for result_file in (run_root / "results").glob("*.json"):
+            try:
+                prior = routing_campaign.load_json(result_file)
+            except (OSError, UnicodeError, json.JSONDecodeError):
+                continue
+            if isinstance(prior, dict) and isinstance(prior.get("runId"), str):
+                prior_results[prior["runId"]] = prior
+        routing_sequential.replay_state(
+            sequential_state, sequential_manifest, plan, protocol, prior_results
+        )
+        authorized_run_ids = {
+            authorized_run_id
+            for authorization in sequential_state["authorized"]
+            for authorized_run_id in authorization["runIds"]
+        }
+        if run_id not in authorized_run_ids:
+            raise ValueError(f"run {run_id} is not authorized by the sequential state")
     workspace = harness.ensure_strict_descendant(run_root / "workspaces" / run_id, run_root / "workspaces")
     transcript_path = harness.ensure_strict_descendant(
         run_root / "transcripts" / f"{run_id}.jsonl", run_root / "transcripts"
@@ -381,6 +408,7 @@ def run_job(
     job_index = plan["jobs"].index(job)
     predecessors = [
         item for item in plan["jobs"][:job_index] if item["machineId"] == machine_id
+        and (authorized_run_ids is None or item["runId"] in authorized_run_ids)
     ]
     for predecessor in predecessors:
         predecessor_path = run_root / "results" / f"{predecessor['runId']}.json"
@@ -515,17 +543,28 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-root", type=Path, default=RUN_ROOT)
     parser.add_argument("--runtime-manifest", type=Path, default=DEFAULT_RUNTIME_MANIFEST)
     parser.add_argument("--preflight", type=Path, required=True)
+    parser.add_argument("--sequential-state", type=Path)
+    parser.add_argument("--sequential-manifest", type=Path)
     parser.add_argument("--agent-timeout", type=int, default=1800)
     args = parser.parse_args(argv)
     protocol = routing_campaign.validate_protocol(routing_campaign.load_json(args.protocol))
     plan = routing_campaign.load_json(args.plan)
     runtime_manifest = load_runtime_manifest(args.runtime_manifest)
+    sequential_state = None
+    sequential_manifest = None
+    if args.sequential_state is not None or args.sequential_manifest is not None:
+        if args.sequential_state is None or args.sequential_manifest is None:
+            raise ValueError("--sequential-state and --sequential-manifest must be supplied together")
+        sequential_state = routing_campaign.load_json(args.sequential_state)
+        sequential_manifest = routing_campaign.load_json(args.sequential_manifest)
     result = run_job(
         protocol, plan, args.run_id,
         DockerCodexGenerator(args.auth_file, runtime_manifest, timeout=args.agent_timeout),
         machine_id=args.machine_id, run_root=args.run_root.resolve(),
         runtime_manifest=runtime_manifest,
         preflight_report=routing_campaign.load_json(args.preflight),
+        sequential_state=sequential_state,
+        sequential_manifest=sequential_manifest,
     )
     print(json.dumps(result, sort_keys=True))
     return 0 if result["status"] != "INFRA_FAILURE" else 2

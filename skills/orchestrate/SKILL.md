@@ -10,8 +10,8 @@ Remain available to the user while delegating substantive, independent work. Kee
 ## Routing defaults
 
 <!-- BEGIN GENERATED ROUTING
-policyVersion=1.0.0
-routingArtifactCanonicalSha256=54460c2be27b8032720ba910ef1cbadda57bb1263c8434d4b08924001e26299f
+policyVersion=2.0.0
+routingArtifactCanonicalSha256=2be634478ae5d3216c0a141a87e6c7ee1fbb9fd7149b912bea88837e6d84c2ba
 status=provisional
 -->
 
@@ -19,12 +19,12 @@ These are working defaults, not universal model-quality claims. Apply them only 
 
 | Route | Use when | Default |
 | --- | --- | --- |
-| `luna-low` | Tightly bounded, low-risk mechanical work with cheap deterministic verification | `gpt-5.6-luna`, `reasoning_effort: "low"` |
-| `luna-medium` | Bounded code mapping or a small low-risk patch with an explicit contract and strong checks | `gpt-5.6-luna`, `reasoning_effort: "medium"` |
-| `luna-high` | Isolated, well-specified implementation or repair with deterministic acceptance tests | `gpt-5.6-luna`, `reasoning_effort: "high"` |
-| `terra-medium` | Broad, read-heavy exploration, triage, or large-file synthesis without subtle behavioral risk | `gpt-5.6-terra`, `reasoning_effort: "medium"` |
-| `sol-medium` | Coordination, integration, or implementation requiring broader context or judgment | `gpt-5.6-sol`, `reasoning_effort: "medium"` |
-| `sol-high` | Ambiguous, cross-cutting, high-risk, concurrency-, security-, or migration-heavy work and final review | `gpt-5.6-sol`, `reasoning_effort: "high"` |
+| `mechanical-repository-work` | Tightly bounded, low-risk mechanical work with cheap deterministic verification | `luna-low`: `gpt-5.6-luna`, `reasoning_effort: "low"` |
+| `bounded-mapping-and-patch` | Bounded code mapping or a small low-risk patch with an explicit contract and strong checks | `luna-medium`: `gpt-5.6-luna`, `reasoning_effort: "medium"` |
+| `isolated-implementation-debugging` | Isolated, well-specified implementation or repair with deterministic acceptance tests | `luna-high`: `gpt-5.6-luna`, `reasoning_effort: "high"` |
+| `read-heavy-exploration-synthesis` | Structured defect localization with exact source-bound path, line, and excerpt evidence | `terra-medium`: `gpt-5.6-terra`, `reasoning_effort: "medium"` |
+| `coordination-integration` | Multi-file contract, producer, consumer, and acceptance-state integration | `sol-medium`: `gpt-5.6-sol`, `reasoning_effort: "medium"` |
+| `ambiguous-cross-cutting-high-risk` | Compatibility, implementation, rollback, and acceptance-state transitions under high risk | `sol-high`: `gpt-5.6-sol`, `reasoning_effort: "high"` |
 
 The separate live-coordinator session hypothesis is `gpt-5.6-sol` with
 `reasoning_effort: "medium"` while the experiment freezes leaf
@@ -32,9 +32,9 @@ workers independently. This is a session-start choice: `spawn_agent` cannot chan
 model of the already-running parent coordinator. Its evidence status is
 `hypothesis` and it must never promote the spawned-worker `sol-medium` row.
 
-If multiple rows match, choose the highest safety rank, then the most specific match, then the lowest precedence number. If uncertainty leaves a higher-risk row plausible, select that row; unknown potentially high-risk traits route to `sol-high`.
+First classify the task: if multiple task classes match, choose the highest safety rank, then the most specific match, then the lowest precedence number. If uncertainty leaves a higher-risk class plausible, select that class; unknown potentially high-risk traits route to `ambiguous-cross-cutting-high-risk`.
 
-If a selected configuration is unavailable, try its declared fallback routes in order. Never silently substitute an unlisted configuration. If no fallback is available, do not delegate; keep the work with the coordinator or ask for direction.
+Then use that task class's evidence-selected cheapest sufficient configuration. A promoted row must be backed by a replayed machine-verifiable analysis that records this exact configuration as the cheapest sufficient selection. If it is unavailable, try only its declared cost-increasing availability fallback configurations in order. Never silently substitute an unlisted configuration. If no fallback is available, do not delegate; keep the work with the coordinator or ask for direction.
 
 Fast mode is a user/session-level throughput and credit-usage setting. It is not a `spawn_agent` parameter, is not required for Luna, and must never be inferred from a model or reasoning-effort selection. Say Fast mode is enabled only when the user or session state explicitly establishes that fact.
 

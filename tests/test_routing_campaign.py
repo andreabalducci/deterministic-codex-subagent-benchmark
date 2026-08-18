@@ -118,6 +118,14 @@ class RoutingCampaignTests(unittest.TestCase):
         plan = self.plan(protocol)
         self.assertEqual(routing.DEFAULT_PROTOCOL.name, "routing-operational-v1.json")
         self.assertEqual(648, len(plan["jobs"]))
+        self.assertEqual(
+            [item["id"] for item in self.operational_protocol["matrix"]],
+            self.operational_protocol["selection"]["costOrder"],
+        )
+        self.assertEqual(
+            "lowest-cost-machine-verified-sufficient",
+            self.operational_protocol["selection"]["objective"],
+        )
         self.assertEqual(3, protocol["replicatesPerFixture"])
         self.assertTrue(all(len(family["heldOutFixtureIds"]) == 6 for family in protocol["families"]))
         routing.validate_protocol_sources(

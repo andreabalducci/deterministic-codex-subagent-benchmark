@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 import routing_campaign  # noqa: E402
 import routing_preflight  # noqa: E402
 import routing_runner  # noqa: E402
+import routing_sequential  # noqa: E402
 
 
 class FakeGenerator:
@@ -224,6 +225,24 @@ class RoutingRunnerTests(unittest.TestCase):
                     machine_id=job["machineId"], run_root=Path(temporary) / "routing",
                     evaluation_backend="native", runtime_manifest=self.runtime,
                     preflight_report=changed,
+                )
+
+    def test_sequential_runner_rejects_unauthorized_stage(self):
+        manifest = routing_sequential.make_manifest(self.plan, self.protocol)
+        state = routing_sequential.make_initial_state(manifest, self.plan, self.protocol)
+        first_family = self.protocol["families"][0]["id"]
+        unauthorized = next(
+            job for job in self.plan["jobs"]
+            if job["familyId"] == first_family and job["treatmentId"] == "luna-medium"
+        )
+        with tempfile.TemporaryDirectory() as temporary, self.patched_task_functions():
+            with self.assertRaisesRegex(ValueError, "not authorized"):
+                routing_runner.run_job(
+                    self.protocol, self.plan, unauthorized["runId"], FakeGenerator(),
+                    machine_id=unauthorized["machineId"], run_root=Path(temporary) / "routing",
+                    evaluation_backend="native", runtime_manifest=self.runtime,
+                    preflight_report=self.preflight, sequential_state=state,
+                    sequential_manifest=manifest,
                 )
 
 

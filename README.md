@@ -1,12 +1,12 @@
 # Deterministic Codex subagent benchmark
 
-This repository defines benchmark protocols for comparing six Codex model/effort configurations across multiple worker task families and a separate live-coordinator experiment. It retains an immutable .NET concurrency fixture for evaluator regression testing, separates stochastic generation from reproducible evaluation, and balances execution order across machines.
+This repository defines machine-verifiable benchmark protocols for routing Codex subagent work to the lowest sufficient model/effort configuration across multiple worker task families, plus a separate live-coordinator experiment. It retains an immutable .NET concurrency fixture for evaluator regression testing, separates stochastic generation from reproducible evaluation, and balances execution order across machines.
 
-The planned campaign treats the six configurations as complete treatments. The matrix is intentionally not factorial, so any future results must not be interpreted as independent causal estimates of either model choice or reasoning effort.
+The policy-facing worker protocol is sequential: classify the task family first, then test configurations in a frozen ordinal cost order and stop at the first one that meets its fixed machine-verifiable gate. The six-configuration complete-treatment analysis remains available as a comparative, extended experiment; the matrix is intentionally not factorial, so neither workflow estimates independent causal effects of model choice or reasoning effort.
 
 ## Evidence status
 
-The worker and coordinator protocols, 84 routing fixtures, runners, analysis, and evidence publisher are implemented, but no complete comparative campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any of the six routing rows in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. All task outputs are now machine-verifiable: behavioral implementations run sealed tests, mapping and state tasks use semantic JSON contracts, and read-heavy tasks emit exact source-bound path/line/excerpt records. The pinned Docker calibration covers every reference, negative mutant, semantic-equivalence positive, and independently mutable JSON state. The paid campaign and policy promotion remain pending until the real comparative cohort exists.
+The worker and coordinator protocols, 84 routing fixtures, runners, sequential state machine, analysis, and evidence publisher are implemented, but no policy-facing sequential campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any routing row in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. All task outputs are machine-verifiable: behavioral implementations run sealed tests, mapping and state tasks use semantic JSON contracts, and read-heavy tasks emit exact source-bound path/line/excerpt records. The pinned Docker calibration covers every reference, negative mutant, semantic-equivalence positive, and independently mutable JSON state. The paid campaign and policy promotion remain pending until terminal, replayable sequential evidence exists.
 
 Keep these states distinct:
 
@@ -19,20 +19,20 @@ Keep these states distinct:
 The repository implementation is complete through campaign execution and
 evidence publication. The
 checked-in routing policy and bundled skill remain deliberately `provisional`.
-The final machine-verifiable protocol revision invalidated the earlier local
-`machine-a` preflight by design. All preflight reports, credentials, plans,
+The sequential protocol revision invalidated all earlier preflight reports by
+design. All preflight reports, credentials, plans,
 transcripts, and generated candidates are private run artifacts and are not
 committed.
 
 Promotion is currently waiting for external evidence, not another code change:
 
 1. Three physical hosts must produce fresh `machine-a`, `machine-b`, and
-   `machine-c` preflights bound to the final protocol hash. Logical labels on
+   `machine-c` preflights bound to the current sequential protocol hash. Logical labels on
    the same host are not substitutes.
 2. The passing machine-verifiable construct-readiness report and three preflight reports
-   freeze the 648-job operational plan.
-3. Each host runs only its assigned 216 jobs. A complete resolved cohort is
-   analyzed and published before any routing row is promoted.
+   freeze the immutable 648-job maximum envelope and its sequential manifest.
+3. Each host runs only the currently authorized jobs. Terminal sequential state is
+   replayed, analyzed, and published before any routing row is promoted.
 4. `routing_policy.py` regenerates the skill only for `SUPPORTED` claims; the
    repository skill is then copied to the local installation and hash-checked.
 
@@ -79,13 +79,15 @@ runs/            ignored plans, keys, workspaces, logs, and results
 schemas/         result contract
 skills/          bundled, installable orchestration skill
 harness.py       planning, generation, evaluation, and aggregation
-routing_campaign.py  preregistered six-family plan and analysis
+routing_campaign.py  immutable six-family maximum envelope and comparative analysis
+routing_sequential.py deterministic cheapest-sufficient state machine and terminal analysis
 routing_tasks.py     v2 task materialization and sealed evaluation
 routing_runner.py    one-job Codex generation and provenance capture
-routing_campaign_driver.py sequential per-machine resume and audited infra retry
+routing_campaign_driver.py per-machine execution, sequential transitions, and audited infra retry
 routing_preflight.py authenticated model/effort/Fast capability check
 construct_readiness.py construct-validity report and paid-campaign gate
 routing_evidence.py  canonical evidence publisher and replay verifier
+routing_sequential_evidence.py terminal cheapest-sufficient bundle publisher and replay verifier
 coordinator_campaign.py  deterministic live-coordinator plan
 coordinator_runner.py    traced live delegation and integration runner
 coordinator_analysis.py  preregistered complete-cohort coordinator analysis
@@ -133,20 +135,38 @@ Repeat only on the hosts assigned `machine-b` and `machine-c`. The planner
 validates the reverse protocol binding, common capability digest, image/runtime
 identity, requested model/effort pairs, and Fast/`priority` availability.
 
-After producing a private HMAC-keyed routing plan, execute its assigned jobs
-with a dedicated credential. Normally use the machine driver, which preserves
-the preregistered order and resumes already completed jobs:
+After producing a private HMAC-keyed routing plan, derive the sequential
+manifest and initial state once. The manifest covers the immutable 648-job
+maximum envelope but authorizes only the cheapest stage for each classified
+family. The ordinal cost order is an operator-frozen protocol field; it is not
+a monetary price claim. Use the machine driver with a dedicated credential,
+which preserves preregistered order and resumes validated completed jobs:
 
 ```bash
+python3 routing_campaign_driver.py sequential-init \
+  --plan runs/routing-plan.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json
+
 python3 routing_campaign_driver.py run-machine \
   --plan runs/routing-plan.json \
   --machine-id machine-a \
   --preflight runs/routing-preflight-machine-a.json \
-  --auth-file /secure/path/benchmark-auth.json
+  --auth-file /secure/path/benchmark-auth.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json
+
+python3 routing_campaign_driver.py sequential-advance \
+  --plan runs/routing-plan.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json
 ```
 
-Every invocation may incur multiple model generations. Inspect progress with
-`routing_campaign_driver.py status`. The driver stops immediately on an
+Run `run-machine` on each physical host for the currently authorized stage,
+then run `sequential-advance` once against the shared result root. A passing
+fixed gate accepts that configuration for the family; otherwise the state
+authorizes exactly the next, costlier stage. There is no optional operator
+choice. Inspect progress with `routing_campaign_driver.py status`. The driver stops immediately on an
 `INFRA_FAILURE`; after correcting the infrastructure, retry only that planned
 unit while preserving its failed attempt:
 
@@ -162,6 +182,42 @@ The old result, transcript, metadata, and workspace move into a numbered
 `runs/routing/replacements/<run-id>/attempt-N/` directory with a hash inventory.
 Nothing is silently overwritten. `routing_runner.py` remains available for one
 explicit job and is what the driver invokes.
+
+When every family is terminal, produce the replayable policy-facing analysis:
+
+```bash
+python3 routing_campaign_driver.py sequential-analyze \
+  --plan runs/routing-plan.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --sequential-state runs/routing-sequential-state.json \
+  > runs/routing-sequential-analysis.json
+```
+
+Publish only a terminal state. The sequential publisher packages the exact
+executed prefix, candidate workspaces, evaluator inputs, three preflights,
+state chain, analysis, and provenance; `verify` independently replays every
+candidate evaluation and every transition before accepting the bundle:
+
+```bash
+python3 routing_sequential_evidence.py publish runs/routing/results/*.json \
+  --protocol protocols/routing-operational-v1.json \
+  --runtime-manifest protocols/routing-runtime-v1.json \
+  --preflight runs/routing-preflight-machine-a.json \
+  --preflight runs/routing-preflight-machine-b.json \
+  --preflight runs/routing-preflight-machine-c.json \
+  --plan runs/routing-plan.json \
+  --matrix matrix.json --catalog fixtures/catalog.json \
+  --sequential-manifest runs/routing-sequential-manifest.json \
+  --terminal-state runs/routing-sequential-state.json \
+  --analysis runs/routing-sequential-analysis.json \
+  --provenance runs/routing-provenance.json \
+  --fixture-root fixtures \
+  --candidate-root runs/routing/workspaces \
+  --output runs/routing-sequential-evidence
+
+python3 routing_sequential_evidence.py verify \
+  runs/routing-sequential-evidence
+```
 
 Raw JSONL and stderr remain mode-0600 run artifacts. The strict public result
 contains their hashes, requested and observed runtime controls, token usage,
@@ -420,7 +476,7 @@ python3 harness.py publish \
 
 The command refuses incomplete or unresolved cohorts. It emits the frozen plan, fixture manifest, matrix, deblinded mapping, intent-to-treat aggregate, structured behavior outcomes, repository provenance, queue/replacement audit records, hashes of the source results, and sanitized per-run evidence. Missing later behaviors are explicit `NOT_RUN`; duplicate or contradictory behavior markers are `AMBIGUOUS`. The output is checked against the strict nested contract in `schemas/evidence-bundle.schema.json`. Captured stdout and stderr—including hidden assertion text—are replaced by byte counts and SHA-256 hashes. The bundle contains no credential or generation transcript; archive it immutably alongside the trusted calibration reports, publish its digest, and update routing rows only where that evidence supports the conclusion.
 
-## Routing campaign required for routing claims
+## Sequential routing campaign required for policy claims
 
 The repository now contains 84 unique v2 fixtures: two development and twelve
 confirmatory fixtures for each of six families. Calibration checks 392 outcomes:
@@ -432,14 +488,25 @@ semantic JSON contracts; no prose is scored. Implementation fixtures execute
 requires an observable live delegation trace plus acceptance of the integrated
 multi-file state. These facts establish evaluator readiness, not a routing winner.
 
-The default operational worker campaign contains 648 independent generations:
-six preregistered fixtures per family, three fresh generations per fixture, six
-treatments, and six families. This is the smallest profile that keeps all six
-Williams orders balanced on each of three machines. The remaining six fixtures
-per family are reserved. The extended `protocols/routing-v1.json` profile keeps
-all twelve fixtures and nine generations (3,888 total) for confirmation when the
-operational result is inconclusive or publication-grade precision is required.
-Generate an opaque plan with a private HMAC key:
+The operational plan is an immutable maximum envelope of 648 independent
+generations: six preregistered fixtures per family, three fresh generations per
+fixture, six ordered configurations, and six families. The sequential policy
+does not run that envelope blindly. It classifies a task family, runs the
+currently authorized configuration, and advances only when the fixed complete
+stage gate rejects it. The gate requires the family's overall pass-rate floor
+and the frozen machine and ecosystem boundary; every outcome is produced by the
+sealed evaluator, with no human judge or discretionary selection.
+
+The frozen ordinal order is an operational ordering from cheapest to costliest,
+not a statement of current monetary token prices. It yields these deterministic
+execution bounds: 108 generations when every family accepts the first stage,
+378 generations for the current six-stage routing hypothesis ladder, and 648
+generations if every family exhausts all stages. The remaining six fixtures per
+family are reserved. The complete-treatment `routing_campaign.py` analysis is
+still the comparative/extended workflow, including the 3,888-generation
+publication-grade profile; it is not the evidence source for promoting the
+cheapest-sufficient policy. Generate the immutable envelope with a private HMAC
+key:
 
 ```bash
 python3 routing_campaign.py plan \
@@ -455,28 +522,37 @@ Each job result carries the assigned machine's preflight report hash and common
 capability digest. `routing_runner.py` requires that exact report at execution,
 and the evidence bundle packages and revalidates every report against the plan.
 
-Only a complete, resolved cohort analyzed by `routing_campaign.py` and published
-by `routing_evidence.py` can promote a policy row from `hypothesis` to
-`evidence-backed`. The generated skill is therefore intentionally provisional
-until that campaign (and the separate live-coordinator campaign for coordinator
-claims) produces a verified bundle with `SUPPORTED` decisions.
+For policy promotion, initialize, run, advance, and analyze the bound sequential
+state. Each command is deterministic over its inputs, and `sequential-advance`
+rejects incomplete stages or any `INFRA_FAILURE`. An infrastructure failure
+pauses the stage; after correction, `retry-infra` archives the failed attempt
+and reruns the same immutable run ID before a transition is possible. The state
+chain and terminal analysis are replayed from hashed results, so no operator can
+skip a stage or choose a preferred model.
 
-| Routing row | Needed task family and comparison evidence |
+Only terminal, replayable sequential evidence published through the routing
+evidence path can promote a policy row from `hypothesis` to `evidence-backed`.
+The generated skill is therefore intentionally provisional until that campaign
+(and the separate live-coordinator campaign for coordinator claims) produces a
+verified bundle with supported terminal selections. A complete six-treatment
+`routing_campaign.py` cohort remains valuable comparative evidence but cannot
+substitute for policy-facing sequential evidence.
+
+| Task class | Required sequential evidence |
 | --- | --- |
-| Luna / low | Mechanical repository work: exact search, inventory, formatting, and constrained boilerplate; compare completion and verified-error rate against the other rows. |
-| Luna / medium | Bounded code mapping and low-risk patches with explicit contracts and deterministic tests; measure correct scope discovery and passing changes. |
-| Luna / high | Isolated implementation and bug-fixing tasks with deterministic acceptance suites; measure solution quality, latency, and rework. |
-| Terra / medium | Broad exploration, large-file review, triage, and read-heavy synthesis tasks; score evidence coverage, diagnosis accuracy, and useful prioritization. |
-| Sol / medium | Multi-agent coordination and integration tasks with independent workstreams; score decomposition, integration correctness, and coordinator overhead. |
-| Sol / high | Ambiguous, cross-cutting concurrency, security, and migration tasks plus final review; score risk discovery, correctness, and regression avoidance. |
+| Mechanical repository work | Start at `luna-low`; accept the first configuration whose exact repository outcomes pass the frozen gate. |
+| Bounded mapping and patch | Start at `luna-low`; evaluate mapping scope and sealed contract acceptance at each authorized stage. |
+| Isolated implementation and debugging | Start at `luna-low`; use executable behavioral acceptance to decide whether escalation is necessary. |
+| Structured source-evidence analysis | Start at `luna-low`; require exact source-bound location records and the frozen reliability strata. |
+| Coordination-state integration | Start at `luna-low`; require the complete multi-file integration state, not a prose plan. |
+| High-risk state transition | Start at `luna-low`; require every compatibility, implementation, rollback, and acceptance state before stopping. |
 
 ## Interpretation and threat model
 
 - Preregister fixture version, matrix, trial count, seed, machine labels, exclusion rules, and primary metric before generation.
-- Compare pass rates from independent generations. Use repeated hidden executions only to expose flaky artifacts.
-- Preregister the minimum meaningful effect and power calculation. Analyze paired/block-aware contrasts by trial and machine; use medians and IQRs for latency and Holm-adjust the 15 pairwise comparisons. The built-in power approximation uses the more conservative Bonferroni alpha for planning.
+- For policy selection, apply only the frozen sequential floor and machine/ecosystem boundary. Comparative effect sizes, Holm adjustments, and power calculations belong to the separate complete-treatment experiment and cannot override a sequential transition.
 - Keep the model mapping sealed until executable and policy scoring is final.
-- The regex policy scan is a heuristic guard, not a semantic security analyzer. Manual or Roslyn-based review is required for strong policy claims.
+- The legacy regex policy scan is only a heuristic security guard and cannot support a security claim. Policy-facing routing outcomes use the sealed machine-verifiable evaluators; claims requiring adversarial security assurance are outside this benchmark's scope rather than delegated to a human scoring step.
 - Behavior markers reject duplicates and contradictions but are not an authenticated channel. Because candidate code runs in the hidden-test process, a deliberately malicious candidate can forge console output; adversarial scoring requires an out-of-process runner with a protected result channel.
 - The isolation protects against accidental test leakage and ordinary buggy candidates. A malicious assembly can still inspect loaded metadata. Strong adversarial secrecy requires a black-box, out-of-process evaluator in a separately trusted VM or service.
 - Result files are structurally cross-checked against the plan and execution evidence but are not cryptographically signed. Preserve them in append-only storage or add external signatures when the benchmark operator is outside the trust boundary.

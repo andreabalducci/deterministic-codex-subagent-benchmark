@@ -13,19 +13,20 @@
     ],
     "uncertainty": {
       "rule": "choose-the-highest-safety-rank-among-plausible-routes",
-      "unknownHighRiskRouteId": "sol-high"
+      "unknownHighRiskRouteId": "ambiguous-cross-cutting-high-risk"
     }
   },
   "defaults": [
     {
       "claimStrength": "hypothesis",
       "evidenceRefs": [],
-      "fallbackRouteIds": ["luna-medium", "sol-medium"],
+      "availabilityFallbackConfigurationIds": ["luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"],
       "estimand": "worker",
-      "id": "luna-low",
+      "id": "mechanical-repository-work",
       "model": "gpt-5.6-luna",
       "precedence": 10,
       "reasoningEffort": "low",
+      "selectedConfigurationId": "luna-low",
       "safetyRank": 10,
       "specificity": 60,
       "summary": "Tightly bounded, low-risk mechanical work with cheap deterministic verification",
@@ -34,12 +35,13 @@
     {
       "claimStrength": "hypothesis",
       "evidenceRefs": [],
-      "fallbackRouteIds": ["luna-high", "sol-medium"],
+      "availabilityFallbackConfigurationIds": ["luna-high", "terra-medium", "sol-medium", "sol-high"],
       "estimand": "worker",
-      "id": "luna-medium",
+      "id": "bounded-mapping-and-patch",
       "model": "gpt-5.6-luna",
       "precedence": 20,
       "reasoningEffort": "medium",
+      "selectedConfigurationId": "luna-medium",
       "safetyRank": 20,
       "specificity": 60,
       "summary": "Bounded code mapping or a small low-risk patch with an explicit contract and strong checks",
@@ -48,12 +50,13 @@
     {
       "claimStrength": "hypothesis",
       "evidenceRefs": [],
-      "fallbackRouteIds": ["sol-medium", "sol-high"],
+      "availabilityFallbackConfigurationIds": ["terra-medium", "sol-medium", "sol-high"],
       "estimand": "worker",
-      "id": "luna-high",
+      "id": "isolated-implementation-debugging",
       "model": "gpt-5.6-luna",
       "precedence": 30,
       "reasoningEffort": "high",
+      "selectedConfigurationId": "luna-high",
       "safetyRank": 30,
       "specificity": 60,
       "summary": "Isolated, well-specified implementation or repair with deterministic acceptance tests",
@@ -62,43 +65,46 @@
     {
       "claimStrength": "hypothesis",
       "evidenceRefs": [],
-      "fallbackRouteIds": ["sol-medium", "sol-high"],
+      "availabilityFallbackConfigurationIds": ["sol-medium", "sol-high"],
       "estimand": "worker",
-      "id": "terra-medium",
+      "id": "read-heavy-exploration-synthesis",
       "model": "gpt-5.6-terra",
       "precedence": 40,
       "reasoningEffort": "medium",
+      "selectedConfigurationId": "terra-medium",
       "safetyRank": 40,
       "specificity": 60,
-      "summary": "Broad, read-heavy exploration, triage, or large-file synthesis without subtle behavioral risk",
+      "summary": "Structured defect localization with exact source-bound path, line, and excerpt evidence",
       "taskClass": "read-heavy-exploration-synthesis"
     },
     {
       "claimStrength": "hypothesis",
       "evidenceRefs": [],
-      "fallbackRouteIds": ["sol-high"],
+      "availabilityFallbackConfigurationIds": ["sol-high"],
       "estimand": "worker",
-      "id": "sol-medium",
+      "id": "coordination-integration",
       "model": "gpt-5.6-sol",
       "precedence": 50,
       "reasoningEffort": "medium",
+      "selectedConfigurationId": "sol-medium",
       "safetyRank": 50,
       "specificity": 60,
-      "summary": "Coordination, integration, or implementation requiring broader context or judgment",
+      "summary": "Multi-file contract, producer, consumer, and acceptance-state integration",
       "taskClass": "coordination-integration"
     },
     {
       "claimStrength": "hypothesis",
       "evidenceRefs": [],
-      "fallbackRouteIds": [],
+      "availabilityFallbackConfigurationIds": [],
       "estimand": "worker",
-      "id": "sol-high",
+      "id": "ambiguous-cross-cutting-high-risk",
       "model": "gpt-5.6-sol",
       "precedence": 60,
       "reasoningEffort": "high",
+      "selectedConfigurationId": "sol-high",
       "safetyRank": 60,
       "specificity": 60,
-      "summary": "Ambiguous, cross-cutting, high-risk, concurrency-, security-, or migration-heavy work and final review",
+      "summary": "Compatibility, implementation, rollback, and acceptance-state transitions under high risk",
       "taskClass": "ambiguous-cross-cutting-high-risk"
     }
   ],
@@ -115,6 +121,14 @@
       "taskClass": "coordination-integration"
     }
   ],
+  "configurationCostOrder": [
+    "luna-low",
+    "luna-medium",
+    "luna-high",
+    "terra-medium",
+    "sol-medium",
+    "sol-high"
+  ],
   "evidenceBundles": [],
   "fastMode": {
     "inferFromModelOrEffort": false,
@@ -123,7 +137,7 @@
     "spawnAgentParameter": false
   },
   "policyId": "orchestrate-routing",
-  "policyVersion": "1.0.0",
-  "schemaVersion": 1,
+  "policyVersion": "2.0.0",
+  "schemaVersion": 2,
   "status": "provisional"
 }

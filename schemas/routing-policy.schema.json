@@ -2,12 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/codex-benchmark/routing-policy.schema.json",
   "type": "object",
-  "required": ["schemaVersion", "policyId", "policyVersion", "status", "evidenceBundles", "defaults", "coordinatorDefaults", "decisionRules", "fastMode"],
+  "required": ["schemaVersion", "policyId", "policyVersion", "status", "configurationCostOrder", "evidenceBundles", "defaults", "coordinatorDefaults", "decisionRules", "fastMode"],
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": { "const": 2 },
     "policyId": { "const": "orchestrate-routing" },
     "policyVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
     "status": { "enum": ["provisional", "mixed", "evidence-backed"] },
+    "configurationCostOrder": {
+      "const": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]
+    },
     "evidenceBundles": {
       "type": "array",
       "uniqueItems": true,
@@ -83,6 +86,12 @@
   "$defs": {
     "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "evidenceRef": {
+      "oneOf": [
+        { "$ref": "#/$defs/legacyEvidenceRef" },
+        { "$ref": "#/$defs/sequentialEvidenceRef" }
+      ]
+    },
+    "legacyEvidenceRef": {
       "type": "object",
       "required": ["bundleId", "estimand", "taskFamily", "analysisId", "configurationId", "comparisonConfigurationIds", "metric", "estimate", "interval95", "decision"],
       "properties": {
@@ -99,14 +108,28 @@
       },
       "additionalProperties": false
     },
+    "sequentialEvidenceRef": {
+      "type": "object",
+      "required": ["bundleId", "estimand", "taskFamily", "analysisId", "configurationId", "decision"],
+      "properties": {
+        "bundleId": { "type": "string", "minLength": 1 },
+        "estimand": { "const": "worker" },
+        "taskFamily": { "type": "string", "minLength": 1 },
+        "analysisId": { "type": "string", "minLength": 1 },
+        "configurationId": { "type": "string", "minLength": 1 },
+        "decision": { "const": "ACCEPT" }
+      },
+      "additionalProperties": false
+    },
     "route": {
       "type": "object",
-      "required": ["id", "estimand", "summary", "taskClass", "model", "reasoningEffort", "precedence", "safetyRank", "specificity", "claimStrength", "evidenceRefs", "fallbackRouteIds"],
+        "required": ["id", "estimand", "summary", "taskClass", "selectedConfigurationId", "model", "reasoningEffort", "precedence", "safetyRank", "specificity", "claimStrength", "evidenceRefs", "availabilityFallbackConfigurationIds"],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "estimand": { "enum": ["worker", "live-coordinator-with-frozen-workers"] },
         "summary": { "type": "string", "minLength": 1 },
         "taskClass": { "type": "string", "minLength": 1 },
+        "selectedConfigurationId": { "type": "string", "minLength": 1 },
         "model": { "type": "string", "minLength": 1 },
         "reasoningEffort": { "enum": ["low", "medium", "high"] },
         "precedence": { "type": "integer", "minimum": 0 },
@@ -114,7 +137,7 @@
         "specificity": { "type": "integer", "minimum": 0 },
         "claimStrength": { "enum": ["hypothesis", "evidence-backed"] },
         "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/evidenceRef" } },
-        "fallbackRouteIds": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+        "availabilityFallbackConfigurationIds": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
       },
       "additionalProperties": false
     },
