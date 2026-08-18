@@ -12,19 +12,34 @@ var tests = new (string Name, Func<Task> Run)[]
     ("invalidation supersedes an older in-flight generation", InvalidateInFlight),
 };
 
+const int TestTimeoutSeconds = 5;
 var failures = 0;
+var timedOut = false;
 foreach (var (name, run) in tests)
 {
     try
     {
-        await run();
+        var test = run();
+        ObserveFault(test);
+        await test.WaitAsync(TimeSpan.FromSeconds(TestTimeoutSeconds));
         Console.WriteLine($"PASS {name}");
+    }
+    catch (TimeoutException)
+    {
+        failures++;
+        timedOut = true;
+        Console.WriteLine($"FAIL {name}: TimeoutException: exceeded the {TestTimeoutSeconds}-second test timeout");
     }
     catch (Exception exception)
     {
         failures++;
         Console.WriteLine($"FAIL {name}: {exception.GetType().Name}: {exception.Message}");
     }
+
+    // A timed-out test may still have an uncancellable candidate task in flight. Every
+    // test currently owns its state, but candidate implementations may use static state;
+    // do not start another behavior while that orphaned task could affect it.
+    if (timedOut) break;
 }
 
 if (failures == 0) Console.WriteLine("CODEX_BENCH_HIDDEN_PASS_V1");
@@ -240,6 +255,15 @@ static async Task ThrowsAsync<TException>(Func<Task> action) where TException : 
     try { await action(); }
     catch (TException) { return; }
     throw new InvalidOperationException($"Expected {typeof(TException).Name}");
+}
+
+static void ObserveFault(Task task)
+{
+    _ = task.ContinueWith(
+        completed => _ = completed.Exception,
+        CancellationToken.None,
+        TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+        TaskScheduler.Default);
 }
 
 sealed class ManualTimeProvider(DateTimeOffset utcNow) : TimeProvider

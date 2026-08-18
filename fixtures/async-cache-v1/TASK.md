@@ -17,7 +17,8 @@ Fix `Cache.Core/AsyncExpiringCache.cs` without changing its public API.
 ## Constraints
 
 - Keep the implementation thread-safe and generic.
-- Do not use `.Result`, `.Wait()`, busy polling, sleeps, or blocking waits. A short synchronous critical section that never runs user code is allowed.
+- Do not use `.Result`, `.Wait()`, `GetAwaiter().GetResult()`, `Thread.Sleep`, `Task.Delay`, busy polling, sleeps, or other blocking waits. A short synchronous critical section that never runs user code is allowed.
+- Do not terminate or launch processes, add module initializers or native interop, or dynamically load assemblies (`Environment.Exit`/`FailFast`, `Process.Start`, `ModuleInitializer`, `DllImport`/`LibraryImport`, or `Assembly.Load*`).
 - Do not add packages or access the network.
 - Work only inside the assigned directory and do not inspect sibling benchmark runs or hidden evaluators.
 - Run `dotnet run --project Cache.PublicTests/Cache.PublicTests.csproj` before reporting completion.

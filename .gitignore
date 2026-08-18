@@ -4,6 +4,7 @@ __pycache__/
 .DS_Store
 runs/generations/
 runs/results/*.json
+runs/replacements/
 runs/workspaces/*/
 runs/plan.json
 runs/plan.blinded.json

@@ -1,11 +1,14 @@
 {
   "files": {
-    "TASK.md": "8714e74510d439b053120aa67b7ffdd02a405031368a1829fffb2f436bebfbe9",
-    "hidden/Cache.HiddenTests/Cache.HiddenTests.csproj": "4f1198b2417c98ea0ec3d45afc785a68e81c0ee26308d8a9f7fd2e0d42cd9bfd",
-    "hidden/Cache.HiddenTests/Program.cs": "644807258b048c43b869073b55e9723624f919c742489eed58eed47f05908b93",
+    "TASK.md": "65f039c90a83d524bb06de4f0616c7e68c995ec34f86ec115b6181aacbd792cd",
+    "hidden/Cache.HiddenTests/Cache.HiddenTests.csproj": "1e2f89d265f04c28367b7c87d55123a9c58f5d4da205ca1dc6ca3b07855dfe39",
+    "hidden/Cache.HiddenTests/Program.cs": "8cf9a4ae42dfa4b4c4d8cb2ee8c6b0844709d07ae84c9dab429f74909c8c41be",
+    "mutants/cancelled-waiter-poisons-load.cs": "f6a15a9f2544b52a02d4c7f597aeca1b532b183a2e8092adb47f6e8ac2b0aba4",
     "mutants/constructor-allows-zero-ttl.cs": "8b826d32e02dc46c5e7bbd8491bce821f3dc68605dff8a33762700884a68a03e",
+    "mutants/different-keys-serialized.cs": "be815e85b60d58b83c377aca6c81fde91753bc794bfbe73568a10376bd98cf9f",
     "mutants/failure-remains-cached.cs": "16b4da817eb0c004f30a7ef3df13d3923485bf733ba53313a911e12d34068e59",
     "mutants/invalidation-noop.cs": "f5ac84969c4d2b5f94c0eeda595d8cedc0c7acdfeb2a9c2bbdcd48d400f254db",
+    "mutants/invalidation-old-generation-wins.cs": "9329b230d1f43e3e0f34527ac22289890c581b6003c28a6bf516cab4235ea1d0",
     "mutants/ttl-boundary-inclusive.cs": "12e4d9c200a3c75a692cdee076ae687bb81f5a7ec0441cfc750298182c70c9c0",
     "mutants/ttl-starts-before-load.cs": "06bf6ca97722a596ed4a51c5e42dbd25bc2aa88882c6e19852e20fa4c4d26955",
     "mutants/waiter-cancellation-evicts.cs": "f8ee20b366a13bf206cb4acb6ede7385b90a52e73f8d02f85fd2dc7d767cccf0",

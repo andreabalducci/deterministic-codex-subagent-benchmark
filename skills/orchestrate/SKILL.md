@@ -7,14 +7,16 @@ description: Coordinate multiple agents on substantial tasks that benefit from p
 
 Remain available to the user while delegating substantive, independent work. Keep requirements, decisions, integration, approvals, and final verification with the coordinator.
 
-Route by task risk and ambiguity, not by a single default:
+## Current routing hypotheses
 
-- Use `gpt-5.6-luna` with `reasoning_effort: "low"` only for tightly bounded mechanical work: exact searches, inventories, formatting, or boilerplate whose result is cheap to verify.
-- Use `gpt-5.6-luna` with `reasoning_effort: "medium"` for bounded code mapping and small low-risk changes with an explicit contract and strong automated checks.
-- Use `gpt-5.6-luna` with `reasoning_effort: "high"` as the default high-throughput coding worker for isolated, well-specified implementation or bug-fixing tasks with deterministic validation.
-- Use `gpt-5.6-terra` with `reasoning_effort: "medium"` for broad exploration, large-file review, triage, and read-heavy synthesis. Do not make it the default coder for subtle behavioral or concurrency work.
-- Use `gpt-5.6-sol` with `reasoning_effort: "medium"` for normal coordination, integration, and implementation that requires broader context or judgment.
-- Use `gpt-5.6-sol` with `reasoning_effort: "high"` for ambiguous, cross-cutting, high-risk, concurrency-, security-, or migration-heavy work and final review.
+Route by task risk and ambiguity, not by a single default. The following are useful starting hypotheses, not empirically substantiated prescriptions: this repository has not published a campaign or evidence bundle supporting any of the six rows. Validate and adapt them against the task, the available models, and local outcomes.
+
+- Consider `gpt-5.6-luna` with `reasoning_effort: "low"` for tightly bounded mechanical work: exact searches, inventories, formatting, or boilerplate whose result is cheap to verify.
+- Consider `gpt-5.6-luna` with `reasoning_effort: "medium"` for bounded code mapping and small low-risk changes with an explicit contract and strong automated checks.
+- Consider `gpt-5.6-luna` with `reasoning_effort: "high"` for isolated, well-specified implementation or bug-fixing tasks with deterministic validation.
+- Consider `gpt-5.6-terra` with `reasoning_effort: "medium"` for broad exploration, large-file review, triage, and read-heavy synthesis; validate it before using it for subtle behavioral or concurrency work.
+- Consider `gpt-5.6-sol` with `reasoning_effort: "medium"` for normal coordination, integration, and implementation that requires broader context or judgment.
+- Consider `gpt-5.6-sol` with `reasoning_effort: "high"` for ambiguous, cross-cutting, high-risk, concurrency-, security-, or migration-heavy work and final review.
 
 Fast mode is an optional session-level throughput and credit-usage choice, not a `spawn_agent` parameter and not a prerequisite for Luna. Never claim that a worker is in Fast mode merely because its model or reasoning effort was set.
 

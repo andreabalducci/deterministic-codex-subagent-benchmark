@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup Condition="'$(CandidateAssemblyPath)' == ''">
-    <ProjectReference Include="../Cache.Core/Cache.Core.csproj" />
+    <ProjectReference Include="../../starter/Cache.Core/Cache.Core.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(CandidateAssemblyPath)' != ''">
     <Reference Include="Cache.Core">

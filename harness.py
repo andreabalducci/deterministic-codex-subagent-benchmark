@@ -24,17 +24,21 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parent
+FIXTURE_ID = "async-cache-v1"
 FIXTURE = ROOT / "fixtures" / "async-cache-v1"
 STARTER = FIXTURE / "starter"
 HIDDEN = FIXTURE / "hidden" / "Cache.HiddenTests"
 REFERENCE = FIXTURE / "reference" / "AsyncExpiringCache.cs"
 MANIFEST = FIXTURE / "fixture-manifest.json"
 MATRIX = ROOT / "matrix.json"
+RESULT_SCHEMA = ROOT / "schemas" / "run-result.schema.json"
+EVIDENCE_SCHEMA = ROOT / "schemas" / "evidence-bundle.schema.json"
 RUNS = ROOT / "runs"
 EVALUATOR_IMAGE = "codex-bench-evaluator:10.0.301"
 GENERATOR_IMAGE = "codex-bench-generator:0.147.0"
-IGNORED_PARTS = {"bin", "obj", ".git", "__pycache__"}
+IGNORED_PARTS = {"bin", "obj", ".git", ".nuget", ".dotnet-home", "__pycache__"}
 RUN_ID_PATTERN = re.compile(r"^[0-9a-f]{16}$")
+VERIFY_RUN_ID_PATTERN = re.compile(r"^verify-[a-z0-9]+(?:-[a-z0-9]+)*$")
 MAX_EVALUATOR_OUTPUT_BYTES = 2 * 1024 * 1024
 MAX_GENERATOR_OUTPUT_BYTES = 16 * 1024 * 1024
 AGENT_PROMPT = (
@@ -65,6 +69,23 @@ POLICY_PATTERNS = {
 }
 PUBLIC_PASS_MARKER = "CODEX_BENCH_PUBLIC_PASS_V1"
 HIDDEN_PASS_MARKER = "CODEX_BENCH_HIDDEN_PASS_V1"
+HIDDEN_BEHAVIORS = (
+    "constructor validation",
+    "same-key misses are single flight",
+    "different keys load concurrently",
+    "TTL starts at successful completion and expires at boundary",
+    "failed load is retried",
+    "one cancelled waiter does not cancel shared load",
+    "all waiters may cancel while successful load remains cached",
+    "invalidation supersedes an older in-flight generation",
+)
+INFRA_FAILURE_KINDS = {
+    "launcher", "timeout-anomaly", "build-timeout", "fixture-manifest", "generation-launcher",
+}
+CANDIDATE_FAILURE_KINDS = {
+    "timeout", "output-limit", "test", "build", "test-marker", "integrity", "policy",
+    "generation-timeout", "generation-output-limit", "generation-exit",
+}
 
 
 def canonical_json(value: Any) -> str:
@@ -104,7 +125,7 @@ def fixture_file_hashes() -> dict[str, str]:
 def write_manifest() -> dict[str, Any]:
     payload = {
         "schemaVersion": 1,
-        "fixtureId": "async-cache-v1",
+        "fixtureId": FIXTURE_ID,
         "files": fixture_file_hashes(),
     }
     MANIFEST.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -128,22 +149,30 @@ def verify_manifest() -> tuple[bool, list[str]]:
     return not errors, errors
 
 
-def ensure_under(path: Path, parent: Path) -> None:
+def ensure_strict_descendant(path: Path, parent: Path) -> Path:
     resolved = path.resolve()
     root = parent.resolve()
-    if resolved != root and root not in resolved.parents:
-        raise ValueError(f"Refusing path outside {root}: {resolved}")
+    if resolved == root or root not in resolved.parents:
+        raise ValueError(f"Refusing path that is not strictly beneath {root}: {resolved}")
+    return resolved
 
 
-def validate_run_id(run_id: str) -> str:
-    if not RUN_ID_PATTERN.fullmatch(run_id):
+def validate_run_id(run_id: str, *, allow_verify: bool = False) -> str:
+    valid = RUN_ID_PATTERN.fullmatch(run_id) or (
+        allow_verify and VERIFY_RUN_ID_PATTERN.fullmatch(run_id)
+    )
+    if not valid:
         raise ValueError(f"Invalid opaque run ID: {run_id!r}")
     return run_id
 
 
+def run_artifact_path(parent: Path, run_id: str, suffix: str) -> Path:
+    safe_id = validate_run_id(run_id)
+    return ensure_strict_descendant(parent / f"{safe_id}{suffix}", parent)
+
+
 def load_or_create_id_key(path: Path) -> bytes:
-    path = path.resolve()
-    ensure_under(path, RUNS)
+    path = ensure_strict_descendant(path, RUNS)
     if path.exists():
         value = path.read_bytes()
         if len(value) < 32:
@@ -157,15 +186,24 @@ def load_or_create_id_key(path: Path) -> bytes:
     return value
 
 
+def copy_ignore(_directory: str, names: list[str]) -> set[str]:
+    return set(names) & IGNORED_PARTS
+
+
 def materialize(destination: Path, *, replace: bool = False) -> None:
+    if destination.is_symlink():
+        raise ValueError("Destination must not be a symbolic link")
     destination = destination.resolve()
     if destination.exists():
         if not replace:
             raise FileExistsError(f"Destination already exists: {destination}")
-        ensure_under(destination, RUNS / "workspaces")
+        ensure_strict_descendant(destination, RUNS / "workspaces")
         shutil.rmtree(destination)
-    shutil.copytree(STARTER, destination)
+    shutil.copytree(STARTER, destination, ignore=copy_ignore)
     shutil.copy2(FIXTURE / "TASK.md", destination / "TASK.md")
+    nuget_config = ROOT / "NuGet.config"
+    if nuget_config.exists():
+        shutil.copy2(nuget_config, destination / nuget_config.name)
 
 
 def candidate_integrity(candidate: Path) -> list[str]:
@@ -183,6 +221,9 @@ def candidate_integrity(candidate: Path) -> list[str]:
         "Cache.PublicTests/Cache.PublicTests.csproj": STARTER / "Cache.PublicTests" / "Cache.PublicTests.csproj",
         "Cache.PublicTests/Program.cs": STARTER / "Cache.PublicTests" / "Program.cs",
     }
+    nuget_config = ROOT / "NuGet.config"
+    if nuget_config.exists():
+        required[nuget_config.name] = nuget_config
     for relative, expected in required.items():
         actual = candidate / relative
         if not actual.exists():
@@ -199,6 +240,10 @@ def candidate_integrity(candidate: Path) -> list[str]:
         if relative in allowed_exact:
             continue
         if relative == "Cache.Core/AsyncExpiringCache.cs":
+            try:
+                path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                errors.append(f"non-UTF-8 source: {relative}")
             continue
         errors.append(f"unexpected candidate file: {relative}")
     return errors
@@ -218,7 +263,11 @@ def policy_violations(candidate: Path) -> list[str]:
     for path in visible_files(candidate / "Cache.Core"):
         if path.suffix != ".cs":
             continue
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            violations.append(f"non-UTF-8 source: {path.relative_to(candidate).as_posix()}")
+            continue
         for name, pattern in POLICY_PATTERNS.items():
             if pattern.search(text):
                 violations.append(f"{name}: {path.relative_to(candidate).as_posix()}")
@@ -230,8 +279,10 @@ def repository_provenance() -> dict[str, Any]:
         ROOT / "harness.py",
         ROOT / "matrix.json",
         ROOT / "schemas" / "run-result.schema.json",
+        ROOT / "schemas" / "evidence-bundle.schema.json",
         ROOT / "global.json",
         ROOT / "Directory.Build.props",
+        ROOT / "NuGet.config",
         ROOT / "docker" / "evaluator.Dockerfile",
         ROOT / "docker" / "generator.Dockerfile",
         ROOT / "docker" / "package.json",
@@ -254,6 +305,18 @@ def repository_provenance() -> dict[str, Any]:
     }
 
 
+def docker_identity_arguments() -> list[str]:
+    if os.name != "posix" or not hasattr(os, "getuid") or not hasattr(os, "getgid"):
+        return []
+    return ["--user", f"{os.getuid()}:{os.getgid()}"]
+
+
+def docker_tmpfs(path: str, options: str) -> str:
+    if os.name == "posix" and hasattr(os, "getuid") and hasattr(os, "getgid"):
+        options += f",uid={os.getuid()},gid={os.getgid()}"
+    return f"{path}:{options}"
+
+
 def base_command(
     command: list[str], cwd: Path, backend: str, container_name: str, *, readonly: bool
 ) -> list[str]:
@@ -268,7 +331,8 @@ def base_command(
         "docker", "run", "--rm", "--network", "none", "--name", container_name,
         "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
         "--pids-limit", "256", "--memory", "1g", "--cpus", "2",
-        "--tmpfs", "/tmp:rw,noexec,nosuid,size=128m",
+        *docker_identity_arguments(),
+        "--tmpfs", docker_tmpfs("/tmp", "rw,noexec,nosuid,size=128m"),
         "--mount", mount,
         "--workdir", "/workspace",
         *sum((["--env", f"{key}={value}"] for key, value in DETERMINISTIC_ENV.items()), []),
@@ -286,21 +350,6 @@ def sanitized_environment(cwd: Path) -> dict[str, str]:
     environment["DOTNET_CLI_HOME"] = str(cwd / ".dotnet-home")
     environment["NUGET_PACKAGES"] = str(cwd / ".nuget")
     return environment
-
-
-def decoded_timeout_stream(value: Any) -> str:
-    if value is None:
-        return ""
-    if isinstance(value, bytes):
-        return value.decode("utf-8", errors="replace")
-    return str(value)
-
-
-def read_capped(stream: Any, limit: int) -> tuple[str, bool]:
-    stream.seek(0)
-    value = stream.read(limit + 1)
-    exceeded = len(value) > limit
-    return value[:limit].decode("utf-8", errors="replace"), exceeded
 
 
 def execute_captured(
@@ -324,7 +373,9 @@ def execute_captured(
         }
 
     buffers = [bytearray(), bytearray()]
-    exceeded = [False, False]
+    output_limit_exceeded = False
+    output_bytes = 0
+    output_lock = threading.Lock()
     stopped = threading.Event()
 
     def stop_for_limit() -> None:
@@ -333,18 +384,28 @@ def execute_captured(
         stopped.set()
         if timeout_callback is not None:
             timeout_callback()
-        process.kill()
+        try:
+            process.kill()
+        except ProcessLookupError:
+            pass
 
     def drain(stream: Any, index: int) -> None:
+        nonlocal output_bytes, output_limit_exceeded
         while True:
             block = stream.read(65536)
             if not block:
                 return
-            remaining = limit - len(buffers[index])
-            if remaining > 0:
-                buffers[index].extend(block[:remaining])
-            if len(block) > remaining:
-                exceeded[index] = True
+            should_stop = False
+            with output_lock:
+                remaining = max(0, limit - output_bytes)
+                accepted = min(len(block), remaining)
+                if accepted:
+                    buffers[index].extend(block[:accepted])
+                    output_bytes += accepted
+                if accepted < len(block):
+                    output_limit_exceeded = True
+                    should_stop = True
+            if should_stop:
                 stop_for_limit()
 
     threads = [
@@ -375,7 +436,7 @@ def execute_captured(
         "stderr": bytes(buffers[1]).decode("utf-8", errors="replace"),
         "timedOut": timed_out,
         "launcherFailure": False,
-        "outputLimitExceeded": any(exceeded),
+        "outputLimitExceeded": output_limit_exceeded,
         "durationSeconds": round(time.monotonic() - started, 6),
     }
 
@@ -422,6 +483,44 @@ def last_attempt(run: dict[str, Any]) -> dict[str, Any]:
     return run["attempts"][-1]
 
 
+def execution_failure(
+    execution: dict[str, Any], *, candidate_execution: bool
+) -> tuple[str, str] | None:
+    attempt = last_attempt(execution)
+    if attempt["launcherFailure"]:
+        return "INFRA_FAILURE", "launcher"
+    if execution["hadTimeout"]:
+        if not execution["confirmedTimeout"]:
+            return "INFRA_FAILURE", "timeout-anomaly"
+        if candidate_execution:
+            return "CANDIDATE_FAILURE", "timeout"
+        return "INFRA_FAILURE", "build-timeout"
+    if attempt["outputLimitExceeded"]:
+        return "CANDIDATE_FAILURE", "output-limit"
+    if attempt["exitCode"] != 0:
+        return "CANDIDATE_FAILURE", "test" if candidate_execution else "build"
+    return None
+
+
+def extract_behavior_outcomes(output: str) -> list[dict[str, str]]:
+    lines = output.splitlines()
+    outcomes: list[dict[str, str]] = []
+    for behavior in HIDDEN_BEHAVIORS:
+        markers = [
+            "PASS" for line in lines if line == f"PASS {behavior}"
+        ] + [
+            "FAIL" for line in lines if line.startswith(f"FAIL {behavior}:")
+        ]
+        if not markers:
+            outcome = "NOT_RUN"
+        elif len(markers) != 1:
+            outcome = "AMBIGUOUS"
+        else:
+            outcome = markers[0]
+        outcomes.append({"name": behavior, "outcome": outcome})
+    return outcomes
+
+
 def evaluate_candidate(
     candidate: Path,
     *,
@@ -434,10 +533,23 @@ def evaluate_candidate(
     backend: str,
     isolation: str,
     trusted: bool = False,
+    record_kind: str = "external-evaluation",
+    campaign_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if repeat <= 0 or timeout <= 0:
         raise ValueError("repeat and timeout must be positive integers")
-    validate_run_id(run_id) if not run_id.startswith("verify-") else None
+    validate_run_id(
+        run_id,
+        allow_verify=record_kind == "external-evaluation"
+        and trusted
+        and isolation == "fixture-verification",
+    )
+    if record_kind not in {"campaign", "external-evaluation"}:
+        raise ValueError(f"Unsupported result record kind: {record_kind}")
+    if record_kind == "campaign" and campaign_metadata is None:
+        raise ValueError("Campaign evaluations require campaign metadata")
+    if record_kind == "external-evaluation" and campaign_metadata is not None:
+        raise ValueError("External evaluations must not carry campaign metadata")
     if backend == "native" and not trusted:
         raise ValueError("Native evaluation is restricted to trusted fixture verification")
     started = time.monotonic()
@@ -446,14 +558,14 @@ def evaluate_candidate(
     manifest_ok, manifest_errors = verify_manifest()
     result: dict[str, Any] = {
         "schemaVersion": 1,
+        "recordKind": record_kind,
         "runId": run_id,
-        "fixtureId": "async-cache-v1",
+        "fixtureId": FIXTURE_ID,
         "fixtureManifestHash": sha256_file(MANIFEST) if MANIFEST.exists() else None,
         "candidateHash": candidate_hash(candidate) if not integrity else None,
         "promptHash": sha256_bytes(AGENT_PROMPT.encode("utf-8")),
         "model": model,
         "reasoningEffort": effort,
-        "fastMode": False,
         "machineId": machine,
         "platform": {
             "system": platform.system(),
@@ -471,24 +583,36 @@ def evaluate_candidate(
         "policyViolations": policy,
         "manifestErrors": manifest_errors,
         "tests": [],
+        "failureKind": None,
     }
+    if campaign_metadata is not None:
+        result.update(campaign_metadata)
+
+    def finish(status: str, failure_kind: str | None) -> dict[str, Any]:
+        result["status"] = status
+        result["failureKind"] = failure_kind
+        result["durationSeconds"] = round(time.monotonic() - started, 6)
+        validate_result(result)
+        return result
 
     if not manifest_ok:
-        result["status"] = "INFRA_FAILURE"
-        result["durationSeconds"] = round(time.monotonic() - started, 6)
-        return result
-    if integrity or policy:
-        result["status"] = "CANDIDATE_FAILURE"
-        result["durationSeconds"] = round(time.monotonic() - started, 6)
-        return result
+        return finish("INFRA_FAILURE", "fixture-manifest")
+    if integrity:
+        return finish("CANDIDATE_FAILURE", "integrity")
+    if policy:
+        return finish("CANDIDATE_FAILURE", "policy")
 
     with tempfile.TemporaryDirectory(prefix="codex-bench-eval-") as temp_name:
         root = Path(temp_name)
         workspace = root / "candidate-build"
-        shutil.copytree(candidate, workspace, ignore=shutil.ignore_patterns("bin", "obj", ".git"))
+        shutil.copytree(candidate, workspace, ignore=copy_ignore)
         shutil.copy2(ROOT / "global.json", workspace / "global.json")
         shutil.copy2(ROOT / "Directory.Build.props", workspace / "Directory.Build.props")
+        nuget_config = ROOT / "NuGet.config"
+        if nuget_config.exists():
+            shutil.copy2(nuget_config, workspace / nuget_config.name)
         status = "PASS"
+        failure_kind: str | None = None
         public_runtime = workspace / "public-published"
         public_build_command = [
             "dotnet", "publish", "Cache.PublicTests/Cache.PublicTests.csproj",
@@ -496,13 +620,9 @@ def evaluate_candidate(
         ]
         execution = run_with_timeout_confirmation(public_build_command, workspace, timeout, backend)
         result["tests"].append({"name": "public-build", **execution})
-        attempt = last_attempt(execution)
-        if attempt["launcherFailure"] or execution["hadTimeout"]:
-            status = "INDETERMINATE_TIMEOUT" if execution["confirmedTimeout"] else "INFRA_FAILURE"
-        elif attempt["outputLimitExceeded"]:
-            status = "CANDIDATE_FAILURE"
-        elif attempt["exitCode"] != 0:
-            status = "CANDIDATE_FAILURE"
+        failure = execution_failure(execution, candidate_execution=False)
+        if failure:
+            status, failure_kind = failure
 
         if status == "PASS":
             public_command = ["dotnet", "Cache.PublicTests.dll"]
@@ -510,18 +630,16 @@ def evaluate_candidate(
                 public_command, public_runtime, timeout, backend, readonly=backend == "docker"
             )
             result["tests"].append({"name": "public", **execution})
-            attempt = last_attempt(execution)
-            if attempt["launcherFailure"] or execution["hadTimeout"]:
-                status = "INDETERMINATE_TIMEOUT" if execution["confirmedTimeout"] else "INFRA_FAILURE"
-            elif attempt["outputLimitExceeded"] or attempt["exitCode"] != 0:
-                status = "CANDIDATE_FAILURE"
-            elif attempt["stdout"].count(PUBLIC_PASS_MARKER) != 1:
-                status = "CANDIDATE_FAILURE"
+            failure = execution_failure(execution, candidate_execution=True)
+            if failure:
+                status, failure_kind = failure
+            elif last_attempt(execution)["stdout"].count(PUBLIC_PASS_MARKER) != 1:
+                status, failure_kind = "CANDIDATE_FAILURE", "test-marker"
 
         runtime = root / "hidden-build" / "published"
         if status == "PASS":
             hidden_build = root / "hidden-build"
-            shutil.copytree(HIDDEN, hidden_build / "Cache.HiddenTests")
+            shutil.copytree(HIDDEN, hidden_build / "Cache.HiddenTests", ignore=copy_ignore)
             candidate_binary = hidden_build / "Candidate"
             candidate_binary.mkdir(parents=True)
             built_core = workspace / "Cache.Core" / "bin" / "Release" / "net10.0"
@@ -530,6 +648,8 @@ def evaluate_candidate(
                     shutil.copy2(path, candidate_binary / path.name)
             shutil.copy2(ROOT / "global.json", hidden_build / "global.json")
             shutil.copy2(ROOT / "Directory.Build.props", hidden_build / "Directory.Build.props")
+            if nuget_config.exists():
+                shutil.copy2(nuget_config, hidden_build / nuget_config.name)
             publish_command = [
                 "dotnet", "publish", "Cache.HiddenTests/Cache.HiddenTests.csproj",
                 "--configuration", "Release",
@@ -538,13 +658,9 @@ def evaluate_candidate(
             ]
             execution = run_with_timeout_confirmation(publish_command, hidden_build, timeout, backend)
             result["tests"].append({"name": "hidden-build", **execution})
-            attempt = last_attempt(execution)
-            if attempt["launcherFailure"] or execution["hadTimeout"]:
-                status = "INDETERMINATE_TIMEOUT" if execution["confirmedTimeout"] else "INFRA_FAILURE"
-            elif attempt["outputLimitExceeded"]:
-                status = "CANDIDATE_FAILURE"
-            elif attempt["exitCode"] != 0:
-                status = "CANDIDATE_FAILURE"
+            failure = execution_failure(execution, candidate_execution=False)
+            if failure:
+                status, failure_kind = failure
 
         if status == "PASS":
             hidden_command = ["dotnet", "Cache.HiddenTests.dll"]
@@ -552,29 +668,52 @@ def evaluate_candidate(
                 execution = run_with_timeout_confirmation(
                     hidden_command, runtime, timeout, backend, readonly=backend == "docker"
                 )
-                result["tests"].append({"name": f"hidden-{index}", **execution})
-                attempt = last_attempt(execution)
-                if attempt["launcherFailure"] or execution["hadTimeout"]:
-                    status = "INDETERMINATE_TIMEOUT" if execution["confirmedTimeout"] else "INFRA_FAILURE"
+                result["tests"].append({
+                    "name": f"hidden-{index}",
+                    "behaviors": extract_behavior_outcomes(last_attempt(execution)["stdout"]),
+                    **execution,
+                })
+                failure = execution_failure(execution, candidate_execution=True)
+                if failure:
+                    status, failure_kind = failure
                     break
-                if attempt["outputLimitExceeded"]:
-                    status = "CANDIDATE_FAILURE"
+                if last_attempt(execution)["stdout"].count(HIDDEN_PASS_MARKER) != 1:
+                    status, failure_kind = "CANDIDATE_FAILURE", "test-marker"
                     break
-                if attempt["exitCode"] != 0:
-                    status = "CANDIDATE_FAILURE"
-                    break
-                if attempt["stdout"].count(HIDDEN_PASS_MARKER) != 1:
-                    status = "CANDIDATE_FAILURE"
-                    break
-        result["status"] = status
-
-    result["durationSeconds"] = round(time.monotonic() - started, 6)
-    return result
+    return finish(status, failure_kind)
 
 
-def save_json(path: Path, value: Any) -> None:
+def atomic_write(
+    path: Path, value: bytes, *, mode: int = 0o644, replace: bool = True
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        os.fchmod(descriptor, mode)
+        stream = os.fdopen(descriptor, "wb")
+        descriptor = -1
+        with stream:
+            stream.write(value)
+            stream.flush()
+            os.fsync(stream.fileno())
+        if replace:
+            os.replace(temporary, path)
+        else:
+            os.link(temporary, path)
+            temporary.unlink()
+    except BaseException:
+        if descriptor >= 0:
+            os.close(descriptor)
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def save_json(
+    path: Path, value: Any, *, private: bool = False, replace: bool = True
+) -> None:
+    encoded = (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    atomic_write(path, encoded, mode=0o600 if private else 0o644, replace=replace)
 
 
 def image_spec_hash(dockerfile: str) -> str:
@@ -642,10 +781,13 @@ def benchmark_auth_file(explicit: Path | None) -> Path:
             "A dedicated benchmark credential is required via --auth-file or CODEX_BENCH_AUTH_FILE; "
             "the persistent default Codex login is intentionally not used"
         )
-    path = configured.expanduser().resolve()
+    expanded = configured.expanduser()
+    if expanded.is_symlink():
+        raise ValueError("Benchmark auth path must be a regular, non-symlink file")
+    path = expanded.resolve()
     if not path.exists():
         raise FileNotFoundError(f"Benchmark auth file not found: {path}")
-    if not path.is_file() or path.is_symlink():
+    if not path.is_file():
         raise ValueError("Benchmark auth path must be a regular, non-symlink file")
     if os.name != "nt" and path.stat().st_mode & 0o077:
         raise PermissionError("Benchmark auth file must not be accessible by group or other users")
@@ -656,10 +798,10 @@ def generate_candidate(
     job: dict[str, Any], *, auth_path: Path | None, replace: bool = False
 ) -> Path:
     run_id = validate_run_id(job["runId"])
-    candidate = RUNS / "workspaces" / run_id
-    ensure_under(candidate, RUNS / "workspaces")
-    materialize(candidate, replace=replace)
+    resolved_auth = benchmark_auth_file(auth_path)
     ensure_image(GENERATOR_IMAGE, "docker/generator.Dockerfile")
+    candidate = ensure_strict_descendant(RUNS / "workspaces" / run_id, RUNS / "workspaces")
+    materialize(candidate, replace=replace)
     log_dir = RUNS / "generations"
     log_dir.mkdir(parents=True, exist_ok=True)
     container_name = f"codex-bench-gen-{run_id}"
@@ -667,10 +809,11 @@ def generate_candidate(
         "docker", "run", "--rm", "--interactive", "--name", container_name,
         "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
         "--pids-limit", "512", "--memory", "2g", "--cpus", "4",
-        "--tmpfs", "/tmp:rw,noexec,nosuid,size=256m",
-        "--tmpfs", "/codex-home:rw,noexec,nosuid,size=32m",
+        *docker_identity_arguments(),
+        "--tmpfs", docker_tmpfs("/tmp", "rw,noexec,nosuid,size=256m"),
+        "--tmpfs", docker_tmpfs("/codex-home", "rw,noexec,nosuid,size=32m"),
         "--env", "CODEX_HOME=/codex-home",
-        "--mount", f"type=bind,src={benchmark_auth_file(auth_path)},dst=/codex-home/auth.json,readonly",
+        "--mount", f"type=bind,src={resolved_auth},dst=/codex-home/auth.json,readonly",
         "--mount", f"type=bind,src={candidate.resolve()},dst=/workspace",
         "--workdir", "/workspace",
         GENERATOR_IMAGE,
@@ -694,28 +837,83 @@ def generate_candidate(
         input_bytes=AGENT_PROMPT.encode("utf-8"),
         timeout_callback=stop_container,
     )
-    if completed["timedOut"]:
-        raise RuntimeError(f"Agent timed out for run {run_id}")
-
-    log_path = log_dir / f"{run_id}.jsonl"
-    log_path.write_text(completed["stdout"], encoding="utf-8")
-    log_path.chmod(0o600)
+    if completed["exitCode"] == 125:
+        completed["launcherFailure"] = True
+    log_path = run_artifact_path(log_dir, run_id, ".jsonl")
+    atomic_write(log_path, completed["stdout"].encode("utf-8"), mode=0o600)
     metadata = {
         "runId": run_id,
         "exitCode": completed["exitCode"],
         "durationSeconds": completed["durationSeconds"],
         "stderr": completed["stderr"],
+        "timedOut": completed["timedOut"],
+        "launcherFailure": completed["launcherFailure"],
         "outputLimitExceeded": completed["outputLimitExceeded"],
         "promptHash": sha256_bytes(AGENT_PROMPT.encode("utf-8")),
         "generatorImage": docker_image_info(GENERATOR_IMAGE),
         "isolation": "container-strong",
     }
-    metadata_path = log_dir / f"{run_id}.meta.json"
-    save_json(metadata_path, metadata)
-    metadata_path.chmod(0o600)
-    if completed["exitCode"] != 0 or completed["outputLimitExceeded"]:
-        raise RuntimeError(f"Agent failed for run {run_id}; see generation metadata")
+    metadata_path = run_artifact_path(log_dir, run_id, ".meta.json")
+    save_json(metadata_path, metadata, private=True)
     return candidate
+
+
+def generation_failure_kind(metadata: dict[str, Any]) -> tuple[str, str] | None:
+    if metadata.get("launcherFailure"):
+        return "INFRA_FAILURE", "generation-launcher"
+    if metadata.get("timedOut"):
+        return "CANDIDATE_FAILURE", "generation-timeout"
+    if metadata.get("outputLimitExceeded"):
+        return "CANDIDATE_FAILURE", "generation-output-limit"
+    if metadata.get("exitCode") != 0:
+        return "CANDIDATE_FAILURE", "generation-exit"
+    return None
+
+
+def campaign_generation_failure_result(
+    candidate: Path,
+    job: dict[str, Any],
+    *,
+    backend: str,
+    repeat: int,
+    campaign_metadata: dict[str, Any],
+    status: str,
+    failure_kind: str,
+) -> dict[str, Any]:
+    report = {
+        "schemaVersion": 1,
+        "recordKind": "campaign",
+        "runId": job["runId"],
+        "fixtureId": FIXTURE_ID,
+        "fixtureManifestHash": sha256_file(MANIFEST),
+        "candidateHash": candidate_hash(candidate),
+        "promptHash": sha256_bytes(AGENT_PROMPT.encode("utf-8")),
+        "model": job["model"],
+        "reasoningEffort": job["reasoningEffort"],
+        "machineId": job["machineId"],
+        "platform": {
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+            "python": platform.python_version(),
+        },
+        "provenance": repository_provenance(),
+        "backend": backend,
+        "evaluatorImage": docker_image_info(EVALUATOR_IMAGE) if backend == "docker" else None,
+        "generatorImage": campaign_metadata["generatorImage"],
+        "isolation": "container-strong",
+        "repeatCount": repeat,
+        "integrityViolations": [],
+        "policyViolations": [],
+        "manifestErrors": [],
+        "tests": [],
+        "status": status,
+        "failureKind": failure_kind,
+        "durationSeconds": campaign_metadata["generationDurationSeconds"],
+        **campaign_metadata,
+    }
+    validate_result(report)
+    return report
 
 
 def load_matrix() -> list[dict[str, str]]:
@@ -763,7 +961,7 @@ def make_plan(trials: int, seed: str, machines: list[str], id_key: bytes) -> dic
         for row_index in row_order:
             for machine in machine_order:
                 for position, config in enumerate(rows[row_index]):
-                    message = f"{seed}:async-cache-v1:{trial}:{config['id']}".encode("utf-8")
+                    message = f"{seed}:{FIXTURE_ID}:{trial}:{config['id']}".encode("utf-8")
                     opaque = hmac.new(id_key, message, hashlib.sha256).hexdigest()[:16]
                     jobs.append({
                         "runId": opaque,
@@ -773,14 +971,31 @@ def make_plan(trials: int, seed: str, machines: list[str], id_key: bytes) -> dic
                         **config,
                     })
                 trial += 1
-    return {
+    plan = {
         "schemaVersion": 1,
-        "fixtureId": "async-cache-v1",
+        "fixtureId": FIXTURE_ID,
         "seed": seed,
         "trials": trials,
         "machines": machines,
         "jobs": jobs,
     }
+    validate_plan(plan)
+    return plan
+
+
+def validate_plan(plan: dict[str, Any]) -> None:
+    if plan.get("schemaVersion") != 1 or plan.get("fixtureId") != FIXTURE_ID:
+        raise ValueError("Unsupported plan identity")
+    jobs = plan.get("jobs")
+    if not isinstance(jobs, list):
+        raise ValueError("Plan jobs must be a list")
+    run_ids: list[str] = []
+    for job in jobs:
+        if not isinstance(job, dict) or "runId" not in job:
+            raise ValueError("Invalid plan job")
+        run_ids.append(validate_run_id(job["runId"]))
+    if len(run_ids) != len(set(run_ids)):
+        raise ValueError("Plan contains duplicate run IDs")
 
 
 def wilson(successes: int, total: int) -> tuple[float, float]:
@@ -794,23 +1009,245 @@ def wilson(successes: int, total: int) -> tuple[float, float]:
     return centre - margin, centre + margin
 
 
+def required_samples_per_configuration(
+    baseline_rate: float,
+    target_rate: float,
+    *,
+    comparisons: int = 15,
+    familywise_alpha: float = 0.05,
+    power: float = 0.80,
+) -> int:
+    if not 0 < baseline_rate < 1 or not 0 < target_rate < 1 \
+            or baseline_rate == target_rate:
+        raise ValueError("Pass rates must be distinct values strictly between zero and one")
+    if comparisons <= 0 or not 0 < familywise_alpha < 1 or not 0 < power < 1:
+        raise ValueError("Comparisons, alpha, and power must be positive and well-formed")
+    adjusted_alpha = familywise_alpha / comparisons
+    normal = statistics.NormalDist()
+    z_alpha = normal.inv_cdf(1 - adjusted_alpha / 2)
+    z_power = normal.inv_cdf(power)
+    pooled = (baseline_rate + target_rate) / 2
+    numerator = (
+        z_alpha * math.sqrt(2 * pooled * (1 - pooled))
+        + z_power * math.sqrt(
+            baseline_rate * (1 - baseline_rate)
+            + target_rate * (1 - target_rate)
+        )
+    ) ** 2
+    return math.ceil(numerator / (target_rate - baseline_rate) ** 2)
+
+
+def load_result_schema() -> dict[str, Any]:
+    schema = json.loads(RESULT_SCHEMA.read_text(encoding="utf-8"))
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema" \
+            or schema.get("additionalProperties") is not False:
+        raise ValueError("Result schema must be strict JSON Schema draft 2020-12")
+    return schema
+
+
+def load_evidence_schema() -> dict[str, Any]:
+    schema = json.loads(EVIDENCE_SCHEMA.read_text(encoding="utf-8"))
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema" \
+            or schema.get("additionalProperties") is not False:
+        raise ValueError("Evidence schema must be strict JSON Schema draft 2020-12")
+    return schema
+
+
+def validate_schema_instance(
+    value: Any,
+    schema: dict[str, Any],
+    *,
+    root_schema: dict[str, Any] | None = None,
+    path: str = "$",
+) -> None:
+    root = root_schema or schema
+    if "$ref" in schema:
+        reference = schema["$ref"]
+        if not reference.startswith("#/"):
+            raise ValueError(f"Unsupported external schema reference at {path}: {reference}")
+        target: Any = root
+        for part in reference[2:].split("/"):
+            target = target[part.replace("~1", "/").replace("~0", "~")]
+        validate_schema_instance(value, target, root_schema=root, path=path)
+        return
+
+    def matches(candidate: dict[str, Any]) -> bool:
+        try:
+            validate_schema_instance(value, candidate, root_schema=root, path=path)
+            return True
+        except ValueError:
+            return False
+
+    if "allOf" in schema:
+        for candidate in schema["allOf"]:
+            validate_schema_instance(value, candidate, root_schema=root, path=path)
+    if "anyOf" in schema and not any(matches(candidate) for candidate in schema["anyOf"]):
+        raise ValueError(f"Schema anyOf did not match at {path}")
+    if "not" in schema and matches(schema["not"]):
+        raise ValueError(f"Schema forbidden shape matched at {path}")
+    if "if" in schema:
+        branch = schema.get("then") if matches(schema["if"]) else schema.get("else")
+        if branch is not None:
+            validate_schema_instance(value, branch, root_schema=root, path=path)
+
+    expected_types = schema.get("type")
+    if expected_types is not None:
+        names = [expected_types] if isinstance(expected_types, str) else expected_types
+
+        def has_type(name: str) -> bool:
+            return {
+                "null": value is None,
+                "object": isinstance(value, dict),
+                "array": isinstance(value, list),
+                "string": isinstance(value, str),
+                "boolean": isinstance(value, bool),
+                "integer": isinstance(value, int) and not isinstance(value, bool),
+                "number": isinstance(value, (int, float)) and not isinstance(value, bool),
+            }.get(name, False)
+
+        if not any(has_type(name) for name in names):
+            raise ValueError(f"Schema type mismatch at {path}: expected {names}")
+    if "const" in schema and value != schema["const"]:
+        raise ValueError(f"Schema const mismatch at {path}")
+    if "enum" in schema and value not in schema["enum"]:
+        raise ValueError(f"Schema enum mismatch at {path}: {value!r}")
+    if isinstance(value, str):
+        if "pattern" in schema and re.fullmatch(schema["pattern"], value) is None:
+            raise ValueError(f"Schema pattern mismatch at {path}")
+        if len(value) < schema.get("minLength", 0):
+            raise ValueError(f"Schema string is too short at {path}")
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        if not math.isfinite(value):
+            raise ValueError(f"Schema number is not finite at {path}")
+        if "minimum" in schema and value < schema["minimum"]:
+            raise ValueError(f"Schema number is below minimum at {path}")
+        if "maximum" in schema and value > schema["maximum"]:
+            raise ValueError(f"Schema number is above maximum at {path}")
+    if isinstance(value, list):
+        if len(value) < schema.get("minItems", 0) or len(value) > schema.get("maxItems", math.inf):
+            raise ValueError(f"Schema array length mismatch at {path}")
+        if schema.get("uniqueItems") and len({canonical_json(item) for item in value}) != len(value):
+            raise ValueError(f"Schema array items are not unique at {path}")
+        if "items" in schema:
+            for index, item in enumerate(value):
+                validate_schema_instance(
+                    item, schema["items"], root_schema=root, path=f"{path}[{index}]"
+                )
+    if isinstance(value, dict):
+        required = set(schema.get("required", []))
+        missing = sorted(required - set(value))
+        if missing:
+            raise ValueError(f"Schema required fields missing at {path}: {missing}")
+        properties = schema.get("properties", {})
+        for key, item in value.items():
+            if key in properties:
+                validate_schema_instance(
+                    item, properties[key], root_schema=root, path=f"{path}.{key}"
+                )
+            elif schema.get("additionalProperties") is False:
+                raise ValueError(f"Schema additional property at {path}: {key}")
+            elif isinstance(schema.get("additionalProperties"), dict):
+                validate_schema_instance(
+                    item, schema["additionalProperties"], root_schema=root,
+                    path=f"{path}.{key}",
+                )
+
+
 def validate_result(result: dict[str, Any]) -> None:
     required = {
-        "schemaVersion", "runId", "fixtureId", "fixtureManifestHash", "candidateHash",
+        "schemaVersion", "recordKind", "runId", "fixtureId", "fixtureManifestHash", "candidateHash",
         "promptHash", "model", "reasoningEffort", "machineId", "status", "tests",
-        "planHash", "trial", "orderPosition", "provenance", "generationDurationSeconds",
-        "repeatCount", "backend", "evaluatorImage", "generatorImage", "durationSeconds",
+        "failureKind", "provenance", "repeatCount", "backend", "evaluatorImage",
+        "generatorImage", "durationSeconds", "isolation", "integrityViolations",
+        "policyViolations", "manifestErrors", "platform",
     }
+    schema = load_result_schema()
+    schema_required = set(schema.get("required", []))
+    if schema_required != required:
+        raise ValueError(
+            "Result validator/schema required fields disagree: "
+            f"validatorOnly={sorted(required - schema_required)}, "
+            f"schemaOnly={sorted(schema_required - required)}"
+        )
+    validate_schema_instance(result, schema)
+    unexpected_fields = sorted(set(result) - set(schema.get("properties", {})))
+    if unexpected_fields:
+        raise ValueError(f"Result contains fields outside the schema: {unexpected_fields}")
     missing = sorted(required - set(result))
     if missing:
         raise ValueError(f"Result is missing required fields: {missing}")
-    validate_run_id(result["runId"])
-    if result["schemaVersion"] != 1 or result["fixtureId"] != "async-cache-v1":
+    if result["recordKind"] not in set(schema["properties"]["recordKind"]["enum"]):
+        raise ValueError(f"Invalid record kind: {result['recordKind']!r}")
+    if result["recordKind"] == "campaign":
+        campaign_required = {
+            "planHash", "trial", "orderPosition", "generationDurationSeconds",
+        }
+        campaign_missing = sorted(campaign_required - set(result))
+        if campaign_missing:
+            raise ValueError(f"Campaign result is missing required fields: {campaign_missing}")
+        if not re.fullmatch(r"[0-9a-f]{64}", result["planHash"]):
+            raise ValueError(f"Invalid plan hash for {result['runId']}")
+        if any(
+            not isinstance(result[field], int) or isinstance(result[field], bool) or result[field] < 0
+            for field in ("trial", "orderPosition")
+        ):
+            raise ValueError(f"Invalid campaign position for {result['runId']}")
+        if not isinstance(result["generationDurationSeconds"], (int, float)) \
+                or result["generationDurationSeconds"] < 0:
+            raise ValueError(f"Invalid generation duration for {result['runId']}")
+        if "queueAudit" in result:
+            queue_audit = result["queueAudit"]
+            if not isinstance(queue_audit, dict) or set(queue_audit) != {"continuedAfterUnresolvedRunIds"}:
+                raise ValueError(f"Invalid queue audit for {result['runId']}")
+            continued = queue_audit["continuedAfterUnresolvedRunIds"]
+            if not isinstance(continued, list) or not continued:
+                raise ValueError(f"Invalid queue audit for {result['runId']}")
+            for predecessor_id in continued:
+                validate_run_id(predecessor_id)
+        if "replacementAudit" in result:
+            replacement = result["replacementAudit"]
+            if not isinstance(replacement, dict) or set(replacement) != {
+                "previousResultHash", "previousStatus", "reason", "archivedResult",
+            }:
+                raise ValueError(f"Invalid replacement audit for {result['runId']}")
+            if not re.fullmatch(r"[0-9a-f]{64}", replacement["previousResultHash"]):
+                raise ValueError(f"Invalid replacement audit hash for {result['runId']}")
+            if replacement["previousStatus"] != "INFRA_FAILURE":
+                raise ValueError(f"Invalid replacement audit status for {result['runId']}")
+            if not isinstance(replacement["reason"], str) or not replacement["reason"].strip():
+                raise ValueError(f"Invalid replacement audit reason for {result['runId']}")
+            expected_archive = (
+                f"runs/replacements/{result['runId']}/{replacement['previousResultHash']}.json"
+            )
+            if replacement["archivedResult"] != expected_archive:
+                raise ValueError(f"Invalid replacement archive for {result['runId']}")
+    else:
+        campaign_only = {
+            "planHash", "trial", "orderPosition", "generationDurationSeconds",
+            "queueAudit", "replacementAudit",
+        }
+        unexpected = sorted(campaign_only & set(result))
+        if unexpected:
+            raise ValueError(f"External result contains campaign fields: {unexpected}")
+    validate_run_id(
+        result["runId"],
+        allow_verify=result["recordKind"] == "external-evaluation"
+        and result.get("isolation") == "fixture-verification",
+    )
+    if result["schemaVersion"] != 1 or result["fixtureId"] != FIXTURE_ID:
         raise ValueError(f"Unsupported result identity for {result['runId']}")
-    if result["status"] not in {
-        "PASS", "CANDIDATE_FAILURE", "INFRA_FAILURE", "INDETERMINATE_TIMEOUT"
-    }:
+    if result["status"] not in set(schema["properties"]["status"]["enum"]):
         raise ValueError(f"Invalid status for {result['runId']}: {result['status']}")
+    if result["failureKind"] not in set(schema["properties"]["failureKind"]["enum"]):
+        raise ValueError(f"Invalid failureKind for {result['runId']}: {result['failureKind']}")
+    if result["status"] == "PASS" and result["failureKind"] is not None:
+        raise ValueError(f"PASS result has failureKind for {result['runId']}")
+    if result["status"] != "PASS" and not isinstance(result["failureKind"], str):
+        raise ValueError(f"Failed result lacks failureKind for {result['runId']}")
+    if result["status"] == "CANDIDATE_FAILURE" and result["failureKind"] not in CANDIDATE_FAILURE_KINDS:
+        raise ValueError(f"Candidate failureKind has incorrect status for {result['runId']}")
+    if result["status"] == "INFRA_FAILURE" and result["failureKind"] not in INFRA_FAILURE_KINDS:
+        raise ValueError(f"Infrastructure failureKind has incorrect status for {result['runId']}")
     if not isinstance(result["tests"], list):
         raise ValueError(f"Invalid tests collection for {result['runId']}")
     if result["status"] == "PASS":
@@ -829,6 +1266,9 @@ def validate_result(result: dict[str, Any]) -> None:
             "name", "attempts", "hadTimeout", "confirmedTimeout"
         }.issubset(test):
             raise ValueError(f"Invalid test evidence for {result['runId']}")
+        test_schema = schema["$defs"]["testEvidence"]
+        if set(test) - set(test_schema["properties"]):
+            raise ValueError(f"Test evidence contains fields outside the schema for {result['runId']}")
         if not isinstance(test["attempts"], list) or not 1 <= len(test["attempts"]) <= 2:
             raise ValueError(f"Invalid attempts for {result['runId']}")
         for attempt in test["attempts"]:
@@ -836,8 +1276,26 @@ def validate_result(result: dict[str, Any]) -> None:
                 "command", "exitCode", "stdout", "stderr", "timedOut",
                 "launcherFailure", "outputLimitExceeded", "durationSeconds",
             }
-            if not isinstance(attempt, dict) or not required_attempt.issubset(attempt):
+            attempt_schema = schema["$defs"]["attempt"]
+            if not isinstance(attempt, dict) or set(attempt) != required_attempt \
+                    or set(attempt) - set(attempt_schema["properties"]):
                 raise ValueError(f"Invalid attempt evidence for {result['runId']}")
+        if bool(test["hadTimeout"]) != any(attempt["timedOut"] for attempt in test["attempts"]):
+            raise ValueError(f"Inconsistent timeout evidence for {result['runId']}")
+        if bool(test["confirmedTimeout"]) != bool(test["attempts"][-1]["timedOut"]):
+            raise ValueError(f"Inconsistent confirmed timeout for {result['runId']}")
+        if test["name"].startswith("hidden-") and test["name"] != "hidden-build":
+            behaviors = test.get("behaviors")
+            if not isinstance(behaviors, list):
+                raise ValueError(f"Hidden test lacks behavior outcomes for {result['runId']}")
+            names = [behavior.get("name") for behavior in behaviors if isinstance(behavior, dict)]
+            if names != list(HIDDEN_BEHAVIORS):
+                raise ValueError(f"Invalid behavior outcomes for {result['runId']}")
+            for behavior in behaviors:
+                if set(behavior) != {"name", "outcome"} \
+                        or behavior["name"] not in HIDDEN_BEHAVIORS \
+                        or behavior["outcome"] not in {"PASS", "FAIL", "NOT_RUN", "AMBIGUOUS"}:
+                    raise ValueError(f"Invalid behavior outcome for {result['runId']}")
         if result["status"] == "PASS":
             final_attempt = test["attempts"][-1]
             if (
@@ -853,6 +1311,10 @@ def validate_result(result: dict[str, Any]) -> None:
             if test["name"].startswith("hidden-") and test["name"] != "hidden-build":
                 if final_attempt["stdout"].count(HIDDEN_PASS_MARKER) != 1:
                     raise ValueError(f"PASS result lacks hidden completion marker for {result['runId']}")
+                if test["behaviors"] != [
+                    {"name": behavior, "outcome": "PASS"} for behavior in HIDDEN_BEHAVIORS
+                ]:
+                    raise ValueError(f"PASS result lacks complete behavior evidence for {result['runId']}")
 
 
 def quartiles(values: list[float]) -> list[float] | None:
@@ -868,14 +1330,16 @@ def aggregate(
     paths: list[Path], plan_path: Path, *, allow_incomplete: bool = False
 ) -> dict[str, Any]:
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    validate_plan(plan)
     plan_hash = sha256_file(plan_path)
     planned = {job["runId"]: job for job in plan["jobs"]}
-    groups: dict[str, list[dict[str, Any]]] = {}
     seen: set[str] = set()
-    all_results: list[dict[str, Any]] = []
+    results_by_id: dict[str, dict[str, Any]] = {}
     for path in paths:
         result = json.loads(path.read_text(encoding="utf-8"))
         validate_result(result)
+        if result["recordKind"] != "campaign":
+            raise ValueError(f"Aggregation rejects {result['recordKind']} record {result['runId']}")
         run_id = result["runId"]
         if run_id in seen:
             raise ValueError(f"Duplicate run ID: {run_id}")
@@ -895,15 +1359,12 @@ def aggregate(
             raise ValueError(f"Fixture mismatch for {run_id}")
         if result["promptHash"] != sha256_bytes(AGENT_PROMPT.encode("utf-8")):
             raise ValueError(f"Prompt mismatch for {run_id}")
-        key = f"{result['model']}:{result['reasoningEffort']}"
-        groups.setdefault(key, []).append(result)
-        all_results.append(result)
+        results_by_id[run_id] = result
 
     missing_runs = sorted(set(planned) - seen)
     unresolved = sorted(
-        result["runId"]
-        for result in all_results
-        if result["status"] in {"INFRA_FAILURE", "INDETERMINATE_TIMEOUT"}
+        result["runId"] for result in results_by_id.values()
+        if result["status"] == "INFRA_FAILURE"
     )
     if not allow_incomplete and (missing_runs or unresolved):
         raise ValueError(
@@ -912,7 +1373,7 @@ def aggregate(
         )
 
     candidate_hash_counts: dict[str, int] = {}
-    for result in all_results:
+    for result in results_by_id.values():
         candidate_hash_counts[result["candidateHash"]] = candidate_hash_counts.get(result["candidateHash"], 0) + 1
     duplicates = {
         candidate_hash: count
@@ -929,38 +1390,55 @@ def aggregate(
         "duplicateCandidateHashes": duplicates,
         "groups": {},
     }
-    for key, results in sorted(groups.items()):
-        eligible = [
-            result for result in results
-            if result["status"] not in {"INFRA_FAILURE", "INDETERMINATE_TIMEOUT"}
+    group_keys = sorted({f"{job['model']}:{job['reasoningEffort']}" for job in plan["jobs"]})
+    for key in group_keys:
+        planned_jobs = [
+            job for job in plan["jobs"]
+            if f"{job['model']}:{job['reasoningEffort']}" == key
         ]
-        successes = sum(result["status"] == "PASS" for result in eligible)
-        low, high = wilson(successes, len(eligible))
-        durations = [result["durationSeconds"] for result in eligible]
-        generation_durations = [result["generationDurationSeconds"] for result in eligible]
+        results = [results_by_id[job["runId"]] for job in planned_jobs if job["runId"] in results_by_id]
+        resolved = [result for result in results if result["status"] != "INFRA_FAILURE"]
+        successes = sum(result["status"] == "PASS" for result in results)
+        denominator = len(planned_jobs)
+        low, high = wilson(successes, denominator)
+        durations = [result["durationSeconds"] for result in resolved]
+        generation_durations = [result["generationDurationSeconds"] for result in resolved]
+        machines = sorted({job["machineId"] for job in planned_jobs})
         summary["groups"][key] = {
+            "plannedRuns": denominator,
+            "observedRuns": len(results),
             "totalRuns": len(results),
-            "eligibleRuns": len(eligible),
+            "eligibleRuns": len(resolved),
             "passes": successes,
-            "passRate": successes / len(eligible) if eligible else None,
-            "wilson95": [low, high] if eligible else None,
+            "passRate": successes / denominator if denominator else None,
+            "wilson95": [low, high] if denominator else None,
+            "observedResolvedPassRate": successes / len(resolved) if resolved else None,
             "medianEvaluationSeconds": statistics.median(durations) if durations else None,
             "evaluationIqrSeconds": quartiles(durations),
             "medianGenerationSeconds": statistics.median(generation_durations) if generation_durations else None,
             "generationIqrSeconds": quartiles(generation_durations),
             "byMachine": {
                 machine: {
-                    "runs": sum(result["machineId"] == machine for result in eligible),
+                    "runs": sum(job["machineId"] == machine for job in planned_jobs),
+                    "observed": sum(result["machineId"] == machine for result in results),
+                    "resolved": sum(result["machineId"] == machine for result in resolved),
                     "passes": sum(
                         result["machineId"] == machine and result["status"] == "PASS"
-                        for result in eligible
+                        for result in results
                     ),
                 }
-                for machine in sorted({result["machineId"] for result in eligible})
+                for machine in machines
             },
             "statuses": {
                 status: sum(result["status"] == status for result in results)
                 for status in sorted({result["status"] for result in results})
+            },
+            "failureKinds": {
+                kind: sum(result["failureKind"] == kind for result in results)
+                for kind in sorted({
+                    result["failureKind"] for result in results
+                    if result["failureKind"] is not None
+                })
             },
         }
     return summary
@@ -977,8 +1455,7 @@ def verify_fixture(repeat: int, timeout: int, backend: str) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="codex-bench-verify-") as temp_name:
         for name, source, expected in cases:
             candidate = Path(temp_name) / name
-            shutil.copytree(STARTER, candidate)
-            shutil.copy2(FIXTURE / "TASK.md", candidate / "TASK.md")
+            materialize(candidate)
             shutil.copy2(source, candidate / "Cache.Core" / "AsyncExpiringCache.cs")
             result = evaluate_candidate(
                 candidate,
@@ -995,6 +1472,209 @@ def verify_fixture(repeat: int, timeout: int, backend: str) -> dict[str, Any]:
             outcomes.append({"case": name, "expected": expected, "actual": result["status"], "result": result})
     passed = all(outcome["expected"] == outcome["actual"] for outcome in outcomes)
     return {"schemaVersion": 1, "passed": passed, "backend": backend, "repeat": repeat, "outcomes": outcomes}
+
+
+def sanitized_result_for_publish(result: dict[str, Any]) -> dict[str, Any]:
+    published = {
+        key: result[key]
+        for key in (
+            "runId", "candidateHash", "status", "failureKind", "durationSeconds",
+            "generationDurationSeconds", "repeatCount", "backend", "isolation",
+            "integrityViolations", "policyViolations", "manifestErrors", "platform",
+            "evaluatorImage", "generatorImage",
+        )
+    }
+    published_tests: list[dict[str, Any]] = []
+    for test in result["tests"]:
+        published_test = {key: value for key, value in test.items() if key != "attempts"}
+        published_attempts: list[dict[str, Any]] = []
+        for attempt in test["attempts"]:
+            sanitized = {
+                key: value for key, value in attempt.items() if key not in {"stdout", "stderr"}
+            }
+            for stream_name in ("stdout", "stderr"):
+                encoded = attempt[stream_name].encode("utf-8")
+                sanitized[f"{stream_name}Bytes"] = len(encoded)
+                sanitized[f"{stream_name}Sha256"] = sha256_bytes(encoded)
+            published_attempts.append(sanitized)
+        published_test["attempts"] = published_attempts
+        published_tests.append(published_test)
+    published["tests"] = published_tests
+    return published
+
+
+def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
+    validate_schema_instance(bundle, load_evidence_schema())
+    protocol = bundle["protocol"]
+    plan = protocol["plan"]
+    validate_plan(plan)
+    fixture_manifest = protocol["fixtureManifest"]
+    if not (
+        bundle["fixtureId"] == plan["fixtureId"]
+        == fixture_manifest["fixtureId"] == FIXTURE_ID
+    ):
+        raise ValueError("Evidence fixture identities disagree")
+    expected_mapping = [
+        {
+            key: job[key]
+            for key in (
+                "runId", "model", "reasoningEffort", "machineId", "trial", "orderPosition"
+            )
+        }
+        for job in plan["jobs"]
+    ]
+    if bundle["mapping"] != expected_mapping:
+        raise ValueError("Evidence mapping does not match the embedded plan")
+    planned_ids = {job["runId"] for job in plan["jobs"]}
+    outcome_ids = [outcome["runId"] for outcome in bundle["outcomes"]]
+    if len(outcome_ids) != len(set(outcome_ids)) or set(outcome_ids) != planned_ids:
+        raise ValueError("Evidence outcomes do not form the planned cohort")
+    if set(bundle["audit"]["sourceResultHashes"]) != planned_ids:
+        raise ValueError("Evidence source-result hashes do not cover the planned cohort")
+    if bundle["aggregate"]["planHash"] != bundle["audit"]["planHash"]:
+        raise ValueError("Evidence aggregate and audit plan hashes disagree")
+    expected_aggregate_hash = sha256_bytes(
+        canonical_json(bundle["aggregate"]).encode("utf-8")
+    )
+    if bundle["audit"]["aggregateHash"] != expected_aggregate_hash:
+        raise ValueError("Evidence aggregate hash is invalid")
+    outcomes_by_id = {outcome["runId"]: outcome for outcome in bundle["outcomes"]}
+    for outcome in outcomes_by_id.values():
+        if (outcome["status"] == "PASS") != (outcome["failureKind"] is None):
+            raise ValueError(f"Evidence status/failureKind mismatch for {outcome['runId']}")
+    hash_counts: dict[str, int] = {}
+    for outcome in outcomes_by_id.values():
+        candidate_hash_value = outcome["candidateHash"]
+        hash_counts[candidate_hash_value] = hash_counts.get(candidate_hash_value, 0) + 1
+    expected_summary: dict[str, Any] = {
+        "schemaVersion": 1,
+        "planHash": bundle["audit"]["planHash"],
+        "complete": True,
+        "missingRunIds": [],
+        "unresolvedRunIds": [],
+        "duplicateCandidateHashes": {
+            candidate_hash_value: count
+            for candidate_hash_value, count in hash_counts.items()
+            if candidate_hash_value is not None and count > 1
+        },
+        "groups": {},
+    }
+    group_keys = sorted({
+        f"{job['model']}:{job['reasoningEffort']}" for job in plan["jobs"]
+    })
+    for key in group_keys:
+        planned_jobs = [
+            job for job in plan["jobs"]
+            if f"{job['model']}:{job['reasoningEffort']}" == key
+        ]
+        outcomes = [outcomes_by_id[job["runId"]] for job in planned_jobs]
+        passes = sum(outcome["status"] == "PASS" for outcome in outcomes)
+        denominator = len(planned_jobs)
+        low, high = wilson(passes, denominator)
+        evaluation_durations = [outcome["durationSeconds"] for outcome in outcomes]
+        generation_durations = [outcome["generationDurationSeconds"] for outcome in outcomes]
+        machines = sorted({job["machineId"] for job in planned_jobs})
+        expected_summary["groups"][key] = {
+            "plannedRuns": denominator,
+            "observedRuns": denominator,
+            "totalRuns": denominator,
+            "eligibleRuns": denominator,
+            "passes": passes,
+            "passRate": passes / denominator,
+            "wilson95": [low, high],
+            "observedResolvedPassRate": passes / denominator,
+            "medianEvaluationSeconds": statistics.median(evaluation_durations),
+            "evaluationIqrSeconds": quartiles(evaluation_durations),
+            "medianGenerationSeconds": statistics.median(generation_durations),
+            "generationIqrSeconds": quartiles(generation_durations),
+            "byMachine": {
+                machine: {
+                    "runs": sum(job["machineId"] == machine for job in planned_jobs),
+                    "observed": sum(
+                        job["machineId"] == machine for job in planned_jobs
+                    ),
+                    "resolved": sum(
+                        job["machineId"] == machine for job in planned_jobs
+                    ),
+                    "passes": sum(
+                        job["machineId"] == machine
+                        and outcomes_by_id[job["runId"]]["status"] == "PASS"
+                        for job in planned_jobs
+                    ),
+                }
+                for machine in machines
+            },
+            "statuses": {
+                status: sum(outcome["status"] == status for outcome in outcomes)
+                for status in sorted({outcome["status"] for outcome in outcomes})
+            },
+            "failureKinds": {
+                kind: sum(outcome["failureKind"] == kind for outcome in outcomes)
+                for kind in sorted({
+                    outcome["failureKind"] for outcome in outcomes
+                    if outcome["failureKind"] is not None
+                })
+            },
+        }
+    if bundle["aggregate"] != expected_summary:
+        raise ValueError("Evidence aggregate does not match published outcomes")
+
+
+def publish_evidence_bundle(paths: list[Path], plan_path: Path) -> dict[str, Any]:
+    summary = aggregate(paths, plan_path, allow_incomplete=False)
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    validate_plan(plan)
+    results: list[dict[str, Any]] = []
+    source_hashes: dict[str, str] = {}
+    audit_records: list[dict[str, Any]] = []
+    for path in paths:
+        result = json.loads(path.read_text(encoding="utf-8"))
+        validate_result(result)
+        if result["recordKind"] != "campaign":
+            raise ValueError(f"Publishing rejects {result['recordKind']} record {result['runId']}")
+        results.append(sanitized_result_for_publish(result))
+        source_hashes[result["runId"]] = sha256_file(path)
+        audit = {
+            key: result[key]
+            for key in ("queueAudit", "replacementAudit")
+            if key in result
+        }
+        if audit:
+            audit_records.append({"runId": result["runId"], **audit})
+    results.sort(key=lambda result: result["runId"])
+    mapping = [
+        {
+            key: job[key]
+            for key in (
+                "runId", "model", "reasoningEffort", "machineId", "trial", "orderPosition"
+            )
+        }
+        for job in plan["jobs"]
+    ]
+    bundle = {
+        "schemaVersion": 1,
+        "recordKind": "published-evidence",
+        "fixtureId": FIXTURE_ID,
+        "protocol": {
+            "plan": plan,
+            "fixtureManifest": json.loads(MANIFEST.read_text(encoding="utf-8")),
+            "matrix": load_matrix(),
+        },
+        "outcomes": results,
+        "aggregate": summary,
+        "mapping": mapping,
+        "provenance": repository_provenance(),
+        "audit": {
+            "planHash": sha256_file(plan_path),
+            "fixtureManifestHash": sha256_file(MANIFEST),
+            "promptHash": sha256_bytes(AGENT_PROMPT.encode("utf-8")),
+            "sourceResultHashes": dict(sorted(source_hashes.items())),
+            "aggregateHash": sha256_bytes(canonical_json(summary).encode("utf-8")),
+            "records": audit_records,
+        },
+    }
+    validate_evidence_bundle(bundle)
+    return bundle
 
 
 def positive_int(value: str) -> int:
@@ -1049,6 +1729,8 @@ def parse_args() -> argparse.Namespace:
     job.add_argument("--timeout", type=positive_int, default=30)
     job.add_argument("--backend", choices=["docker"], default="docker")
     job.add_argument("--replace", action="store_true")
+    job.add_argument("--replacement-reason", default="operator-requested")
+    job.add_argument("--continue-after-unresolved", action="store_true")
     job.add_argument("--auth-file", type=Path)
     job.add_argument("--machine-id", default=platform.node() or "local")
 
@@ -1057,6 +1739,18 @@ def parse_args() -> argparse.Namespace:
     aggregate_parser.add_argument("--plan", type=Path, default=RUNS / "plan.json")
     aggregate_parser.add_argument("--allow-incomplete", action="store_true")
     aggregate_parser.add_argument("--output", type=Path, default=RUNS / "summary.json")
+
+    publish_parser = subparsers.add_parser("publish")
+    publish_parser.add_argument("paths", nargs="+", type=Path)
+    publish_parser.add_argument("--plan", type=Path, default=RUNS / "plan.json")
+    publish_parser.add_argument("--output", type=Path, default=RUNS / "evidence.json")
+
+    power_parser = subparsers.add_parser("power")
+    power_parser.add_argument("--baseline-rate", type=float, required=True)
+    power_parser.add_argument("--target-rate", type=float, required=True)
+    power_parser.add_argument("--comparisons", type=positive_int, default=15)
+    power_parser.add_argument("--familywise-alpha", type=float, default=0.05)
+    power_parser.add_argument("--power", type=float, default=0.80)
     return parser.parse_args()
 
 
@@ -1085,11 +1779,19 @@ def main() -> int:
 
     if args.command == "verify":
         report = verify_fixture(args.repeat, args.timeout, args.backend)
-        save_json(args.output, report)
+        save_json(args.output, report, private=True)
         print(json.dumps({"passed": report["passed"], "output": str(args.output)}, indent=2))
         return 0 if report["passed"] else 1
 
     if args.command == "evaluate":
+        validate_run_id(args.run_id)
+        output = args.output or run_artifact_path(RUNS / "external-results", args.run_id, ".json")
+        campaign_results = (RUNS / "results").resolve()
+        resolved_output = Path(os.path.abspath(output)).resolve()
+        if resolved_output == campaign_results or campaign_results in resolved_output.parents:
+            raise ValueError("External evaluations cannot write into the campaign results directory")
+        if output.exists():
+            raise FileExistsError(f"External evaluation result already exists: {output}")
         if args.backend == "docker":
             ensure_image(EVALUATOR_IMAGE, "docker/evaluator.Dockerfile")
         report = evaluate_candidate(
@@ -1097,8 +1799,8 @@ def main() -> int:
             machine=args.machine, repeat=args.repeat, timeout=args.timeout, backend=args.backend,
             isolation=args.isolation,
         )
-        output = args.output or RUNS / "results" / f"{args.run_id}.json"
-        save_json(output, report)
+        validate_result(report)
+        save_json(output, report, private=True, replace=False)
         print(json.dumps({"status": report["status"], "output": str(output)}, indent=2))
         return 0 if report["status"] == "PASS" else 1
 
@@ -1107,8 +1809,7 @@ def main() -> int:
         if not machines:
             raise ValueError("At least one machine is required")
         payload = make_plan(args.trials, args.seed, machines, load_or_create_id_key(args.id_key_file))
-        save_json(args.output, payload)
-        args.output.chmod(0o600)
+        save_json(args.output, payload, private=True)
         blinded = {
             "schemaVersion": payload["schemaVersion"],
             "fixtureId": payload["fixtureId"],
@@ -1117,7 +1818,7 @@ def main() -> int:
                 for job in payload["jobs"]
             ],
         }
-        save_json(args.blinded_output, blinded)
+        save_json(args.blinded_output, blinded, private=True)
         print(json.dumps({
             "jobs": len(payload["jobs"]),
             "output": str(args.output),
@@ -1129,6 +1830,8 @@ def main() -> int:
 
     if args.command == "run-job":
         plan = json.loads(args.plan.read_text(encoding="utf-8"))
+        validate_plan(plan)
+        validate_run_id(args.run_id)
         matches = [job for job in plan["jobs"] if job["runId"] == args.run_id]
         if len(matches) != 1:
             raise ValueError(f"Expected exactly one job for {args.run_id}; found {len(matches)}")
@@ -1140,11 +1843,12 @@ def main() -> int:
             )
         job_index = plan["jobs"].index(job)
         missing_predecessors: list[str] = []
+        unresolved_predecessors: list[str] = []
         current_plan_hash = sha256_file(args.plan)
         for prior in plan["jobs"][:job_index]:
             if prior["machineId"] != args.machine_id:
                 continue
-            predecessor_path = RUNS / "results" / f"{prior['runId']}.json"
+            predecessor_path = run_artifact_path(RUNS / "results", prior["runId"], ".json")
             if not predecessor_path.exists():
                 missing_predecessors.append(prior["runId"])
                 continue
@@ -1153,6 +1857,8 @@ def main() -> int:
                 validate_result(predecessor)
             except (OSError, ValueError, TypeError, json.JSONDecodeError) as exception:
                 raise ValueError(f"Invalid predecessor result {prior['runId']}: {exception}") from exception
+            if predecessor["recordKind"] != "campaign":
+                raise ValueError(f"Predecessor is not a campaign result: {prior['runId']}")
             expected_predecessor = {
                 "runId": prior["runId"], "model": prior["model"],
                 "reasoningEffort": prior["reasoningEffort"],
@@ -1161,34 +1867,115 @@ def main() -> int:
             }
             if any(predecessor.get(field) != value for field, value in expected_predecessor.items()):
                 raise ValueError(f"Predecessor result does not match plan: {prior['runId']}")
-            if predecessor["status"] in {"INFRA_FAILURE", "INDETERMINATE_TIMEOUT"}:
-                raise ValueError(f"Predecessor result is unresolved: {prior['runId']}")
+            if predecessor["status"] == "INFRA_FAILURE":
+                unresolved_predecessors.append(prior["runId"])
         if missing_predecessors:
             raise ValueError(
                 f"Run order violation; first incomplete predecessor is {missing_predecessors[0]}"
             )
-        candidate = generate_candidate(job, auth_path=args.auth_file, replace=args.replace)
+        if unresolved_predecessors and not args.continue_after_unresolved:
+            raise ValueError(f"Predecessor result is unresolved: {unresolved_predecessors[0]}")
         if args.backend == "docker":
             ensure_image(EVALUATOR_IMAGE, "docker/evaluator.Dockerfile")
-        report = evaluate_candidate(
-            candidate, run_id=job["runId"], model=job["model"], effort=job["reasoningEffort"],
-            machine=job["machineId"], repeat=args.repeat, timeout=args.timeout, backend=args.backend,
-            isolation="container-strong",
-        )
-        report.update({
-            "planHash": sha256_file(args.plan),
+        output = run_artifact_path(RUNS / "results", job["runId"], ".json")
+        if output.exists() and not args.replace:
+            raise FileExistsError(f"Campaign result already exists: {output}")
+        if args.replace and not output.exists():
+            raise FileNotFoundError(f"Replacement requires an existing campaign result: {output}")
+        replacement_audit = None
+        if output.exists() and args.replace:
+            previous = json.loads(output.read_text(encoding="utf-8"))
+            validate_result(previous)
+            if (
+                previous["recordKind"] != "campaign"
+                or previous["runId"] != job["runId"]
+                or previous["planHash"] != current_plan_hash
+                or previous["status"] != "INFRA_FAILURE"
+            ):
+                raise ValueError(
+                    f"Only an infrastructure-failure result from this campaign is replaceable: {output}"
+                )
+            if previous["failureKind"] == "generation-launcher":
+                raise ValueError(
+                    "A generation launcher failure produced no sampled artifact and cannot be "
+                    "replaced without resampling; freeze the campaign and apply its preregistered "
+                    "infrastructure-failure policy"
+                )
+            previous_hash = sha256_file(output)
+            archive_root = RUNS / "replacements" / job["runId"]
+            archive = ensure_strict_descendant(
+                archive_root / f"{previous_hash}.json", RUNS / "replacements"
+            )
+            if archive.exists() and sha256_file(archive) != previous_hash:
+                raise ValueError(f"Replacement archive hash collision: {archive}")
+            if not archive.exists():
+                atomic_write(archive, output.read_bytes(), mode=0o600)
+            replacement_audit = {
+                "previousResultHash": previous_hash,
+                "previousStatus": previous["status"],
+                "reason": args.replacement_reason,
+                "archivedResult": archive.relative_to(ROOT).as_posix(),
+            }
+        if args.replace:
+            candidate = ensure_strict_descendant(
+                RUNS / "workspaces" / job["runId"], RUNS / "workspaces"
+            )
+            if not candidate.is_dir():
+                raise FileNotFoundError(
+                    f"Replacement requires the retained candidate workspace: {candidate}"
+                )
+        else:
+            candidate = generate_candidate(job, auth_path=args.auth_file)
+        metadata_path = run_artifact_path(RUNS / "generations", job["runId"], ".meta.json")
+        if not metadata_path.is_file():
+            raise FileNotFoundError(f"Missing generation metadata for retained candidate: {metadata_path}")
+        generation_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        if generation_metadata.get("runId") != job["runId"]:
+            raise ValueError(f"Generation metadata does not match run: {job['runId']}")
+        if args.replace:
+            retained_hash = candidate_hash(candidate)
+            if retained_hash != previous["candidateHash"]:
+                raise ValueError(
+                    f"Retained candidate differs from archived result for {job['runId']}"
+                )
+            if (
+                generation_metadata.get("generatorImage") != previous["generatorImage"]
+                or generation_metadata.get("durationSeconds")
+                != previous["generationDurationSeconds"]
+                or generation_metadata.get("promptHash") != previous["promptHash"]
+            ):
+                raise ValueError(
+                    f"Generation metadata differs from archived result for {job['runId']}"
+                )
+        campaign_metadata: dict[str, Any] = {
+            "planHash": current_plan_hash,
             "trial": job["trial"],
             "orderPosition": job["orderPosition"],
-            "generationDurationSeconds": json.loads(
-                (RUNS / "generations" / f"{job['runId']}.meta.json").read_text(encoding="utf-8")
-            )["durationSeconds"],
-            "generatorImage": json.loads(
-                (RUNS / "generations" / f"{job['runId']}.meta.json").read_text(encoding="utf-8")
-            )["generatorImage"],
-        })
-        output = RUNS / "results" / f"{job['runId']}.json"
-        save_json(output, report)
-        output.chmod(0o600)
+            "generationDurationSeconds": generation_metadata["durationSeconds"],
+            "generatorImage": generation_metadata["generatorImage"],
+        }
+        if unresolved_predecessors:
+            campaign_metadata["queueAudit"] = {
+                "continuedAfterUnresolvedRunIds": unresolved_predecessors,
+            }
+        if replacement_audit is not None:
+            campaign_metadata["replacementAudit"] = replacement_audit
+        generation_failure = None if args.replace else generation_failure_kind(generation_metadata)
+        if generation_failure is not None:
+            report = campaign_generation_failure_result(
+                candidate, job, backend=args.backend, repeat=args.repeat,
+                campaign_metadata=campaign_metadata,
+                status=generation_failure[0], failure_kind=generation_failure[1],
+            )
+        else:
+            report = evaluate_candidate(
+                candidate, run_id=job["runId"], model=job["model"], effort=job["reasoningEffort"],
+                machine=job["machineId"], repeat=args.repeat, timeout=args.timeout, backend=args.backend,
+                isolation="container-strong",
+                record_kind="campaign", campaign_metadata=campaign_metadata,
+            )
+        validate_result(report)
+        save_json(output, report, private=True)
         print(json.dumps({"status": report["status"], "output": str(output)}, indent=2))
         return 0 if report["status"] == "PASS" else 1
 
@@ -1196,6 +1983,30 @@ def main() -> int:
         payload = aggregate(args.paths, args.plan, allow_incomplete=args.allow_incomplete)
         save_json(args.output, payload)
         print(args.output)
+        return 0
+
+    if args.command == "publish":
+        payload = publish_evidence_bundle(args.paths, args.plan)
+        save_json(args.output, payload)
+        print(args.output)
+        return 0
+
+    if args.command == "power":
+        required = required_samples_per_configuration(
+            args.baseline_rate,
+            args.target_rate,
+            comparisons=args.comparisons,
+            familywise_alpha=args.familywise_alpha,
+            power=args.power,
+        )
+        print(json.dumps({
+            "requiredSamplesPerConfiguration": required,
+            "comparisons": args.comparisons,
+            "familywiseAlpha": args.familywise_alpha,
+            "power": args.power,
+            "baselineRate": args.baseline_rate,
+            "targetRate": args.target_rate,
+        }, indent=2, sort_keys=True))
         return 0
 
     raise AssertionError(args.command)

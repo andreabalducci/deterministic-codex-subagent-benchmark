@@ -2,78 +2,71 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/codex-benchmark/run-result.schema.json",
   "type": "object",
-  "required": [
-    "schemaVersion", "runId", "fixtureId", "fixtureManifestHash", "candidateHash",
-    "promptHash", "model", "reasoningEffort", "fastMode", "machineId", "platform",
-    "provenance", "backend", "evaluatorImage", "generatorImage", "isolation", "repeatCount",
-    "integrityViolations", "policyViolations", "manifestErrors", "tests", "status",
-    "durationSeconds"
-  ],
+  "required": ["schemaVersion", "recordKind", "runId", "fixtureId", "fixtureManifestHash", "candidateHash", "promptHash", "model", "reasoningEffort", "machineId", "platform", "provenance", "backend", "evaluatorImage", "generatorImage", "isolation", "repeatCount", "integrityViolations", "policyViolations", "manifestErrors", "tests", "status", "failureKind", "durationSeconds"],
   "properties": {
     "schemaVersion": { "const": 1 },
-    "runId": { "type": "string", "pattern": "^(?:[0-9a-f]{16}|verify-[a-z0-9-]+)$" },
-    "fixtureId": { "const": "async-cache-v1" },
-    "fixtureManifestHash": { "type": ["string", "null"] },
-    "candidateHash": { "type": ["string", "null"] },
-    "promptHash": { "type": "string" },
+    "recordKind": { "enum": ["campaign", "external-evaluation"] },
+    "runId": { "type": "string" },
+    "fixtureId": { "type": "string", "minLength": 1 },
+    "fixtureManifestHash": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+    "candidateHash": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+    "promptHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "model": { "type": "string" },
     "reasoningEffort": { "type": "string" },
-    "fastMode": { "type": "boolean" },
     "machineId": { "type": "string" },
-    "platform": { "type": "object" },
-    "provenance": { "type": "object" },
+    "platform": { "type": "object", "required": ["system", "release", "machine", "python"], "properties": { "system": { "type": "string" }, "release": { "type": "string" }, "machine": { "type": "string" }, "python": { "type": "string" } }, "additionalProperties": false },
+    "provenance": { "type": "object", "required": ["gitCommit", "files", "sdkVersion"], "properties": { "gitCommit": { "type": ["string", "null"] }, "files": { "type": "object", "additionalProperties": { "type": "string" } }, "sdkVersion": { "type": "string" } }, "additionalProperties": false },
     "backend": { "enum": ["native", "docker"] },
-    "evaluatorImage": { "type": ["object", "null"] },
-    "generatorImage": { "type": ["object", "null"] },
+    "evaluatorImage": { "$ref": "#/$defs/imageInfo" },
+    "generatorImage": { "$ref": "#/$defs/imageInfo" },
     "isolation": { "type": "string" },
     "repeatCount": { "type": "integer", "minimum": 1 },
     "integrityViolations": { "type": "array", "items": { "type": "string" } },
     "policyViolations": { "type": "array", "items": { "type": "string" } },
     "manifestErrors": { "type": "array", "items": { "type": "string" } },
-    "tests": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["name", "attempts", "hadTimeout", "confirmedTimeout"],
-        "properties": {
-          "name": { "type": "string" },
-          "hadTimeout": { "type": "boolean" },
-          "confirmedTimeout": { "type": "boolean" },
-          "attempts": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 2,
-            "items": {
-              "type": "object",
-              "required": [
-                "command", "exitCode", "stdout", "stderr", "timedOut",
-                "launcherFailure", "outputLimitExceeded", "durationSeconds"
-              ],
-              "properties": {
-                "command": { "type": "array", "items": { "type": "string" } },
-                "exitCode": { "type": ["integer", "null"] },
-                "stdout": { "type": "string" },
-                "stderr": { "type": "string" },
-                "timedOut": { "type": "boolean" },
-                "launcherFailure": { "type": "boolean" },
-                "outputLimitExceeded": { "type": "boolean" },
-                "durationSeconds": { "type": "number", "minimum": 0 }
-              },
-              "additionalProperties": false
-            }
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "status": {
-      "enum": ["PASS", "CANDIDATE_FAILURE", "INFRA_FAILURE", "INDETERMINATE_TIMEOUT"]
-    },
+    "tests": { "type": "array", "items": { "$ref": "#/$defs/testEvidence" } },
+    "status": { "enum": ["PASS", "CANDIDATE_FAILURE", "INFRA_FAILURE"] },
+    "failureKind": { "type": ["string", "null"], "enum": [null, "launcher", "timeout-anomaly", "build-timeout", "timeout", "output-limit", "test", "build", "test-marker", "fixture-manifest", "integrity", "policy", "generation-launcher", "generation-timeout", "generation-output-limit", "generation-exit"] },
     "durationSeconds": { "type": "number", "minimum": 0 },
-    "planHash": { "type": "string" },
+    "planHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "trial": { "type": "integer", "minimum": 0 },
     "orderPosition": { "type": "integer", "minimum": 0 },
-    "generationDurationSeconds": { "type": "number", "minimum": 0 }
+    "generationDurationSeconds": { "type": "number", "minimum": 0 },
+    "queueAudit": {
+      "type": "object",
+      "required": ["continuedAfterUnresolvedRunIds"],
+      "properties": {
+        "continuedAfterUnresolvedRunIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[0-9a-f]{16}$" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "replacementAudit": {
+      "type": "object",
+      "required": ["previousResultHash", "previousStatus", "reason", "archivedResult"],
+      "properties": {
+        "previousResultHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "previousStatus": { "const": "INFRA_FAILURE" },
+        "reason": { "type": "string", "minLength": 1 },
+        "archivedResult": { "type": "string", "pattern": "^runs/replacements/[0-9a-f]{16}/[0-9a-f]{64}\\.json$" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "recordKind": { "const": "campaign" } } }, "then": { "required": ["planHash", "trial", "orderPosition", "generationDurationSeconds"], "properties": { "runId": { "pattern": "^[0-9a-f]{16}$" } } } },
+    { "if": { "properties": { "recordKind": { "const": "external-evaluation" } } }, "then": { "not": { "anyOf": [{ "required": ["planHash"] }, { "required": ["trial"] }, { "required": ["orderPosition"] }, { "required": ["generationDurationSeconds"] }] }, "properties": { "runId": { "pattern": "^(?:[0-9a-f]{16}|verify-[a-z0-9-]+)$" } } } },
+    { "if": { "properties": { "status": { "const": "PASS" } } }, "then": { "properties": { "failureKind": { "const": null } } }, "else": { "properties": { "failureKind": { "type": "string" } } } }
+  ],
+  "$defs": {
+    "imageInfo": { "type": ["object", "null"], "properties": { "tag": { "type": "string" }, "id": { "type": "string" }, "repoDigests": { "type": "array", "items": { "type": "string" } }, "os": { "type": ["string", "null"] }, "architecture": { "type": ["string", "null"] }, "specHash": { "type": ["string", "null"] } }, "additionalProperties": false },
+    "testEvidence": { "type": "object", "required": ["name", "attempts", "hadTimeout", "confirmedTimeout"], "properties": { "name": { "type": "string" }, "hadTimeout": { "type": "boolean" }, "confirmedTimeout": { "type": "boolean" }, "behaviors": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/behaviorOutcome" } }, "attempts": { "type": "array", "minItems": 1, "maxItems": 2, "items": { "$ref": "#/$defs/attempt" } } }, "additionalProperties": false },
+    "behaviorOutcome": { "type": "object", "required": ["name", "outcome"], "properties": { "name": { "enum": ["constructor validation", "same-key misses are single flight", "different keys load concurrently", "TTL starts at successful completion and expires at boundary", "failed load is retried", "one cancelled waiter does not cancel shared load", "all waiters may cancel while successful load remains cached", "invalidation supersedes an older in-flight generation"] }, "outcome": { "enum": ["PASS", "FAIL", "NOT_RUN", "AMBIGUOUS"] } }, "additionalProperties": false },
+    "attempt": { "type": "object", "required": ["command", "exitCode", "stdout", "stderr", "timedOut", "launcherFailure", "outputLimitExceeded", "durationSeconds"], "properties": { "command": { "type": "array", "items": { "type": "string" } }, "exitCode": { "type": ["integer", "null"] }, "stdout": { "type": "string" }, "stderr": { "type": "string" }, "timedOut": { "type": "boolean" }, "launcherFailure": { "type": "boolean" }, "outputLimitExceeded": { "type": "boolean" }, "durationSeconds": { "type": "number", "minimum": 0 } }, "additionalProperties": false }
   },
   "additionalProperties": false
 }

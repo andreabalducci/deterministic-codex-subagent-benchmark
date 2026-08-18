@@ -1,6 +1,8 @@
 name: deterministic-verification
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
     inputs:
       repeat:
@@ -13,8 +15,47 @@ permissions:
   contents: read
 
 jobs:
+  required-native:
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 10.0.301
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - name: Verify immutable fixture
+        run: python harness.py manifest
+      - name: Test harness
+        run: python -m unittest discover -s tests -v
+      - name: Verify reference and mutants
+        run: python harness.py verify --backend native --repeat 1 --output runs/verification-native.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: verification-native
+          path: runs/verification-native.json
+
+  codex-cli-flag-compatibility:
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build the pinned generator image
+        run: docker build --file docker/generator.Dockerfile --tag codex-bench-generator:0.147.0 .
+      - name: Check model and effort CLI flag compatibility with the pinned Codex CLI
+        run: >-
+          python -c "import json,subprocess; matrix=json.load(open('matrix.json'))['configurations'];
+          [subprocess.check_call(['docker','run','--rm','codex-bench-generator:0.147.0','codex','exec','--model',row['model'],'--config',f'''model_reasoning_effort=\"{row['reasoningEffort']}\"''','--help']) for row in matrix]"
+
   native-matrix:
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: github.event_name == 'workflow_dispatch'
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -51,7 +92,7 @@ jobs:
           path: runs/verification-${{ runner.os }}.json
 
   pinned-container:
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: github.event_name == 'workflow_dispatch'
     timeout-minutes: 30
     runs-on: ubuntu-24.04
     steps:
