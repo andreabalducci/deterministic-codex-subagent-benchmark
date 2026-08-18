@@ -92,14 +92,17 @@ python3 harness.py verify --backend docker --repeat 1 \
 python3 harness.py check-generator --output runs/generator-check.json
 ```
 
-`check-generator` exercises the real generator container argv with no credential and no model
-request. It asserts that the pinned Codex CLI is present at the expected version, that the .NET
-SDK can build and run the public suite inside that container, and that the configured Codex
-sandbox mode does not depend on a capability the container denies. Both generator faults found so
-far were invisible to every other check, and one of them produced results indistinguishable from
-ordinary model failures, so run this before any campaign.
+`check-generator` exercises the shared generator container envelope and asks the real
+`codex exec` parser to accept every matrix row's model/effort argv with `--help`; it makes no
+credentialed or paid model request. It also asserts the exact pinned Codex CLI version, requires a
+clean probe exit with bounded output, builds and runs the public suite inside the container, and
+checks whether the configured Codex sandbox mode depends on a capability the container denies.
+This verifies CLI wiring and the local toolchain, not authentication, model availability, stdin or
+JSON event behavior, or successful generation. Run it before the separately authenticated smoke.
 
 Use `--repeat 20` for the full trusted-fixture calibration described below. The native check requires .NET SDK 10.0.301; the Docker check builds the pinned evaluator image automatically when needed.
+The evaluation watchdog defaults to 90 seconds per attempt so a cold SDK publish on a slower host
+is not mislabeled; override `--timeout` only as a preregistered environment setting.
 
 Running a benchmark campaign makes paid Codex model requests. Before starting, choose the campaign size and machine labels, prepare a dedicated short-lived credential, and freeze those choices. This example creates the documented 90-sample-per-configuration plan across three machines:
 
@@ -166,7 +169,7 @@ python3 harness.py verify --backend native --repeat 20
 python3 harness.py verify --backend docker --repeat 20
 ```
 
-`native` is deliberately available only to the committed trusted reference and mutants. External candidates are always evaluated in Docker. Calibration succeeds only if the reference passes every repetition and all nine mutants are rejected.
+`native` is deliberately available only to the committed trusted reference and mutants. External candidates are always evaluated in Docker. Calibration succeeds only if the reference passes every repetition and all eleven mutants are rejected.
 
 ## Continuous integration and generation-free CLI flag preflight
 
@@ -251,7 +254,18 @@ python3 harness.py aggregate \
   --output runs/summary.json
 ```
 
-Official aggregation validates plan membership and hashes, rejects duplicate run IDs, and refuses missing or unresolved runs. `--allow-incomplete` is for diagnostics only. The summary reports pass rate, Wilson 95% interval, status counts, failure-kind counts, per-machine counts, and median/IQR for generation and evaluation duration. It also reports a per-behavior breakdown for each configuration: the eight hidden behaviors carry far more signal than one binary status, so a failure in any repetition denies that behavior a pass, a behavior no repetition reached stays censored as `notRun`, and each rate uses the planned denominator like the headline pass rate. Duplicate candidate hashes are flagged. Raw evaluation and verification reports include captured test output and are written mode `0600`; use the sanitized publication command for public evidence.
+Official aggregation validates the seed-derived plan, matrix membership, repository provenance,
+container build specifications, per-machine image identity, isolation mode, and cohort repeat count;
+it rejects duplicate run IDs and refuses missing or unresolved runs. `--allow-incomplete` is for
+diagnostics only. The summary reports pass rate, Wilson 95% interval, status counts, failure-kind
+counts, per-machine counts, and median/IQR for generation and evaluation duration. Generation-only
+failures have no evaluation duration and therefore cannot contaminate evaluation statistics. It
+also reports a per-behavior breakdown for each configuration: the nine hidden behaviors carry far
+more signal than one binary status, so a failure in any repetition denies that behavior a pass, a
+behavior no repetition reached stays censored as `notRun`, and each rate uses the planned
+denominator like the headline pass rate. Duplicate candidate hashes are flagged. Raw evaluation
+and verification reports include captured test output and are written mode `0600`; use the
+sanitized publication command for public evidence.
 
 ## Publish a frozen evidence bundle
 

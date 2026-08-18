@@ -18,6 +18,9 @@ public sealed class AsyncExpiringCache<TKey, TValue> where TKey : notnull
         _timeToLive = timeToLive;
     }
 
+    // Deliberate contract mutant: behavior is correct, but the public API is broader.
+    public int ExtraMember => 0;
+
     public ValueTask<TValue> GetAsync(
         TKey key,
         Func<TKey, CancellationToken, ValueTask<TValue>> factory,

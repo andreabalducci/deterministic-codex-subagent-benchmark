@@ -41,6 +41,7 @@ RUN_ID_PATTERN = re.compile(r"^[0-9a-f]{16}$")
 VERIFY_RUN_ID_PATTERN = re.compile(r"^verify-[a-z0-9]+(?:-[a-z0-9]+)*$")
 MAX_EVALUATOR_OUTPUT_BYTES = 2 * 1024 * 1024
 MAX_GENERATOR_OUTPUT_BYTES = 16 * 1024 * 1024
+DEFAULT_EVALUATION_TIMEOUT_SECONDS = 90
 AGENT_PROMPT = (
     "Open TASK.md and complete the repair exactly as specified. "
     "Work only in this directory. Do not inspect external files or use the network. "
@@ -66,6 +67,12 @@ POLICY_PATTERNS = {
     "native interop": re.compile(r"\b(?:DllImport|LibraryImport)\b"),
     "process launch": re.compile(r"\bProcess\s*\.\s*Start\s*\("),
     "assembly loading": re.compile(r"\bAssembly\s*\.\s*(?:Load|LoadFrom|LoadFile)\s*\("),
+    "network client": re.compile(
+        r"\b(?:HttpClient|WebRequest|Socket|TcpClient|UdpClient|Dns)\b"
+    ),
+    "blocking synchronization": re.compile(
+        r"\b(?:Task\s*\.\s*(?:WaitAll|WaitAny)|Monitor\s*\.\s*Wait|Thread\s*\.\s*Join)\s*\("
+    ),
 }
 PUBLIC_PASS_MARKER = "CODEX_BENCH_PUBLIC_PASS_V1"
 HIDDEN_PASS_MARKER = "CODEX_BENCH_HIDDEN_PASS_V1"
@@ -78,11 +85,12 @@ HIDDEN_BEHAVIORS = (
     "one cancelled waiter does not cancel shared load",
     "all waiters may cancel while successful load remains cached",
     "invalidation supersedes an older in-flight generation",
+    "public API contract",
 )
 BEHAVIOR_ROLLUPS = ("PASS", "FAIL", "NOT_RUN", "AMBIGUOUS", "NO_HIDDEN_RUN")
 INFRA_FAILURE_KINDS = {
     "launcher", "timeout-anomaly", "build-timeout", "fixture-manifest", "generation-launcher",
-    "generation-inert",
+    "generation-inert", "generation-unavailable",
 }
 CANDIDATE_FAILURE_KINDS = {
     "timeout", "output-limit", "test", "build", "test-marker", "integrity", "policy",
@@ -105,6 +113,14 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def json_value_hash(value: Any) -> str:
+    return sha256_bytes(canonical_json(value).encode("utf-8"))
+
+
+def json_file_hash(path: Path) -> str:
+    return json_value_hash(json.loads(path.read_text(encoding="utf-8")))
 
 
 def visible_files(root: Path) -> list[Path]:
@@ -553,8 +569,8 @@ def result_behavior_outcomes(result: dict[str, Any]) -> dict[str, str]:
 def behavior_summary(results: list[dict[str, Any]], planned: int) -> dict[str, Any]:
     """Per-behavior pass rates over the planned denominator.
 
-    The binary status of a generation carries one bit; the hidden suite already measured
-    eight. Reporting them separately is what makes adjacent configurations separable
+    The binary status of a generation carries one bit; the hidden suite measures multiple
+    independent behaviors. Reporting them separately makes adjacent configurations separable
     without multiplying the number of generations.
     """
     rollups = [result_behavior_outcomes(result) for result in results]
@@ -617,7 +633,7 @@ def evaluate_candidate(
         "recordKind": record_kind,
         "runId": run_id,
         "fixtureId": FIXTURE_ID,
-        "fixtureManifestHash": sha256_file(MANIFEST) if MANIFEST.exists() else None,
+        "fixtureManifestHash": json_file_hash(MANIFEST) if MANIFEST.exists() else None,
         "candidateHash": candidate_hash(candidate) if not integrity else None,
         "promptHash": sha256_bytes(AGENT_PROMPT.encode("utf-8")),
         "model": model,
@@ -780,6 +796,16 @@ def image_spec_hash(dockerfile: str) -> str:
     return sha256_bytes(canonical_json(payload).encode("utf-8"))
 
 
+def image_spec_hash_from_provenance(provenance: dict[str, Any], dockerfile: str) -> str:
+    keys = [dockerfile]
+    if "generator" in dockerfile:
+        keys.extend(["docker/package.json", "docker/package-lock.json"])
+    files = provenance.get("files")
+    if not isinstance(files, dict) or any(key not in files for key in keys):
+        raise ValueError(f"Provenance lacks image build inputs for {dockerfile}")
+    return sha256_bytes(canonical_json({key: files[key] for key in keys}).encode("utf-8"))
+
+
 def docker_image_info(image: str) -> dict[str, Any]:
     completed = subprocess.run(
         ["docker", "image", "inspect", image],
@@ -885,6 +911,19 @@ def generator_container_arguments(
     ]
 
 
+def codex_exec_arguments(model: str, effort: str, target: str = "-") -> list[str]:
+    """Single source of truth for the Codex CLI routing arguments."""
+    return [
+        "codex", "exec",
+        # Docker provides the actual sandbox; see generator_container_arguments.
+        "--sandbox", GENERATOR_SANDBOX_MODE,
+        "--ephemeral", "--ignore-user-config", "--ignore-rules",
+        "--skip-git-repo-check", "--json", "--model", model,
+        "--config", f'model_reasoning_effort="{effort}"',
+        target,
+    ]
+
+
 def generate_candidate(
     job: dict[str, Any], *, auth_path: Path | None, replace: bool = False
 ) -> Path:
@@ -901,16 +940,7 @@ def generate_candidate(
             candidate, container_name, auth=resolved_auth, interactive=True
         ),
         GENERATOR_IMAGE,
-        "codex", "exec",
-        # Codex's own bwrap sandbox cannot create a user namespace under Docker's default
-        # seccomp profile, and its failure is silent: the agent runs no commands and leaves
-        # the starter untouched. The container is the external sandbox instead -- read-only
-        # rootfs, no capabilities, non-root user, and only /workspace writable.
-        "--sandbox", GENERATOR_SANDBOX_MODE,
-        "--ephemeral", "--ignore-user-config", "--ignore-rules", "--skip-git-repo-check",
-        "--json", "--model", job["model"],
-        "--config", f'model_reasoning_effort="{job["reasoningEffort"]}"',
-        "-",
+        *codex_exec_arguments(job["model"], job["reasoningEffort"]),
     ]
     def stop_container() -> None:
         subprocess.run(
@@ -951,7 +981,7 @@ def pristine_candidate_hash() -> str:
 
 
 def check_generator(timeout: int) -> dict[str, Any]:
-    """Exercise the real generator argv without a credential or a model request.
+    """Exercise the shared container envelope and parse real Codex argv without a request.
 
     Both generator faults found so far were invisible to every other check: the SDK had no
     writable home, and Codex's namespace sandbox could not start. Neither touched the
@@ -969,6 +999,7 @@ def check_generator(timeout: int) -> dict[str, Any]:
         'then echo PROBE_NAMESPACE=available; else echo PROBE_NAMESPACE=unavailable; fi; '
         'dotnet run --project Cache.PublicTests/Cache.PublicTests.csproj 2>&1 | tail -5'
     )
+    argv_executions: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="codex-bench-genprobe-") as temporary:
         candidate = Path(temporary) / "probe"
         materialize(candidate)
@@ -990,6 +1021,28 @@ def check_generator(timeout: int) -> dict[str, Any]:
             command, cwd=ROOT, environment=None, timeout=timeout,
             limit=MAX_EVALUATOR_OUTPUT_BYTES, timeout_callback=stop_container,
         )
+        for index, configuration in enumerate(load_matrix()):
+            argv_container_name = f"{container_name}-argv-{index}"
+            argv_command = [
+                *generator_container_arguments(
+                    candidate, argv_container_name, auth=None, interactive=False
+                ),
+                GENERATOR_IMAGE,
+                *codex_exec_arguments(
+                    configuration["model"], configuration["reasoningEffort"], "--help"
+                ),
+            ]
+
+            def stop_argv_container(name: str = argv_container_name) -> None:
+                subprocess.run(
+                    ["docker", "rm", "-f", name],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
+                )
+
+            argv_executions.append(execute_captured(
+                argv_command, cwd=ROOT, environment=None, timeout=timeout,
+                limit=MAX_EVALUATOR_OUTPUT_BYTES, timeout_callback=stop_argv_container,
+            ))
 
     def probed(prefix: str) -> str | None:
         for line in execution["stdout"].splitlines():
@@ -1003,8 +1056,13 @@ def check_generator(timeout: int) -> dict[str, Any]:
         # The agent is told to build and run the public suite; if it cannot, every
         # generation is produced blind.
         "toolchainRuns": execution["stdout"].count(PUBLIC_PASS_MARKER) == 1,
-        "codexVersionMatches": bool(
-            observed_version and expected_version in observed_version
+        "codexVersionMatches": observed_version == f"codex-cli {expected_version}",
+        "codexArgvAccepted": all(
+            item["exitCode"] == 0
+            and not item["timedOut"]
+            and not item["launcherFailure"]
+            and not item["outputLimitExceeded"]
+            for item in argv_executions
         ),
         # Only demand namespaces when the configured sandbox mode actually needs them, so
         # this stays correct if either the mode or the container policy changes.
@@ -1021,38 +1079,87 @@ def check_generator(timeout: int) -> dict[str, Any]:
         "observedCodexVersion": observed_version,
         "namespaceSandbox": namespaces,
         "checks": checks,
-        "passed": all(checks.values()) and not execution["timedOut"],
+        "passed": (
+            all(checks.values())
+            and execution["exitCode"] == 0
+            and not execution["timedOut"]
+            and not execution["launcherFailure"]
+            and not execution["outputLimitExceeded"]
+        ),
         "exitCode": execution["exitCode"],
         "timedOut": execution["timedOut"],
         "durationSeconds": execution["durationSeconds"],
         "stdout": execution["stdout"],
         "stderr": execution["stderr"],
+        "provenance": repository_provenance(),
     }
 
 
-def generation_command_successes(log_path: Path) -> int:
-    """Count agent commands that actually ran, as evidence the generation was attempted.
-
-    Final bytes alone cannot separate a model that gave up from a generator that never
-    executed anything. When this evidence is unreadable the count is zero, which routes the
-    generation to the loud infrastructure-failure branch rather than scoring the starter.
-    """
-    if not log_path.is_file():
-        return 0
-    successes = 0
-    for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
+def generation_log_evidence(log_path: Path) -> dict[str, Any]:
+    """Parse terminal and command evidence from the Codex JSONL protocol."""
+    evidence = {
+        "successfulCommands": 0,
+        "turnCompleted": False,
+        "turnFailed": False,
+        "valid": True,
+    }
+    try:
+        lines = log_path.read_text(encoding="utf-8", errors="strict").splitlines()
+    except (OSError, UnicodeError):
+        evidence["valid"] = False
+        return evidence
+    phase = "start"
+    terminal_events = 0
+    for line in lines:
         line = line.strip()
         if not line:
             continue
         try:
             event = json.loads(line)
         except json.JSONDecodeError:
+            evidence["valid"] = False
             continue
+        if not isinstance(event, dict):
+            evidence["valid"] = False
+            continue
+        event_type = event.get("type")
+        if terminal_events:
+            evidence["valid"] = False
+        if event_type == "thread.started":
+            if phase != "start":
+                evidence["valid"] = False
+            phase = "thread"
+        elif event_type == "turn.started":
+            if phase != "thread":
+                evidence["valid"] = False
+            phase = "turn"
+        elif event_type == "turn.completed":
+            if phase != "turn":
+                evidence["valid"] = False
+            evidence["turnCompleted"] = True
+            terminal_events += 1
+            phase = "terminal"
+        elif event_type in {"turn.failed", "error"}:
+            if phase != "turn":
+                evidence["valid"] = False
+            evidence["turnFailed"] = True
+            terminal_events += 1
+            phase = "terminal"
+        elif not str(event_type).startswith("item.") or phase != "turn":
+            evidence["valid"] = False
         item = event.get("item")
-        if isinstance(item, dict) and item.get("item_type") == "command_execution" \
+        if event_type == "item.completed" and isinstance(item, dict) \
+                and item.get("type") == "command_execution" \
                 and item.get("exit_code") == 0:
-            successes += 1
-    return successes
+            evidence["successfulCommands"] += 1
+    if terminal_events != 1 or evidence["turnCompleted"] == evidence["turnFailed"]:
+        evidence["valid"] = False
+    return evidence
+
+
+def generation_command_successes(log_path: Path) -> int:
+    """Compatibility helper for tests and reporting."""
+    return int(generation_log_evidence(log_path)["successfulCommands"])
 
 
 def generation_failure_kind(
@@ -1066,8 +1173,30 @@ def generation_failure_kind(
         return "CANDIDATE_FAILURE", "generation-timeout"
     if metadata.get("outputLimitExceeded"):
         return "CANDIDATE_FAILURE", "generation-output-limit"
+    log_evidence = generation_log_evidence(log_path) if log_path is not None else None
+    artifact_sampled = False
+    if candidate is not None:
+        artifact_sampled = (
+            candidate_hash(candidate) != pristine_candidate_hash()
+            or bool(candidate_integrity(candidate))
+        )
     if metadata.get("exitCode") != 0:
-        return "CANDIDATE_FAILURE", "generation-exit"
+        # A non-zero Codex exit is not automatically evidence about the model. Auth,
+        # service, transport, and CLI failures commonly exit before an artifact exists.
+        # Score it only when a valid terminal event proves that the model turn completed;
+        # otherwise leave the run replaceable as infrastructure.
+        if log_evidence and log_evidence["valid"] and log_evidence["turnCompleted"] \
+                and not log_evidence["turnFailed"] and (
+                    artifact_sampled or log_evidence["successfulCommands"] > 0
+                ):
+            return "CANDIDATE_FAILURE", "generation-exit"
+        return "INFRA_FAILURE", "generation-unavailable"
+    if log_evidence is not None and (
+        not log_evidence["valid"]
+        or not log_evidence["turnCompleted"]
+        or log_evidence["turnFailed"]
+    ):
+        return "INFRA_FAILURE", "generation-inert"
     if (
         candidate is not None
         and candidate_hash(candidate) == pristine_candidate_hash()
@@ -1076,8 +1205,8 @@ def generation_failure_kind(
         # model's doing; let evaluate_candidate record it as an integrity failure instead.
         and not candidate_integrity(candidate)
     ):
-        if log_path is not None and generation_command_successes(log_path) > 0:
-            # The agent ran commands and still returned the starter, so an artifact was
+        if log_evidence is not None and log_evidence["successfulCommands"] > 0:
+            # The model turn completed and still returned the starter, so a response was
             # sampled and the model gave up. That is a resolved candidate failure, not
             # something to retry, and treating it as infrastructure would censor it.
             return "CANDIDATE_FAILURE", "generation-unchanged"
@@ -1103,7 +1232,7 @@ def campaign_generation_failure_result(
         "recordKind": "campaign",
         "runId": job["runId"],
         "fixtureId": FIXTURE_ID,
-        "fixtureManifestHash": sha256_file(MANIFEST),
+        "fixtureManifestHash": json_file_hash(MANIFEST),
         "candidateHash": candidate_hash(candidate),
         "promptHash": sha256_bytes(AGENT_PROMPT.encode("utf-8")),
         "model": job["model"],
@@ -1127,7 +1256,9 @@ def campaign_generation_failure_result(
         "tests": [],
         "status": status,
         "failureKind": failure_kind,
-        "durationSeconds": campaign_metadata["generationDurationSeconds"],
+        # No evaluator was invoked, so generation latency must not be reported as
+        # evaluation latency or included in evaluation-duration statistics.
+        "durationSeconds": None,
         **campaign_metadata,
     }
     validate_result(report)
@@ -1135,7 +1266,34 @@ def campaign_generation_failure_result(
 
 
 def load_matrix() -> list[dict[str, str]]:
-    return json.loads(MATRIX.read_text(encoding="utf-8"))["configurations"]
+    document = json.loads(MATRIX.read_text(encoding="utf-8"))
+    if not isinstance(document, dict) or set(document) != {"configurations"}:
+        raise ValueError("Matrix must contain only configurations")
+    configurations = document["configurations"]
+    if not isinstance(configurations, list) or len(configurations) < 2 \
+            or len(configurations) % 2 != 0:
+        raise ValueError("Matrix must contain an even number of configurations")
+    expected_keys = {"id", "model", "reasoningEffort"}
+    for configuration in configurations:
+        if not isinstance(configuration, dict) or set(configuration) != expected_keys:
+            raise ValueError("Every matrix configuration must have the exact routing fields")
+        if any(
+            not isinstance(configuration[key], str) or not configuration[key].strip()
+            for key in expected_keys
+        ):
+            raise ValueError("Matrix configuration values must be non-empty strings")
+        if configuration["reasoningEffort"] not in {"low", "medium", "high"}:
+            raise ValueError("Matrix contains an unsupported reasoning effort")
+    identifiers = [configuration["id"] for configuration in configurations]
+    treatments = [
+        (configuration["model"], configuration["reasoningEffort"])
+        for configuration in configurations
+    ]
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError("Matrix configuration IDs must be unique")
+    if len(treatments) != len(set(treatments)):
+        raise ValueError("Matrix model/effort treatments must be unique")
+    return configurations
 
 
 def seeded_order(values: list[Any], seed: str) -> list[Any]:
@@ -1159,7 +1317,7 @@ def williams_rows(configs: list[dict[str, str]], seed: str) -> list[list[dict[st
     return [[permuted[(index + row) % count] for index in base] for row in range(count)]
 
 
-def make_plan(trials: int, seed: str, machines: list[str], id_key: bytes) -> dict[str, Any]:
+def schedule_jobs(trials: int, seed: str, machines: list[str]) -> list[dict[str, Any]]:
     configs = load_matrix()
     if not machines or len(set(machines)) != len(machines):
         raise ValueError("Machine labels must be non-empty and unique")
@@ -1179,16 +1337,23 @@ def make_plan(trials: int, seed: str, machines: list[str], id_key: bytes) -> dic
         for row_index in row_order:
             for machine in machine_order:
                 for position, config in enumerate(rows[row_index]):
-                    message = f"{seed}:{FIXTURE_ID}:{trial}:{config['id']}".encode("utf-8")
-                    opaque = hmac.new(id_key, message, hashlib.sha256).hexdigest()[:16]
                     jobs.append({
-                        "runId": opaque,
                         "trial": trial,
                         "orderPosition": position,
                         "machineId": machine,
                         **config,
                     })
                 trial += 1
+    return jobs
+
+
+def make_plan(trials: int, seed: str, machines: list[str], id_key: bytes) -> dict[str, Any]:
+    scheduled = schedule_jobs(trials, seed, machines)
+    jobs: list[dict[str, Any]] = []
+    for job in scheduled:
+        message = f"{seed}:{FIXTURE_ID}:{job['trial']}:{job['id']}".encode("utf-8")
+        opaque = hmac.new(id_key, message, hashlib.sha256).hexdigest()[:16]
+        jobs.append({"runId": opaque, **job})
     plan = {
         "schemaVersion": 1,
         "fixtureId": FIXTURE_ID,
@@ -1202,18 +1367,105 @@ def make_plan(trials: int, seed: str, machines: list[str], id_key: bytes) -> dic
 
 
 def validate_plan(plan: dict[str, Any]) -> None:
+    required_keys = {"schemaVersion", "fixtureId", "seed", "trials", "machines", "jobs"}
+    if not isinstance(plan, dict) or set(plan) != required_keys:
+        raise ValueError("Plan must contain the exact protocol fields")
     if plan.get("schemaVersion") != 1 or plan.get("fixtureId") != FIXTURE_ID:
         raise ValueError("Unsupported plan identity")
+    if not isinstance(plan["seed"], str) or not plan["seed"].strip():
+        raise ValueError("Plan seed must be a non-empty string")
+    configs = load_matrix()
+    config_by_id = {configuration["id"]: configuration for configuration in configs}
+    config_count = len(configs)
+    machines = plan.get("machines")
+    if not isinstance(machines, list) or not machines or any(
+        not isinstance(machine, str) or not machine.strip() for machine in machines
+    ) or len(machines) != len(set(machines)):
+        raise ValueError("Plan machines must be non-empty, unique strings")
+    trials = plan.get("trials")
+    balance_block = config_count * len(machines)
+    if not isinstance(trials, int) or isinstance(trials, bool) or trials <= 0 \
+            or trials % balance_block != 0:
+        raise ValueError(
+            f"Plan trials must be a positive multiple of {balance_block}"
+        )
     jobs = plan.get("jobs")
-    if not isinstance(jobs, list):
-        raise ValueError("Plan jobs must be a list")
+    if not isinstance(jobs, list) or len(jobs) != trials * config_count:
+        raise ValueError("Plan jobs do not cover every trial and configuration")
     run_ids: list[str] = []
+    expected_job_keys = {
+        "runId", "trial", "orderPosition", "machineId",
+        "id", "model", "reasoningEffort",
+    }
     for job in jobs:
-        if not isinstance(job, dict) or "runId" not in job:
+        if not isinstance(job, dict) or set(job) != expected_job_keys:
             raise ValueError("Invalid plan job")
+        if any(
+            not isinstance(job[field], int) or isinstance(job[field], bool)
+            for field in ("trial", "orderPosition")
+        ):
+            raise ValueError("Plan trial and order positions must be integers")
         run_ids.append(validate_run_id(job["runId"]))
+        if job["machineId"] not in machines:
+            raise ValueError("Plan job references an unknown machine")
+        configuration = config_by_id.get(job["id"])
+        if configuration is None or any(job[key] != configuration[key] for key in configuration):
+            raise ValueError("Plan job does not match the current matrix")
     if len(run_ids) != len(set(run_ids)):
         raise ValueError("Plan contains duplicate run IDs")
+
+    expected_schedule = schedule_jobs(trials, plan["seed"], machines)
+    actual_schedule = [
+        {key: value for key, value in job.items() if key != "runId"}
+        for job in jobs
+    ]
+    if actual_schedule != expected_schedule:
+        raise ValueError("Plan jobs do not match the seed-derived Williams schedule")
+
+    # The physical order is part of the execution protocol: one contiguous trial block,
+    # positions 0..N-1, all treatments exactly once. This prevents an edited plan from
+    # preserving counts while silently changing queue order.
+    trial_blocks: list[list[dict[str, Any]]] = []
+    for trial in range(trials):
+        block = jobs[trial * config_count:(trial + 1) * config_count]
+        if any(job["trial"] != trial for job in block):
+            raise ValueError("Plan trials must be contiguous and zero-based")
+        if [job["orderPosition"] for job in block] != list(range(config_count)):
+            raise ValueError("Plan order positions must be contiguous and zero-based")
+        if len({job["machineId"] for job in block}) != 1:
+            raise ValueError("Each plan trial must run on exactly one machine")
+        if {job["id"] for job in block} != set(config_by_id):
+            raise ValueError("Each plan trial must contain every matrix configuration")
+        trial_blocks.append(block)
+
+    cycles_per_machine = trials // balance_block
+    trials_per_machine = trials // len(machines)
+    for machine in machines:
+        machine_blocks = [block for block in trial_blocks if block[0]["machineId"] == machine]
+        if len(machine_blocks) != trials_per_machine:
+            raise ValueError("Plan trials are not balanced across machines")
+        position_counts: dict[tuple[str, int], int] = {}
+        predecessor_counts: dict[tuple[str, str], int] = {}
+        for block in machine_blocks:
+            for job in block:
+                key = (job["id"], job["orderPosition"])
+                position_counts[key] = position_counts.get(key, 0) + 1
+            for previous, current in zip(block, block[1:]):
+                key = (previous["id"], current["id"])
+                predecessor_counts[key] = predecessor_counts.get(key, 0) + 1
+        if any(
+            position_counts.get((configuration["id"], position), 0) != cycles_per_machine
+            for configuration in configs
+            for position in range(config_count)
+        ):
+            raise ValueError("Plan is not balanced by treatment, position, and machine")
+        if any(
+            predecessor_counts.get((left["id"], right["id"]), 0) != cycles_per_machine
+            for left in configs
+            for right in configs
+            if left["id"] != right["id"]
+        ):
+            raise ValueError("Plan is not balanced for direct predecessor effects")
 
 
 def wilson(successes: int, total: int) -> tuple[float, float]:
@@ -1476,6 +1728,19 @@ def validate_result(result: dict[str, Any]) -> None:
         raise ValueError(f"Candidate failureKind has incorrect status for {result['runId']}")
     if result["status"] == "INFRA_FAILURE" and result["failureKind"] not in INFRA_FAILURE_KINDS:
         raise ValueError(f"Infrastructure failureKind has incorrect status for {result['runId']}")
+    generation_only = (
+        result["recordKind"] == "campaign"
+        and isinstance(result["failureKind"], str)
+        and result["failureKind"].startswith("generation-")
+    )
+    if generation_only:
+        if result["tests"] or result["durationSeconds"] is not None:
+            raise ValueError(
+                f"Generation-only result contains evaluation evidence for {result['runId']}"
+            )
+    elif not isinstance(result["durationSeconds"], (int, float)) \
+            or isinstance(result["durationSeconds"], bool):
+        raise ValueError(f"Evaluated result lacks evaluation duration for {result['runId']}")
     if not isinstance(result["tests"], list):
         raise ValueError(f"Invalid tests collection for {result['runId']}")
     if result["status"] == "PASS":
@@ -1554,15 +1819,43 @@ def quartiles(values: list[float]) -> list[float] | None:
     return [cuts[0], cuts[2]]
 
 
+def validate_campaign_environment(
+    result: dict[str, Any], expected_provenance: dict[str, Any]
+) -> None:
+    """Reject stale or heterogeneous evaluator/generator environments.
+
+    Image IDs may differ across CPU architectures, but tags and build-input spec hashes
+    are protocol inputs and must match the checked-out harness exactly.
+    """
+    run_id = result["runId"]
+    if result["provenance"] != expected_provenance:
+        raise ValueError(f"Repository provenance mismatch for {run_id}")
+    if result["backend"] != "docker" or result["isolation"] != "container-strong":
+        raise ValueError(f"Campaign isolation mismatch for {run_id}")
+    expected_images = {
+        "evaluatorImage": (EVALUATOR_IMAGE, image_spec_hash("docker/evaluator.Dockerfile")),
+        "generatorImage": (GENERATOR_IMAGE, image_spec_hash("docker/generator.Dockerfile")),
+    }
+    for field, (tag, spec_hash) in expected_images.items():
+        image = result[field]
+        if not isinstance(image, dict) or image.get("tag") != tag \
+                or image.get("specHash") != spec_hash or image.get("os") != "linux" \
+                or not isinstance(image.get("id"), str) or not image["id"]:
+            raise ValueError(f"Campaign {field} mismatch for {run_id}")
+
+
 def aggregate(
     paths: list[Path], plan_path: Path, *, allow_incomplete: bool = False
 ) -> dict[str, Any]:
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
     validate_plan(plan)
-    plan_hash = sha256_file(plan_path)
+    plan_hash = json_value_hash(plan)
     planned = {job["runId"]: job for job in plan["jobs"]}
     seen: set[str] = set()
     results_by_id: dict[str, dict[str, Any]] = {}
+    expected_provenance = repository_provenance()
+    cohort_repeat: int | None = None
+    machine_images: dict[str, str] = {}
     for path in paths:
         result = json.loads(path.read_text(encoding="utf-8"))
         validate_result(result)
@@ -1583,10 +1876,22 @@ def aggregate(
         for field, value in expected.items():
             if result[field] != value:
                 raise ValueError(f"Plan mismatch for {run_id}: {field}")
-        if result["fixtureManifestHash"] != sha256_file(MANIFEST):
+        if result["fixtureManifestHash"] != json_file_hash(MANIFEST):
             raise ValueError(f"Fixture mismatch for {run_id}")
         if result["promptHash"] != sha256_bytes(AGENT_PROMPT.encode("utf-8")):
             raise ValueError(f"Prompt mismatch for {run_id}")
+        validate_campaign_environment(result, expected_provenance)
+        if cohort_repeat is None:
+            cohort_repeat = result["repeatCount"]
+        elif result["repeatCount"] != cohort_repeat:
+            raise ValueError(f"Mixed repeat counts in cohort at {run_id}")
+        full_image_identity = canonical_json({
+            "evaluatorImage": result["evaluatorImage"],
+            "generatorImage": result["generatorImage"],
+        })
+        previous_identity = machine_images.setdefault(result["machineId"], full_image_identity)
+        if previous_identity != full_image_identity:
+            raise ValueError(f"Image identity changed within machine {result['machineId']}")
         results_by_id[run_id] = result
 
     missing_runs = sorted(set(planned) - seen)
@@ -1629,7 +1934,11 @@ def aggregate(
         successes = sum(result["status"] == "PASS" for result in results)
         denominator = len(planned_jobs)
         low, high = wilson(successes, denominator)
-        durations = [result["durationSeconds"] for result in resolved]
+        durations = [
+            result["durationSeconds"] for result in resolved
+            if isinstance(result["durationSeconds"], (int, float))
+            and not isinstance(result["durationSeconds"], bool)
+        ]
         generation_durations = [result["generationDurationSeconds"] for result in resolved]
         machines = sorted({job["machineId"] for job in planned_jobs})
         summary["groups"][key] = {
@@ -1708,9 +2017,10 @@ def sanitized_result_for_publish(result: dict[str, Any]) -> dict[str, Any]:
         key: result[key]
         for key in (
             "runId", "candidateHash", "status", "failureKind", "durationSeconds",
+            "fixtureManifestHash", "promptHash",
             "generationDurationSeconds", "repeatCount", "backend", "isolation",
             "integrityViolations", "policyViolations", "manifestErrors", "platform",
-            "evaluatorImage", "generatorImage",
+            "provenance", "evaluatorImage", "generatorImage",
         )
     }
     published_tests: list[dict[str, Any]] = []
@@ -1737,6 +2047,8 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
     protocol = bundle["protocol"]
     plan = protocol["plan"]
     validate_plan(plan)
+    if protocol["matrix"] != load_matrix():
+        raise ValueError("Evidence matrix does not match the validated plan matrix")
     fixture_manifest = protocol["fixtureManifest"]
     if not (
         bundle["fixtureId"] == plan["fixtureId"]
@@ -1762,15 +2074,66 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
         raise ValueError("Evidence source-result hashes do not cover the planned cohort")
     if bundle["aggregate"]["planHash"] != bundle["audit"]["planHash"]:
         raise ValueError("Evidence aggregate and audit plan hashes disagree")
+    if bundle["audit"]["planHash"] != json_value_hash(plan):
+        raise ValueError("Evidence plan hash is not reproducible from the embedded plan")
+    if bundle["audit"]["fixtureManifestHash"] != json_value_hash(fixture_manifest):
+        raise ValueError("Evidence manifest hash is not reproducible from the embedded manifest")
     expected_aggregate_hash = sha256_bytes(
         canonical_json(bundle["aggregate"]).encode("utf-8")
     )
     if bundle["audit"]["aggregateHash"] != expected_aggregate_hash:
         raise ValueError("Evidence aggregate hash is invalid")
     outcomes_by_id = {outcome["runId"]: outcome for outcome in bundle["outcomes"]}
+    mapping_by_id = {item["runId"]: item for item in bundle["mapping"]}
+    repeat_counts = {outcome["repeatCount"] for outcome in outcomes_by_id.values()}
+    if len(repeat_counts) != 1:
+        raise ValueError("Evidence outcomes mix repeat counts")
+    expected_image_protocol = {
+        "evaluatorImage": (
+            EVALUATOR_IMAGE,
+            image_spec_hash_from_provenance(
+                bundle["provenance"], "docker/evaluator.Dockerfile"
+            ),
+        ),
+        "generatorImage": (
+            GENERATOR_IMAGE,
+            image_spec_hash_from_provenance(
+                bundle["provenance"], "docker/generator.Dockerfile"
+            ),
+        ),
+    }
+    machine_images: dict[str, str] = {}
     for outcome in outcomes_by_id.values():
         if (outcome["status"] == "PASS") != (outcome["failureKind"] is None):
             raise ValueError(f"Evidence status/failureKind mismatch for {outcome['runId']}")
+        if outcome["status"] == "CANDIDATE_FAILURE" \
+                and outcome["failureKind"] not in CANDIDATE_FAILURE_KINDS:
+            raise ValueError(f"Evidence failureKind is invalid for {outcome['runId']}")
+        generation_only = isinstance(outcome["failureKind"], str) \
+            and outcome["failureKind"].startswith("generation-")
+        if (outcome["durationSeconds"] is None) != generation_only:
+            raise ValueError(f"Evidence evaluation duration is invalid for {outcome['runId']}")
+        if outcome["fixtureManifestHash"] != bundle["audit"]["fixtureManifestHash"]:
+            raise ValueError(f"Evidence manifest link mismatch for {outcome['runId']}")
+        if outcome["promptHash"] != bundle["audit"]["promptHash"]:
+            raise ValueError(f"Evidence prompt link mismatch for {outcome['runId']}")
+        if outcome["provenance"] != bundle["provenance"]:
+            raise ValueError(f"Evidence provenance mismatch for {outcome['runId']}")
+        if outcome["backend"] != "docker" or outcome["isolation"] != "container-strong":
+            raise ValueError(f"Evidence isolation mismatch for {outcome['runId']}")
+        for field, (tag, spec_hash) in expected_image_protocol.items():
+            image = outcome[field]
+            if not isinstance(image, dict) or image.get("tag") != tag \
+                    or image.get("specHash") != spec_hash or image.get("os") != "linux":
+                raise ValueError(f"Evidence {field} mismatch for {outcome['runId']}")
+        machine = mapping_by_id[outcome["runId"]]["machineId"]
+        identity = canonical_json({
+            "evaluatorImage": outcome["evaluatorImage"],
+            "generatorImage": outcome["generatorImage"],
+        })
+        previous_identity = machine_images.setdefault(machine, identity)
+        if previous_identity != identity:
+            raise ValueError(f"Evidence image identity changed within machine {machine}")
     hash_counts: dict[str, int] = {}
     for outcome in outcomes_by_id.values():
         candidate_hash_value = outcome["candidateHash"]
@@ -1800,7 +2163,11 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
         passes = sum(outcome["status"] == "PASS" for outcome in outcomes)
         denominator = len(planned_jobs)
         low, high = wilson(passes, denominator)
-        evaluation_durations = [outcome["durationSeconds"] for outcome in outcomes]
+        evaluation_durations = [
+            outcome["durationSeconds"] for outcome in outcomes
+            if isinstance(outcome["durationSeconds"], (int, float))
+            and not isinstance(outcome["durationSeconds"], bool)
+        ]
         generation_durations = [outcome["generationDurationSeconds"] for outcome in outcomes]
         machines = sorted({job["machineId"] for job in planned_jobs})
         expected_summary["groups"][key] = {
@@ -1812,7 +2179,9 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
             "passRate": passes / denominator,
             "wilson95": [low, high],
             "observedResolvedPassRate": passes / denominator,
-            "medianEvaluationSeconds": statistics.median(evaluation_durations),
+            "medianEvaluationSeconds": (
+                statistics.median(evaluation_durations) if evaluation_durations else None
+            ),
             "evaluationIqrSeconds": quartiles(evaluation_durations),
             "medianGenerationSeconds": statistics.median(generation_durations),
             "generationIqrSeconds": quartiles(generation_durations),
@@ -1851,19 +2220,28 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
 
 
 def publish_evidence_bundle(paths: list[Path], plan_path: Path) -> dict[str, Any]:
+    initial_hashes = {path: sha256_file(path) for path in paths}
+    initial_plan = plan_path.read_bytes()
+    initial_manifest = MANIFEST.read_bytes()
     summary = aggregate(paths, plan_path, allow_incomplete=False)
-    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    if plan_path.read_bytes() != initial_plan or MANIFEST.read_bytes() != initial_manifest:
+        raise ValueError("Plan or fixture manifest changed while publishing")
+    plan = json.loads(initial_plan.decode("utf-8"))
+    fixture_manifest = json.loads(initial_manifest.decode("utf-8"))
     validate_plan(plan)
     results: list[dict[str, Any]] = []
     source_hashes: dict[str, str] = {}
     audit_records: list[dict[str, Any]] = []
     for path in paths:
-        result = json.loads(path.read_text(encoding="utf-8"))
+        raw = path.read_bytes()
+        if sha256_bytes(raw) != initial_hashes[path]:
+            raise ValueError(f"Source result changed while publishing: {path}")
+        result = json.loads(raw.decode("utf-8"))
         validate_result(result)
         if result["recordKind"] != "campaign":
             raise ValueError(f"Publishing rejects {result['recordKind']} record {result['runId']}")
         results.append(sanitized_result_for_publish(result))
-        source_hashes[result["runId"]] = sha256_file(path)
+        source_hashes[result["runId"]] = initial_hashes[path]
         audit = {
             key: result[key]
             for key in ("queueAudit", "replacementAudit")
@@ -1887,16 +2265,16 @@ def publish_evidence_bundle(paths: list[Path], plan_path: Path) -> dict[str, Any
         "fixtureId": FIXTURE_ID,
         "protocol": {
             "plan": plan,
-            "fixtureManifest": json.loads(MANIFEST.read_text(encoding="utf-8")),
+            "fixtureManifest": fixture_manifest,
             "matrix": load_matrix(),
         },
         "outcomes": results,
         "aggregate": summary,
         "mapping": mapping,
-        "provenance": repository_provenance(),
+        "provenance": results[0]["provenance"],
         "audit": {
-            "planHash": sha256_file(plan_path),
-            "fixtureManifestHash": sha256_file(MANIFEST),
+            "planHash": json_value_hash(plan),
+            "fixtureManifestHash": json_value_hash(fixture_manifest),
             "promptHash": sha256_bytes(AGENT_PROMPT.encode("utf-8")),
             "sourceResultHashes": dict(sorted(source_hashes.items())),
             "aggregateHash": sha256_bytes(canonical_json(summary).encode("utf-8")),
@@ -1928,7 +2306,9 @@ def parse_args() -> argparse.Namespace:
 
     verify = subparsers.add_parser("verify")
     verify.add_argument("--repeat", type=positive_int, default=20)
-    verify.add_argument("--timeout", type=positive_int, default=30)
+    verify.add_argument(
+        "--timeout", type=positive_int, default=DEFAULT_EVALUATION_TIMEOUT_SECONDS
+    )
     verify.add_argument("--backend", choices=["native", "docker"], default="native")
     verify.add_argument("--output", type=Path, default=RUNS / "verification.json")
 
@@ -1939,7 +2319,9 @@ def parse_args() -> argparse.Namespace:
     evaluate.add_argument("--effort", required=True)
     evaluate.add_argument("--machine", default=platform.node() or "local")
     evaluate.add_argument("--repeat", type=positive_int, default=20)
-    evaluate.add_argument("--timeout", type=positive_int, default=30)
+    evaluate.add_argument(
+        "--timeout", type=positive_int, default=DEFAULT_EVALUATION_TIMEOUT_SECONDS
+    )
     evaluate.add_argument("--backend", choices=["docker"], default="docker")
     evaluate.add_argument("--isolation", default="external-candidate")
     evaluate.add_argument("--output", type=Path)
@@ -1956,7 +2338,9 @@ def parse_args() -> argparse.Namespace:
     job.add_argument("--plan", type=Path, default=RUNS / "plan.json")
     job.add_argument("--run-id", required=True)
     job.add_argument("--repeat", type=positive_int, default=20)
-    job.add_argument("--timeout", type=positive_int, default=30)
+    job.add_argument(
+        "--timeout", type=positive_int, default=DEFAULT_EVALUATION_TIMEOUT_SECONDS
+    )
     job.add_argument("--backend", choices=["docker"], default="docker")
     job.add_argument("--replace", action="store_true")
     job.add_argument("--replacement-reason", default="operator-requested")
@@ -2056,7 +2440,7 @@ def main() -> int:
         print(json.dumps({
             "jobs": len(payload["jobs"]),
             "output": str(args.output),
-            "planHash": sha256_file(args.output),
+            "planHash": json_value_hash(payload),
             "blindedOutput": str(args.blinded_output),
             "blindedPlanHash": sha256_file(args.blinded_output),
         }, indent=2))
@@ -2078,7 +2462,7 @@ def main() -> int:
         job_index = plan["jobs"].index(job)
         missing_predecessors: list[str] = []
         unresolved_predecessors: list[str] = []
-        current_plan_hash = sha256_file(args.plan)
+        current_plan_hash = json_value_hash(plan)
         for prior in plan["jobs"][:job_index]:
             if prior["machineId"] != args.machine_id:
                 continue
@@ -2129,7 +2513,9 @@ def main() -> int:
                 raise ValueError(
                     f"Only an infrastructure-failure result from this campaign is replaceable: {output}"
                 )
-            if previous["failureKind"] in {"generation-launcher", "generation-inert"}:
+            if previous["failureKind"] in {
+                "generation-launcher", "generation-inert", "generation-unavailable"
+            }:
                 raise ValueError(
                     "This failure produced no sampled artifact and cannot be "
                     "replaced without resampling; freeze the campaign and apply its preregistered "
