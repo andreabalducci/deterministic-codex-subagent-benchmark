@@ -228,7 +228,7 @@ generation; fake-generator tests exercise the complete result path.
 
 ## Bundled orchestration skill
 
-The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` is a clean generated artifact; `SKILL.template.md` contains the maintenance placeholder, and `routing_policy.py --check` reproduces the installed file byte-for-byte from the template plus `routing-policy.json`.
+The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` is a clean, self-contained runtime artifact containing only routing instructions; evidence status, hashes, and experimental governance stay in the analysis artifacts. `SKILL.template.md` contains the maintenance placeholder, and `routing_policy.py --check` reproduces the installed file byte-for-byte from the template plus `routing-policy.json`.
 
 Install it for Codex:
 

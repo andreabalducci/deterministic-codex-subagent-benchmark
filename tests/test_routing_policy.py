@@ -361,6 +361,8 @@ class RoutingPolicyTests(unittest.TestCase):
         self.assertNotIn("<!--", current)
         self.assertNotIn(routing_policy.ROUTING_PLACEHOLDER, current)
         self.assertNotIn("](", current)
+        for governance_term in ("provisional", "hypothesis", "evidence-backed"):
+            self.assertNotIn(governance_term, current.lower())
         self.assertIsNone(re.search(
             r"\b[\w./-]+\.(?:json|md|ya?ml|toml|py)\b", current,
             flags=re.IGNORECASE,
@@ -368,7 +370,6 @@ class RoutingPolicyTests(unittest.TestCase):
         for route in self.policy["defaults"]:
             self.assertIn(f"`{route['id']}`", block)
             self.assertIn(f"`{route['selectedConfigurationId']}`", block)
-            self.assertIn(f"`{route['claimStrength']}`", block)
         with self.assertRaisesRegex(ValueError, "exactly one"):
             routing_policy.render_skill(
                 template + "\n" + routing_policy.ROUTING_PLACEHOLDER,
@@ -387,7 +388,10 @@ class RoutingPolicyTests(unittest.TestCase):
             skill = Path(temporary) / "SKILL.md"
             current = routing_policy.DEFAULT_SKILL.read_text(encoding="utf-8")
             skill.write_text(
-                current.replace("Status: `provisional`", "Status: `drifted`"),
+                current.replace(
+                    "Delegate only when parallelism materially helps.",
+                    "Delegate regardless of benefit.",
+                ),
                 encoding="utf-8",
             )
             failed = subprocess.run(
