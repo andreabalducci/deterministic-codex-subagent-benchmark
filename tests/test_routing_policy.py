@@ -46,6 +46,18 @@ class RoutingPolicyTests(unittest.TestCase):
             item["claimStrength"] for item in self.policy["defaults"]
         })
 
+    def test_static_security_and_opt_in_reporting_rules_survive_rendering(self):
+        template = routing_policy.DEFAULT_TEMPLATE.read_text(encoding="utf-8")
+        rendered = routing_policy.render_skill(template, self.policy)
+        self.assertIn("`gpt-daybreak-blue-latest`", rendered)
+        self.assertIn("with the Codex Security plugin", rendered)
+        self.assertIn(
+            "only when the user explicitly invoked `$orchestrate` for the current task",
+            rendered,
+        )
+        static_suffix = template.split("Assign distinct ownership", 1)[1]
+        self.assertEqual(static_suffix, rendered.split("Assign distinct ownership", 1)[1])
+
     def test_schema_rejects_additional_properties_at_every_level(self):
         for mutate in (
             lambda value: value.update({"extra": True}),

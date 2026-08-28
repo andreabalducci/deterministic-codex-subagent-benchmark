@@ -228,7 +228,7 @@ generation; fake-generator tests exercise the complete result path.
 
 ## Bundled orchestration skill
 
-The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` is a clean, self-contained runtime artifact containing only routing instructions; evidence status, hashes, and experimental governance stay in the analysis artifacts. `SKILL.template.md` contains the maintenance placeholder, and `routing_policy.py --check` reproduces the installed file byte-for-byte from the template plus `routing-policy.json`.
+The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` is a clean, self-contained runtime artifact containing only routing instructions; evidence status, hashes, and experimental governance stay in the analysis artifacts. `SKILL.template.md` contains the maintenance placeholder plus the static Daybreak Blue defensive-security boundary and final-reporting rule, and `routing_policy.py --check` reproduces the installed file byte-for-byte from the template plus `routing-policy.json`. The final `Subagents used` table is opt-in: it appears only when the user explicitly invokes `$orchestrate` for that task and at least one subagent was spawned.
 
 Install it for Codex:
 
@@ -239,7 +239,7 @@ cp -R skills/orchestrate/. "${CODEX_HOME:-$HOME/.codex}/skills/orchestrate/"
 
 Restart Codex after installation, then invoke it explicitly with `$orchestrate` or allow implicit selection for substantial multi-agent work. The skill includes UI metadata and has no external tool dependencies.
 
-This is an expanded adaptation of Eric Provencher's original [`orchestrate` skill](https://github.com/provencher/codex-skills/tree/main/orchestrate), distributed under its included MIT license. The routing profile adds model-specific hypotheses, Fast mode clarification, context-isolation rules, and coordinator-side verification. Its six routing rows are provisional until a published campaign substantiates them.
+This is an expanded adaptation of Eric Provencher's original [`orchestrate` skill](https://github.com/provencher/codex-skills/tree/main/orchestrate), distributed under its included MIT license. The routing profile adds model-specific hypotheses, Fast mode clarification, context-isolation rules, coordinator-side verification, and a manual Daybreak Blue rule for authorized defensive security review with the Codex Security plugin. Its six benchmarked routing rows are provisional until a published campaign substantiates them; the Daybreak rule is a separate manual safety boundary.
 
 ## Prerequisites
 
