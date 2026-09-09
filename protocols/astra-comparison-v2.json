@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "recordKind": "routing-protocol",
+  "protocolId": "astra-low-vs-sol-medium-v2-isolated",
+  "runtimeManifestHash": "dff6b37b0b5d185851b15b4ff90c52e92cfb77e7665659034b7bb15f85266557",
+  "seed": "astra-paired-isolated-20260907",
+  "bootstrapSeed": "astra-paired-isolated-bootstrap-20260907",
+  "bootstrapSamples": 5000,
+  "familywiseAlpha": 0.05,
+  "selection": {
+    "objective": "paired-model-comparison",
+    "costOrder": [],
+    "gate": "complete-cohort-v1",
+    "stageDecision": "compare-only",
+    "requireMachineAndEcosystemStability": true
+  },
+  "robustness": {
+    "maximumQualityFloorShortfall": 0.1,
+    "maximumDecisionGainShortfall": 0.05,
+    "maximumFixtureCandidateRateRange": 0.75,
+    "maximumFixtureDecisionGainRange": 0.75
+  },
+  "replicatesPerFixture": 3,
+  "machines": [
+    "machine-a",
+    "machine-b",
+    "machine-c"
+  ],
+  "matrix": [
+    {
+      "id": "sol-medium",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "astra-low",
+      "model": "gpt-6-astra",
+      "reasoningEffort": "low"
+    }
+  ],
+  "families": [
+    {
+      "id": "mechanical-repository-work",
+      "catalogFamilyId": "mechanical",
+      "label": "Exact mechanical repository operations",
+      "candidateId": "astra-low",
+      "heldOutFixtureIds": [
+        "mechanical-07",
+        "mechanical-08",
+        "mechanical-09",
+        "mechanical-10",
+        "mechanical-11",
+        "mechanical-12"
+      ],
+      "heldOutFixtureEcosystems": [
+        "python",
+        "repository-artifacts",
+        "dotnet",
+        "react-typescript",
+        "python",
+        "repository-artifacts"
+      ],
+      "absoluteQualityFloor": 0.8,
+      "nonInferiorityMargin": 0.05,
+      "recommendationType": "economy",
+      "decisionComparatorId": "sol-medium",
+      "minimumDecisionGain": 0.15
+    },
+    {
+      "id": "bounded-mapping-and-patch",
+      "catalogFamilyId": "bounded-mapping-patch",
+      "label": "Bounded code mapping and low-risk patches",
+      "candidateId": "astra-low",
+      "heldOutFixtureIds": [
+        "bounded-patch-07",
+        "bounded-patch-08",
+        "bounded-patch-09",
+        "bounded-patch-10",
+        "bounded-patch-11",
+        "bounded-patch-12"
+      ],
+      "heldOutFixtureEcosystems": [
+        "python",
+        "repository-artifacts",
+        "dotnet",
+        "react-typescript",
+        "python",
+        "repository-artifacts"
+      ],
+      "absoluteQualityFloor": 0.85,
+      "nonInferiorityMargin": 0.05,
+      "recommendationType": "economy",
+      "decisionComparatorId": "sol-medium",
+      "minimumDecisionGain": 0.15
+    },
+    {
+      "id": "isolated-implementation-debugging",
+      "catalogFamilyId": "isolated-implementation",
+      "label": "Isolated implementation and deterministic debugging",
+      "candidateId": "astra-low",
+      "heldOutFixtureIds": [
+        "isolated-debug-07",
+        "isolated-debug-08",
+        "isolated-debug-09",
+        "isolated-debug-10",
+        "isolated-debug-11",
+        "isolated-debug-12"
+      ],
+      "heldOutFixtureEcosystems": [
+        "python",
+        "repository-artifacts",
+        "dotnet",
+        "react-typescript",
+        "python",
+        "repository-artifacts"
+      ],
+      "absoluteQualityFloor": 0.85,
+      "nonInferiorityMargin": 0.05,
+      "recommendationType": "economy",
+      "decisionComparatorId": "sol-medium",
+      "minimumDecisionGain": 0.15
+    },
+    {
+      "id": "read-heavy-exploration-synthesis",
+      "catalogFamilyId": "read-heavy-analysis",
+      "label": "Structured defect localization with exact source evidence",
+      "candidateId": "astra-low",
+      "heldOutFixtureIds": [
+        "read-heavy-07",
+        "read-heavy-08",
+        "read-heavy-09",
+        "read-heavy-10",
+        "read-heavy-11",
+        "read-heavy-12"
+      ],
+      "heldOutFixtureEcosystems": [
+        "python",
+        "repository-artifacts",
+        "dotnet",
+        "react-typescript",
+        "python",
+        "repository-artifacts"
+      ],
+      "absoluteQualityFloor": 0.8,
+      "nonInferiorityMargin": 0.05,
+      "recommendationType": "economy",
+      "decisionComparatorId": "sol-medium",
+      "minimumDecisionGain": 0.15
+    },
+    {
+      "id": "coordination-integration",
+      "catalogFamilyId": "coordination-integration",
+      "label": "Multi-file contract, producer, consumer, and acceptance state integration",
+      "candidateId": "astra-low",
+      "heldOutFixtureIds": [
+        "coordination-07",
+        "coordination-08",
+        "coordination-09",
+        "coordination-10",
+        "coordination-11",
+        "coordination-12"
+      ],
+      "heldOutFixtureEcosystems": [
+        "python",
+        "repository-artifacts",
+        "dotnet",
+        "react-typescript",
+        "python",
+        "repository-artifacts"
+      ],
+      "absoluteQualityFloor": 0.85,
+      "nonInferiorityMargin": 0.05,
+      "recommendationType": "economy",
+      "decisionComparatorId": "sol-medium",
+      "minimumDecisionGain": 0.15
+    },
+    {
+      "id": "ambiguous-cross-cutting-high-risk",
+      "catalogFamilyId": "high-risk-change",
+      "label": "Compatibility, implementation, rollback, and acceptance state transitions",
+      "candidateId": "astra-low",
+      "heldOutFixtureIds": [
+        "high-risk-07",
+        "high-risk-08",
+        "high-risk-09",
+        "high-risk-10",
+        "high-risk-11",
+        "high-risk-12"
+      ],
+      "heldOutFixtureEcosystems": [
+        "python",
+        "repository-artifacts",
+        "dotnet",
+        "react-typescript",
+        "python",
+        "repository-artifacts"
+      ],
+      "absoluteQualityFloor": 0.9,
+      "nonInferiorityMargin": 0.05,
+      "recommendationType": "economy",
+      "decisionComparatorId": "sol-medium",
+      "minimumDecisionGain": 0.15
+    }
+  ]
+}

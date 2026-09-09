@@ -4,6 +4,9 @@ __pycache__/
 .dotnet-home/
 .nuget/
 .DS_Store
+# Campaign plans, credentials, transcripts, candidates and local evidence are private.
+runs/astra*/
+runs/astra*.json
 runs/generations/
 runs/results/*.json
 runs/replacements/

@@ -1,0 +1,11 @@
+{
+  "recordKind": "astra-local-replay-summary",
+  "verifiedRecords": 216,
+  "protocolHash": "31ab8da0a7f805cbe052b130c6a527596281e1c0d324ca1b0bcbc84e6f301bc4",
+  "planHash": "35ca058a0fb932bfa2e3c6ae3194176672f97bf8b631576de70379d1102aef62",
+  "localReplayAuditSha256": "f51105714a95c034c68bbf2bbccee97d74bdd6be5b01b9a83203651d6d4d6f89",
+  "scope": "Local source, schema, plan, transcript, usage, attempt and candidate outcome replay; not a published policy-evidence bundle.",
+  "policyPromotionAllowed": false,
+  "generationExitArtifactPassed": 1,
+  "quarantinedEarlierCampaign": "runs/astra; account-linked integration startup; not included in estimates"
+}

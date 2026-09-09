@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "recordKind": "routing-protocol",
   "protocolId": "routing-v1-narrow-six-family",
-  "runtimeManifestHash": "ac62c6f0a5708d74511d842d1d86827354a0085100213ae4a032ed9c3c70b5de",
+  "runtimeManifestHash": "2b8e74bcf92bfac0c38835cb6e3f6774e0a2af012ee198816003dbd776df49a1",
   "seed": "routing-v1-plan-20260818",
   "bootstrapSeed": "routing-v1-bootstrap-20260818",
   "bootstrapSamples": 5000,

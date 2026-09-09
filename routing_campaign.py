@@ -118,8 +118,10 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         raise ValidationError("Replicates per fixture must be divisible by machine count")
 
     matrix = protocol["matrix"]
-    if not isinstance(matrix, list) or len(matrix) != 6:
-        raise ValidationError("$.matrix must contain exactly six treatments")
+    paired = isinstance(protocol["selection"], dict) and protocol["selection"].get("objective") == "paired-model-comparison"
+    treatment_count = 2 if paired else 6
+    if not isinstance(matrix, list) or len(matrix) != treatment_count:
+        raise ValidationError(f"$.matrix must contain exactly {treatment_count} treatments")
     treatment_keys = {"id", "model", "reasoningEffort"}
     treatment_ids: list[str] = []
     treatment_pairs: list[tuple[str, str]] = []
@@ -131,19 +133,19 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
             raise ValidationError("Unsupported reasoning effort")
         treatment_ids.append(treatment["id"])
         treatment_pairs.append((treatment["model"], treatment["reasoningEffort"]))
-    if len(set(treatment_ids)) != 6 or len(set(treatment_pairs)) != 6:
+    if len(set(treatment_ids)) != treatment_count or len(set(treatment_pairs)) != treatment_count:
         raise ValidationError("Treatment IDs and model/effort pairs must be unique")
 
     selection = _exact_keys(protocol["selection"], {
         "objective", "costOrder", "gate", "stageDecision",
         "requireMachineAndEcosystemStability",
     }, "$.selection")
-    if selection["objective"] != "lowest-cost-machine-verified-sufficient" \
-            or selection["gate"] != "fixed-complete-stage-v1" \
-            or selection["stageDecision"] != "accept-or-escalate" \
+    if selection["objective"] != ("paired-model-comparison" if paired else "lowest-cost-machine-verified-sufficient") \
+            or selection["gate"] != ("complete-cohort-v1" if paired else "fixed-complete-stage-v1") \
+            or selection["stageDecision"] != ("compare-only" if paired else "accept-or-escalate") \
             or selection["requireMachineAndEcosystemStability"] is not True:
         raise ValidationError("Unsupported sequential selection contract")
-    if selection["costOrder"] != treatment_ids:
+    if selection["costOrder"] != ([] if paired else treatment_ids):
         raise ValidationError(
             "Selection cost order must exactly match matrix order from cheapest to costliest"
         )
@@ -193,14 +195,14 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         blocks_per_machine = len(fixtures) * protocol["replicatesPerFixture"] // len(machines)
         if blocks_per_machine % len(matrix):
             raise ValidationError(
-                f"Family {family['id']} cannot balance six treatment orders on every machine"
+                f"Family {family['id']} cannot balance {treatment_count} treatment orders on every machine"
             )
         family_ids.append(family["id"])
         candidate_ids.append(family["candidateId"])
         all_fixtures.extend(fixtures)
     if len(family_ids) != len(set(family_ids)):
         raise ValidationError("Family IDs must be unique")
-    if set(candidate_ids) != set(treatment_ids) or len(candidate_ids) != len(set(candidate_ids)):
+    if not paired and (set(candidate_ids) != set(treatment_ids) or len(candidate_ids) != len(set(candidate_ids))):
         raise ValidationError("The six narrowed families must preregister each treatment exactly once")
     if len(all_fixtures) != len(set(all_fixtures)):
         raise ValidationError("Fixture IDs must be globally unique")

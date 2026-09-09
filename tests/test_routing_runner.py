@@ -48,7 +48,7 @@ class FakeGenerator:
                 "timedOut": False, "launcherFailure": False,
                 "outputLimitExceeded": False,
             },
-            "codexVersion": "codex-cli 0.147.0", "generatorImage": None,
+            "codexVersion": "codex-cli 0.153.4", "generatorImage": None,
             "backend": "docker", "isolation": "container-strong",
         }
 

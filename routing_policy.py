@@ -15,6 +15,7 @@ import coordinator_evidence
 import construct_readiness
 import routing_evidence
 import routing_sequential_evidence
+import routing_comparison_evidence
 
 
 ROOT = Path(__file__).resolve().parent
@@ -356,7 +357,7 @@ def resolve_route(
 def generated_block(policy: dict[str, Any]) -> str:
     rows = "\n".join(
         f"| `{route['id']}` | {route['summary']} | `{route['selectedConfigurationId']}`: `{route['model']}`, "
-        f"`reasoning_effort: \"{route['reasoningEffort']}\"` |"
+        f"`reasoning_effort: \"{route['reasoningEffort']}\"` | {route['claimStrength']} |"
         for route in policy["defaults"]
     )
     coordinator = policy["coordinatorDefaults"][0]
@@ -365,21 +366,24 @@ def generated_block(policy: dict[str, Any]) -> str:
 
 Delegate only when parallelism materially helps.
 
-| Route | Use when | Default |
-| --- | --- | --- |
+| Route | Use when | Default | Evidence status |
+| --- | --- | --- | --- |
 {rows}
 
-Coordinator: `{coordinator['model']}` / `{coordinator['reasoningEffort']}` at session start; spawning cannot change the parent model.
+Coordinator: `{coordinator['model']}` / `{coordinator['reasoningEffort']}` at session start ({coordinator['claimStrength']}); spawning cannot change the parent model.
 
 - Classify first. Break ties by safety rank, specificity, then precedence; uncertainty routes upward in risk.
 - Cost order: {cost_order}. Use the selected configuration; if unavailable, try only later entries. If none is available, keep the work with the coordinator.
 - {FAST_MODE_TEXT}"""
 
 
-def render_skill(template_text: str, policy: dict[str, Any]) -> str:
+def render_skill(template_text: str, policy: dict[str, Any], *, comparison=None) -> str:
     if template_text.count(ROUTING_PLACEHOLDER) != 1:
         raise ValueError("SKILL.template.md must contain exactly one routing placeholder")
-    return template_text.replace(ROUTING_PLACEHOLDER, generated_block(policy))
+    if comparison is None:
+        comparison = load_json(routing_comparison_evidence.DEFAULT_SNAPSHOT)
+    measured = routing_comparison_evidence.render_guidance(comparison) + '\n' if comparison else ''
+    return template_text.replace(ROUTING_PLACEHOLDER, measured + generated_block(policy))
 
 
 def parse_evidence_paths(values: list[str]) -> dict[str, Path]:

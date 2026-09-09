@@ -96,6 +96,8 @@ def make_manifest(plan: dict[str, Any], protocol: dict[str, Any]) -> dict[str, A
 
 
 def validate_manifest(manifest: Any, plan: dict[str, Any], protocol: dict[str, Any]) -> dict[str, Any]:
+    if protocol["selection"]["objective"] != "lowest-cost-machine-verified-sufficient":
+        raise SequentialError("Comparative protocols require every treatment; sequential stopping is forbidden")
     routing_campaign.validate_plan(plan, protocol)
     manifest = _exact(
         manifest,

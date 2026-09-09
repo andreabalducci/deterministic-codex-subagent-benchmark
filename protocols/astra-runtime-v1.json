@@ -1,12 +1,18 @@
 {
   "advertisedCapabilities": {
-    "reasoningEfforts": ["low", "medium", "high"],
-    "serviceTier": "priority",
-    "treatmentIds": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]
+    "reasoningEfforts": [
+      "low",
+      "medium"
+    ],
+    "serviceTier": "default",
+    "treatmentIds": [
+      "sol-medium",
+      "astra-low"
+    ]
   },
   "codexVersion": "codex-cli 0.153.4",
   "ephemeral": true,
-  "fastMode": true,
+  "fastMode": false,
   "ignoreRules": true,
   "ignoreUserConfig": true,
   "multiAgent": false,
@@ -17,5 +23,5 @@
   },
   "recordKind": "routing-runtime-controls",
   "schemaVersion": 1,
-  "serviceTier": "priority"
+  "serviceTier": "default"
 }

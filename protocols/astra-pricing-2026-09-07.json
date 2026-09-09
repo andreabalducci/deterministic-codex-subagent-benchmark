@@ -1,0 +1,19 @@
+{
+  "asOf": "2026-09-07",
+  "currency": "USD",
+  "basis": "Standard API per million tokens; short context; uncached proxy only",
+  "models": {
+    "gpt-5.6-sol": {
+      "inputPerMillion": 4,
+      "cachedInputPerMillion": 0.4,
+      "outputPerMillion": 20,
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-sol"
+    },
+    "gpt-6-astra": {
+      "inputPerMillion": 10,
+      "cachedInputPerMillion": 1,
+      "outputPerMillion": 50,
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-astra"
+    }
+  }
+}

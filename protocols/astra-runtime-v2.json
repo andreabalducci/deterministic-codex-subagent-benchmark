@@ -1,0 +1,39 @@
+{
+  "advertisedCapabilities": {
+    "reasoningEfforts": [
+      "low",
+      "medium"
+    ],
+    "serviceTier": "default",
+    "treatmentIds": [
+      "sol-medium",
+      "astra-low"
+    ]
+  },
+  "codexVersion": "codex-cli 0.153.4",
+  "ephemeral": true,
+  "fastMode": false,
+  "ignoreRules": true,
+  "ignoreUserConfig": true,
+  "multiAgent": false,
+  "observability": {
+    "model": false,
+    "serviceTier": false,
+    "usage": true
+  },
+  "recordKind": "routing-runtime-controls",
+  "schemaVersion": 2,
+  "serviceTier": "default",
+  "disabledFeatures": [
+    "apps",
+    "plugins",
+    "remote_plugin",
+    "hooks",
+    "browser_use",
+    "browser_use_external",
+    "computer_use",
+    "image_generation",
+    "skill_search",
+    "workspace_dependencies"
+  ]
+}

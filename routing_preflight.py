@@ -53,6 +53,10 @@ def validate_catalog(
             item.get("id") for item in advertised.get("serviceTiers", [])
             if isinstance(item, dict) and isinstance(item.get("id"), str)
         })
+        # model/list lists optional paid tiers; an explicit null default means
+        # the ordinary service (no premium tier), represented here as default.
+        if "defaultServiceTier" in advertised and advertised["defaultServiceTier"] is None:
+            tiers = sorted(set(tiers) | {"default"})
         legacy_speed = sorted({
             item for item in advertised.get("additionalSpeedTiers", [])
             if isinstance(item, str)
@@ -76,11 +80,17 @@ def validate_catalog(
     return checked
 
 
-def query_catalog(auth_file: Path) -> tuple[list[dict[str, Any]], dict[str, Any], str]:
-    runtime = routing_runner.load_runtime_manifest()
+def query_catalog(auth_file: Path, runtime: dict[str, Any] | None = None) -> tuple[list[dict[str, Any]], dict[str, Any], str]:
+    runtime = runtime or routing_runner.load_runtime_manifest()
     harness.ensure_image(
         routing_runner.ROUTING_GENERATOR_IMAGE,
         routing_runner.ROUTING_GENERATOR_DOCKERFILE,
+    )
+    # Provision before spending on generation, including semantic-only tasks
+    # whose evaluator otherwise may never build the image before provenance.
+    harness.ensure_image(
+        routing_runner.routing_tasks.ROUTING_EVALUATOR_IMAGE,
+        "docker/routing-evaluator.Dockerfile",
     )
     with tempfile.TemporaryDirectory(prefix="routing-preflight-") as temporary:
         workspace = Path(temporary)
@@ -104,6 +114,7 @@ def query_catalog(auth_file: Path) -> tuple[list[dict[str, Any]], dict[str, Any]
             "--config", f'service_tier="{runtime["serviceTier"]}"',
             "--config", f'features.fast_mode={str(runtime["fastMode"]).lower()}',
             "--config", "features.multi_agent=false",
+            *routing_runner.feature_exclusion_arguments(runtime),
         ]
         process = subprocess.Popen(
             command, cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -253,7 +264,7 @@ def main() -> int:
     runtime = routing_runner.load_runtime_manifest(args.runtime_manifest)
     if routing_campaign.value_hash(runtime) != protocol["runtimeManifestHash"]:
         raise PreflightError("runtime manifest is not bound to protocol")
-    models, image, version = query_catalog(args.auth_file)
+    models, image, version = query_catalog(args.auth_file, runtime)
     report = make_report(protocol, runtime, models, image, version, args.machine_id)
     harness.save_json(args.output, report, replace=False)
     print(json.dumps({"valid": True, "treatments": len(report["treatments"]), "reportHash": routing_campaign.value_hash(report)}))

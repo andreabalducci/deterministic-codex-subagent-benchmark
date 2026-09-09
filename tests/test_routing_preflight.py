@@ -39,6 +39,17 @@ class RoutingPreflightTests(unittest.TestCase):
         with self.assertRaises(routing_preflight.PreflightError):
             routing_preflight.validate_catalog(self.protocol, self.runtime, changed)
 
+    def test_explicit_null_default_tier_is_standard_not_missing_capability(self):
+        runtime = copy.deepcopy(self.runtime)
+        runtime['serviceTier'] = 'default'
+        models = copy.deepcopy(self.models)
+        with self.assertRaises(routing_preflight.PreflightError):
+            routing_preflight.validate_catalog(self.protocol, runtime, models)
+        for model in models:
+            model['defaultServiceTier'] = None
+        checked = routing_preflight.validate_catalog(self.protocol, runtime, models)
+        self.assertTrue(all('default' in item['serviceTiers'] for item in checked))
+
     def test_report_reverse_binds_machine_protocol_and_capabilities(self):
         image = {
             "tag": "test", "id": "sha256:" + "a" * 64, "repoDigests": [],

@@ -1,5 +1,14 @@
 # Routing experiment contract
 
+## ASTRA comparison addendum
+
+The [completed isolated v2 ASTRA comparison](ASTRA_RESULTS.md) and its
+[preregistered strategy](ASTRA_STRATEGY.md) introduce a complete two-treatment
+comparison, not another ordinal stage. Its 216-job protocol requires both ASTRA
+Low and SOL Medium in every block. The six-treatment sequential rules below
+continue to govern the original policy experiment only.
+
+
 This document defines the evidence required before the bundled `orchestrate`
 skill may describe a model/reasoning pair as an evidence-backed default. The
 policy objective is *lowest-cost machine-verified sufficient*: classify the

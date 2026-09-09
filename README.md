@@ -6,12 +6,23 @@ The policy-facing worker protocol is sequential: classify the task family first,
 
 ## Evidence status
 
-The worker and coordinator protocols, 84 routing fixtures, runners, sequential state machine, analysis, and evidence publisher are implemented, but no policy-facing sequential campaign has been run or published from this repository. Consequently, there is currently no public quality evidence that substantiates any routing row in the bundled `orchestrate` skill. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. All task outputs are machine-verifiable: behavioral implementations run sealed tests, mapping and state tasks use semantic JSON contracts, and read-heavy tasks emit exact source-bound path/line/excerpt records. The pinned Docker calibration covers every reference, negative mutant, semantic-equivalence positive, and independently mutable JSON state. The paid campaign and policy promotion remain pending until terminal, replayable sequential evidence exists.
+ASTRA update (2026-09-07): the isolated v2 comparison completed 216 jobs on
+three physical hosts, with all records locally replay-verified. ASTRA Low used
+26.4% fewer total tokens and had 41.9% lower mean generation time, but its
+uncached API cost proxy per success was 83.2% higher than SOL Medium's. Strict
+end-to-end successes were 86/108 versus 88/108. See the
+[measured results and limitations](docs/ASTRA_RESULTS.md). The earlier v1 attempt
+is quarantined because of account-linked integration startup. The existing
+six-stage routing policy and coordinator default remain provisional. The skill also
+contains scoped cost/latency guidance generated from the collected comparison
+evidence; see the collection command below.
+
+The worker and coordinator protocols, 84 routing fixtures, runners, sequential state machine, analysis, and evidence publisher are implemented, but no policy-facing sequential campaign has been run or published from this repository. Consequently, no cheapest-sufficient routing row has been promoted; the generated comparison guidance makes narrower claims. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. All task outputs are machine-verifiable: behavioral implementations run sealed tests, mapping and state tasks use semantic JSON contracts, and read-heavy tasks emit exact source-bound path/line/excerpt records. The pinned Docker calibration covers every reference, negative mutant, semantic-equivalence positive, and independently mutable JSON state. The paid campaign and policy promotion remain pending until terminal, replayable sequential evidence exists.
 
 Keep these states distinct:
 
 - **Protocol evidence:** committed source, manifest validation, unit tests, and trusted reference/mutant calibration show that the evaluator and its fixture behave as specified.
-- **Campaign evidence:** independently generated, planned jobs and their immutable result records are needed to compare configurations. None are published yet.
+- **Campaign evidence:** independently generated, planned jobs and their immutable result records are needed to compare configurations. The ASTRA comparison aggregates and hash commitments are available; private run artifacts are retained locally.
 - **Published evidence:** a reviewable archive of a frozen campaign, its provenance, aggregate analysis, and the mapping disclosure. None exists yet.
 
 ## Current handoff state
@@ -33,8 +44,10 @@ Promotion is currently waiting for external evidence, not another code change:
    freeze the immutable 648-job maximum envelope and its sequential manifest.
 3. Each host runs only the currently authorized jobs. Terminal sequential state is
    replayed, analyzed, and published before any routing row is promoted.
-4. `routing_policy.py` regenerates the skill only for `SUPPORTED` claims; the
-   repository skill is then copied to the local installation and hash-checked.
+4. `routing_policy.py` validates evidence-backed selections against their replayable
+   bundles and construct-readiness gates before rendering. Comparative guidance is
+   generated separately and cannot promote a cheapest-sufficient selection. The
+   repository skill can then be copied to the local installation and hash-checked.
 
 Until all four steps are complete, the table in the skill is an explicit
 working hypothesis. Model catalog availability—including Fast/`priority`
@@ -100,8 +113,7 @@ sample. The protocol transitively freezes `protocols/routing-runtime-v1.json`:
 the worker session is ephemeral, ignores personal configuration and rules,
 disables multi-agent delegation, and requests the same service tier for all six
 treatments. The runner rejects a substituted manifest, CLI-version drift, and
-any model/service-tier mismatch when those fields are observable. Codex 0.147.0
-does not emit model or tier in `exec --json`; those runs are labeled
+any model/service-tier mismatch when those fields are observable. The original Codex 0.147.0 runtime did not emit model or tier in `exec --json`; those runs are labeled
 `cli-request-and-success`, while the separate authenticated `model/list`
 preflight verifies advertised support without pretending it observed request
 routing.
@@ -226,9 +238,50 @@ candidate and fixture hashes, generation/evaluation durations, image identity,
 and repository provenance. No command in the test suite launches a paid model
 generation; fake-generator tests exercise the complete result path.
 
+## Automated comparison evidence and skill generation
+
+Run this after the campaign driver has collected the complete planned cohort in
+one run directory:
+
+```bash
+python3 routing_comparison_evidence.py \
+  --run-root runs/astra-v2 --plan runs/astra-v2-plan.json
+```
+
+The command discovers result files, rejects missing/duplicate/foreign runs and
+unresolved infrastructure failures, recomputes the preregistered analysis and
+cost proxies, verifies transcripts, usage, attempts and fixture hashes, and
+replays candidates using Docker. It then writes the portable aggregate/hash
+snapshot at `skills/orchestrate/references/comparison-evidence.json` and
+regenerates `skills/orchestrate/SKILL.md`. It makes no model requests. Both
+outputs are computed and validated before either is replaced; an interrupted
+write is detected by the synchronization check.
+
+To reuse a trusted previous replay when Docker is unavailable, append
+`--reuse-replay-audit runs/astra-v2/replay-audit.json`. Every record, transcript,
+attempt and candidate must still match; the snapshot explicitly records that
+this is reuse of prior replay, not a fresh evaluator run. This is the basis of
+the currently bundled snapshot. Add `--check` to recollect and compare both
+outputs without writing. Protocol, pricing, snapshot and skill paths can be
+selected explicitly through the command options.
+
+Recommendations are derived per tested family, without model-specific winners:
+only a supported generation-latency claim produces a latency option. The cost
+option is descriptive, restricted to tested settings meeting the observed
+quality floor; missing costs produce no cost choice. Inconclusive/contradicted
+claims and untested coordinator capabilities remain explicit. Frozen prices
+are dated API scenarios, not current invoices or subscription-credit estimates.
+
+`python3 routing_policy.py --check` verifies snapshot integrity and generated
+skill synchronization in CI without private artifacts. It does not replay
+private originals; use the collection command's `--check` for that. The snapshot
+is a trusted local collection record with hash commitments, not a signed or
+self-contained candidate-replay bundle. Cheapest-sufficient policy promotion
+continues to require the existing sequential evidence and readiness gates.
+
 ## Bundled orchestration skill
 
-The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` is a clean, self-contained runtime artifact containing only routing instructions; evidence status, hashes, and experimental governance stay in the analysis artifacts. `SKILL.template.md` contains the maintenance placeholder plus the static Daybreak Blue defensive-security boundary and final-reporting rule, and `routing_policy.py --check` reproduces the installed file byte-for-byte from the template plus `routing-policy.json`. The final `Subagents used` table is opt-in: it appears only when the user explicitly invokes `$orchestrate` for that task and at least one subagent was spawned.
+The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` contains routing instructions, scoped comparison recommendations, explicit evidence status and a hash linking the bundled `references/comparison-evidence.json` snapshot. Install the entire skill directory, including that reference. `SKILL.template.md` contains the maintenance placeholder plus the static Daybreak Blue defensive-security boundary and final-reporting rule, and `routing_policy.py --check` reproduces the bundled file byte-for-byte from the template, `routing-policy.json` and `references/comparison-evidence.json`. The final `Subagents used` table is opt-in: it appears only when the user explicitly invokes `$orchestrate` for that task and at least one subagent was spawned.
 
 Install it for Codex:
 

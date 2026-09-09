@@ -1,0 +1,1838 @@
+{
+  "analysis": {
+    "bootstrap": {
+      "method": "fixture-then-paired-replicate-percentile",
+      "samples": 5000,
+      "seed": "astra-paired-isolated-bootstrap-20260907"
+    },
+    "complete": true,
+    "families": [
+      {
+        "absoluteQuality": {
+          "estimate": 1.0,
+          "floor": 0.8,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 1.0,
+          "nominalLower95": 1.0,
+          "nominalUpper95": 1.0,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "upper95": 1.0
+        },
+        "candidateId": "astra-low",
+        "comparisons": [
+          {
+            "candidatePassRate": 1.0,
+            "comparatorId": "sol-medium",
+            "comparatorPassRate": 1.0,
+            "difference": 0.0,
+            "holmAdjustedContradictionP": 1.0,
+            "holmAdjustedNonInferiorityP": 0.0035992801439712055,
+            "lower95": 0.0,
+            "nominalLower95": 0.0,
+            "nominalUpper95": 0.0,
+            "nonInferiorityMargin": 0.05,
+            "rawContradictionP": 1.0,
+            "rawNonInferiorityP": 0.0001999600079984003,
+            "upper95": 0.0
+          }
+        ],
+        "decision": "SUPPORTED",
+        "decisionGate": {
+          "candidateValue": 28.924504222222225,
+          "comparatorId": "sol-medium",
+          "comparatorValue": 50.81040216666667,
+          "gain": 0.4307365620263153,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 0.3409934592808172,
+          "metric": "generation-duration-gain-fraction",
+          "minimumGain": 0.15,
+          "nominalLower95": 0.37915516739780564,
+          "nominalUpper95": 0.4775501032316336,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "type": "economy",
+          "upper95": 0.5083837178790566
+        },
+        "familyId": "mechanical-repository-work",
+        "observedRuns": 36,
+        "plannedRuns": 36,
+        "reasons": [],
+        "robustness": {
+          "ecosystems": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.400181333333336,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 51.609328,
+              "fixtures": 1,
+              "gain": 0.4303320257660914,
+              "id": "dotnet",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.128496833333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.492998,
+              "fixtures": 2,
+              "gain": 0.4231180958331424,
+              "id": "python",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.208762333333336,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 44.56507666666666,
+              "fixtures": 1,
+              "gain": 0.32214270471728856,
+              "id": "react-typescript",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 27.840543999999998,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 53.85100616666666,
+              "fixtures": 2,
+              "gain": 0.48300791420990996,
+              "id": "repository-artifacts",
+              "observations": 6
+            }
+          ],
+          "fixtures": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.363946666666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.896228666666666,
+              "fixtureId": "mechanical-07",
+              "fixtures": 1,
+              "gain": 0.40341460532314755,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.794520666666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 49.807672,
+              "fixtureId": "mechanical-08",
+              "fixtures": 1,
+              "gain": 0.4218858358474038,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.400181333333336,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 51.609328,
+              "fixtureId": "mechanical-09",
+              "fixtures": 1,
+              "gain": 0.4303320257660914,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.208762333333336,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 44.56507666666666,
+              "fixtureId": "mechanical-10",
+              "fixtures": 1,
+              "gain": 0.32214270471728856,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 27.893047,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.089767333333334,
+              "fixtureId": "mechanical-11",
+              "fixtures": 1,
+              "gain": 0.44313881886534623,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 26.886567333333335,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 57.89434033333333,
+              "fixtureId": "mechanical-12",
+              "fixtures": 1,
+              "gain": 0.5355924745228837,
+              "observations": 3
+            }
+          ],
+          "heterogeneity": {
+            "fixtureCandidateRateRange": 0.0,
+            "fixtureDecisionGainRange": 0.21344976980559516
+          },
+          "leaveOneFixtureOut": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.636615733333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.793236866666675,
+              "fixtures": 5,
+              "gain": 0.43621203333614955,
+              "observations": 15,
+              "omittedFixtureId": "mechanical-07"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.950500933333338,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 51.01094820000001,
+              "fixtures": 5,
+              "gain": 0.43246495203683877,
+              "observations": 15,
+              "omittedFixtureId": "mechanical-08"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.8293688,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.650617000000004,
+              "fixtures": 5,
+              "gain": 0.4308190006846314,
+              "observations": 15,
+              "omittedFixtureId": "mechanical-09"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.6676526,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 52.059467266666665,
+              "fixtures": 5,
+              "gain": 0.44932873682409524,
+              "observations": 15,
+              "omittedFixtureId": "mechanical-10"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.130795666666664,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.954529133333345,
+              "fixtures": 5,
+              "gain": 0.428298207006491,
+              "observations": 15,
+              "omittedFixtureId": "mechanical-11"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.332091600000002,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 49.39361453333334,
+              "fixtures": 5,
+              "gain": 0.40615620304107924,
+              "observations": 15,
+              "omittedFixtureId": "mechanical-12"
+            }
+          ],
+          "machines": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.122817833333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 51.056973666666664,
+              "fixtures": 6,
+              "gain": 0.4491875288782784,
+              "id": "machine-a",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.77670116666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 47.907688,
+              "fixtures": 6,
+              "gain": 0.399330204232217,
+              "id": "machine-b",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.873993666666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 53.46654483333333,
+              "fixtures": 6,
+              "gain": 0.44125819688198853,
+              "id": "machine-c",
+              "observations": 6
+            }
+          ],
+          "passed": true,
+          "reasons": [],
+          "thresholds": {
+            "decisionGainBoundary": 0.09999999999999999,
+            "maximumDecisionGainShortfall": 0.05,
+            "maximumFixtureCandidateRateRange": 0.75,
+            "maximumFixtureDecisionGainRange": 0.75,
+            "maximumQualityFloorShortfall": 0.1,
+            "qualityBoundary": 0.7000000000000001
+          }
+        }
+      },
+      {
+        "absoluteQuality": {
+          "estimate": 1.0,
+          "floor": 0.85,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 1.0,
+          "nominalLower95": 1.0,
+          "nominalUpper95": 1.0,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "upper95": 1.0
+        },
+        "candidateId": "astra-low",
+        "comparisons": [
+          {
+            "candidatePassRate": 1.0,
+            "comparatorId": "sol-medium",
+            "comparatorPassRate": 1.0,
+            "difference": 0.0,
+            "holmAdjustedContradictionP": 1.0,
+            "holmAdjustedNonInferiorityP": 0.0035992801439712055,
+            "lower95": 0.0,
+            "nominalLower95": 0.0,
+            "nominalUpper95": 0.0,
+            "nonInferiorityMargin": 0.05,
+            "rawContradictionP": 1.0,
+            "rawNonInferiorityP": 0.0001999600079984003,
+            "upper95": 0.0
+          }
+        ],
+        "decision": "SUPPORTED",
+        "decisionGate": {
+          "candidateValue": 30.115542888888893,
+          "comparatorId": "sol-medium",
+          "comparatorValue": 53.30026577777778,
+          "gain": 0.4349832510320273,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 0.34267876379983125,
+          "metric": "generation-duration-gain-fraction",
+          "minimumGain": 0.15,
+          "nominalLower95": 0.3784750796491124,
+          "nominalUpper95": 0.49146354264032094,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "type": "economy",
+          "upper95": 0.5325148759898877
+        },
+        "familyId": "bounded-mapping-and-patch",
+        "observedRuns": 36,
+        "plannedRuns": 36,
+        "reasons": [],
+        "robustness": {
+          "ecosystems": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 31.176002333333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 58.45699533333334,
+              "fixtures": 1,
+              "gain": 0.4666848312069136,
+              "id": "dotnet",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.006475999999996,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 54.237718,
+              "fixtures": 2,
+              "gain": 0.46519733739535285,
+              "id": "python",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.692965,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.35975533333333,
+              "fixtures": 1,
+              "gain": 0.4103830567988065,
+              "id": "react-typescript",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.905669000000003,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 51.254704000000004,
+              "fixtures": 2,
+              "gain": 0.39701790103011814,
+              "id": "repository-artifacts",
+              "observations": 6
+            }
+          ],
+          "fixtures": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.421769333333334,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 46.01484200000001,
+              "fixtureId": "bounded-patch-07",
+              "fixtures": 1,
+              "gain": 0.3606026217946521,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.516354333333336,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 54.89847866666667,
+              "fixtureId": "bounded-patch-08",
+              "fixtures": 1,
+              "gain": 0.4441311476293732,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 31.176002333333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 58.45699533333334,
+              "fixtureId": "bounded-patch-09",
+              "fixtures": 1,
+              "gain": 0.4666848312069136,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.692965,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.35975533333333,
+              "fixtureId": "bounded-patch-10",
+              "fixtures": 1,
+              "gain": 0.4103830567988065,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 28.59118266666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 62.46059400000001,
+              "fixtureId": "bounded-patch-11",
+              "fixtures": 1,
+              "gain": 0.5422524693462463,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 31.294983666666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 47.61092933333333,
+              "fixtureId": "bounded-patch-12",
+              "fixtures": 1,
+              "gain": 0.3426932827216115,
+              "observations": 3
+            }
+          ],
+          "heterogeneity": {
+            "fixtureCandidateRateRange": 0.0,
+            "fixtureDecisionGainRange": 0.1995591866246348
+          },
+          "leaveOneFixtureOut": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.254297599999997,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 54.757350533333344,
+              "fixtures": 5,
+              "gain": 0.44748426822472354,
+              "observations": 15,
+              "omittedFixtureId": "bounded-patch-07"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.035380599999996,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 52.980623200000004,
+              "fixtures": 5,
+              "gain": 0.4330874424293296,
+              "observations": 15,
+              "omittedFixtureId": "bounded-patch-08"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.903450999999997,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 52.26891986666667,
+              "fixtures": 5,
+              "gain": 0.42789231007105144,
+              "observations": 15,
+              "omittedFixtureId": "bounded-patch-09"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.200058466666658,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 53.88836786666666,
+              "fixtures": 5,
+              "gain": 0.43958112553363693,
+              "observations": 15,
+              "omittedFixtureId": "bounded-patch-10"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.42041493333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 51.46820013333333,
+              "fixtures": 5,
+              "gain": 0.40894737227013356,
+              "observations": 15,
+              "omittedFixtureId": "bounded-patch-11"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.879654733333325,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 54.438133066666666,
+              "fixtures": 5,
+              "gain": 0.4511263878806837,
+              "observations": 15,
+              "omittedFixtureId": "bounded-patch-12"
+            }
+          ],
+          "machines": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 29.05082516666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 53.95968516666667,
+              "fixtures": 6,
+              "gain": 0.46161981714799416,
+              "id": "machine-a",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.1146585,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 55.320009999999996,
+              "fixtures": 6,
+              "gain": 0.45562810816556243,
+              "id": "machine-b",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 31.181145,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 50.62110216666667,
+              "fixtures": 6,
+              "gain": 0.38402872190854076,
+              "id": "machine-c",
+              "observations": 6
+            }
+          ],
+          "passed": true,
+          "reasons": [],
+          "thresholds": {
+            "decisionGainBoundary": 0.09999999999999999,
+            "maximumDecisionGainShortfall": 0.05,
+            "maximumFixtureCandidateRateRange": 0.75,
+            "maximumFixtureDecisionGainRange": 0.75,
+            "maximumQualityFloorShortfall": 0.1,
+            "qualityBoundary": 0.75
+          }
+        }
+      },
+      {
+        "absoluteQuality": {
+          "estimate": 0.8333333333333334,
+          "floor": 0.85,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 1.0,
+          "lower95": 0.3333333333333333,
+          "nominalLower95": 0.5,
+          "nominalUpper95": 1.0,
+          "rawContradictionP": 0.2621475704859028,
+          "rawSupportP": 0.7380523895220956,
+          "upper95": 1.0
+        },
+        "candidateId": "astra-low",
+        "comparisons": [
+          {
+            "candidatePassRate": 0.8333333333333334,
+            "comparatorId": "sol-medium",
+            "comparatorPassRate": 0.8333333333333334,
+            "difference": 0.0,
+            "holmAdjustedContradictionP": 1.0,
+            "holmAdjustedNonInferiorityP": 0.0035992801439712055,
+            "lower95": 0.0,
+            "nominalLower95": 0.0,
+            "nominalUpper95": 0.0,
+            "nonInferiorityMargin": 0.05,
+            "rawContradictionP": 1.0,
+            "rawNonInferiorityP": 0.0001999600079984003,
+            "upper95": 0.0
+          }
+        ],
+        "decision": "INCONCLUSIVE",
+        "decisionGate": {
+          "candidateValue": 59.39246822222223,
+          "comparatorId": "sol-medium",
+          "comparatorValue": 98.92620938888889,
+          "gain": 0.39962858590139183,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 0.2680432733248104,
+          "metric": "generation-duration-gain-fraction",
+          "minimumGain": 0.15,
+          "nominalLower95": 0.3294905202541905,
+          "nominalUpper95": 0.4619661869081744,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "type": "economy",
+          "upper95": 0.5105749742152849
+        },
+        "familyId": "isolated-implementation-debugging",
+        "observedRuns": 36,
+        "plannedRuns": 36,
+        "reasons": [
+          "absolute-quality-gate",
+          "ecosystem-quality-instability",
+          "fixture-quality-heterogeneity"
+        ],
+        "robustness": {
+          "ecosystems": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 65.72962833333334,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 115.09369966666667,
+              "fixtures": 1,
+              "gain": 0.42890333246998846,
+              "id": "dotnet",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.5,
+              "candidateValue": 54.253628666666664,
+              "comparatorPassRate": 0.5,
+              "comparatorValue": 103.3615665,
+              "fixtures": 2,
+              "gain": 0.47510829698322476,
+              "id": "python",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 66.00803033333334,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 104.723955,
+              "fixtures": 1,
+              "gain": 0.3696950202717866,
+              "id": "react-typescript",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 58.054946666666666,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 83.50823433333333,
+              "fixtures": 2,
+              "gain": 0.3047997346593002,
+              "id": "repository-artifacts",
+              "observations": 6
+            }
+          ],
+          "fixtures": [
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 51.544357999999995,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 86.93898533333333,
+              "fixtureId": "isolated-debug-07",
+              "fixtures": 1,
+              "gain": 0.4071203177449859,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 62.68401866666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 84.416544,
+              "fixtureId": "isolated-debug-08",
+              "fixtures": 1,
+              "gain": 0.25744391210013684,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 65.72962833333334,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 115.09369966666667,
+              "fixtureId": "isolated-debug-09",
+              "fixtures": 1,
+              "gain": 0.42890333246998846,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 66.00803033333334,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 104.723955,
+              "fixtureId": "isolated-debug-10",
+              "fixtures": 1,
+              "gain": 0.3696950202717866,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 56.96289933333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 119.78414766666667,
+              "fixtureId": "isolated-debug-11",
+              "fixtures": 1,
+              "gain": 0.5244537742018356,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 53.425874666666665,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 82.59992466666667,
+              "fixtureId": "isolated-debug-12",
+              "fixtures": 1,
+              "gain": 0.35319705335970164,
+              "observations": 3
+            }
+          ],
+          "heterogeneity": {
+            "fixtureCandidateRateRange": 1.0,
+            "fixtureDecisionGainRange": 0.26700986210169875
+          },
+          "leaveOneFixtureOut": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 60.96209026666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 101.3236542,
+              "fixtures": 5,
+              "gain": 0.39834295606497505,
+              "observations": 15,
+              "omittedFixtureId": "isolated-debug-07"
+            },
+            {
+              "candidatePassRate": 0.8,
+              "candidateValue": 58.734158133333345,
+              "comparatorPassRate": 0.8,
+              "comparatorValue": 101.82814246666665,
+              "fixtures": 5,
+              "gain": 0.4232030879620541,
+              "observations": 15,
+              "omittedFixtureId": "isolated-debug-08"
+            },
+            {
+              "candidatePassRate": 0.8,
+              "candidateValue": 58.125036200000004,
+              "comparatorPassRate": 0.8,
+              "comparatorValue": 95.69271133333332,
+              "fixtures": 5,
+              "gain": 0.39258658898765153,
+              "observations": 15,
+              "omittedFixtureId": "isolated-debug-09"
+            },
+            {
+              "candidatePassRate": 0.8,
+              "candidateValue": 58.069355800000004,
+              "comparatorPassRate": 0.8,
+              "comparatorValue": 97.76666026666665,
+              "fixtures": 5,
+              "gain": 0.4060413269553135,
+              "observations": 15,
+              "omittedFixtureId": "isolated-debug-10"
+            },
+            {
+              "candidatePassRate": 0.8,
+              "candidateValue": 59.87838199999999,
+              "comparatorPassRate": 0.8,
+              "comparatorValue": 94.75462173333332,
+              "fixtures": 5,
+              "gain": 0.36806900914538054,
+              "observations": 15,
+              "omittedFixtureId": "isolated-debug-11"
+            },
+            {
+              "candidatePassRate": 0.8,
+              "candidateValue": 60.585786933333324,
+              "comparatorPassRate": 0.8,
+              "comparatorValue": 102.19146633333334,
+              "fixtures": 5,
+              "gain": 0.4071345768176815,
+              "observations": 15,
+              "omittedFixtureId": "isolated-debug-12"
+            }
+          ],
+          "machines": [
+            {
+              "candidatePassRate": 0.8333333333333334,
+              "candidateValue": 59.90008416666666,
+              "comparatorPassRate": 0.8333333333333334,
+              "comparatorValue": 102.3954915,
+              "fixtures": 6,
+              "gain": 0.41501248454218653,
+              "id": "machine-a",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 0.8333333333333334,
+              "candidateValue": 57.93303583333333,
+              "comparatorPassRate": 0.8333333333333334,
+              "comparatorValue": 98.95014916666668,
+              "fixtures": 6,
+              "gain": 0.41452300657219,
+              "id": "machine-b",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 0.8333333333333334,
+              "candidateValue": 60.344284666666674,
+              "comparatorPassRate": 0.8333333333333334,
+              "comparatorValue": 95.43298750000001,
+              "fixtures": 6,
+              "gain": 0.3676789729896419,
+              "id": "machine-c",
+              "observations": 6
+            }
+          ],
+          "passed": false,
+          "reasons": [
+            "ecosystem-quality-instability",
+            "fixture-quality-heterogeneity"
+          ],
+          "thresholds": {
+            "decisionGainBoundary": 0.09999999999999999,
+            "maximumDecisionGainShortfall": 0.05,
+            "maximumFixtureCandidateRateRange": 0.75,
+            "maximumFixtureDecisionGainRange": 0.75,
+            "maximumQualityFloorShortfall": 0.1,
+            "qualityBoundary": 0.75
+          }
+        }
+      },
+      {
+        "absoluteQuality": {
+          "estimate": 0.0,
+          "floor": 0.8,
+          "holmAdjustedContradictionP": 0.0035992801439712055,
+          "holmAdjustedSupportP": 1.0,
+          "lower95": 0.0,
+          "nominalLower95": 0.0,
+          "nominalUpper95": 0.0,
+          "rawContradictionP": 0.0001999600079984003,
+          "rawSupportP": 1.0,
+          "upper95": 0.0
+        },
+        "candidateId": "astra-low",
+        "comparisons": [
+          {
+            "candidatePassRate": 0.0,
+            "comparatorId": "sol-medium",
+            "comparatorPassRate": 0.05555555555555555,
+            "difference": -0.05555555555555555,
+            "holmAdjustedContradictionP": 1.0,
+            "holmAdjustedNonInferiorityP": 1.0,
+            "lower95": -0.3333333333333333,
+            "nominalLower95": -0.16666666666666666,
+            "nominalUpper95": 0.0,
+            "nonInferiorityMargin": 0.05,
+            "rawContradictionP": 0.2955408918216357,
+            "rawNonInferiorityP": 0.7046590681863627,
+            "upper95": 0.0
+          }
+        ],
+        "decision": "CONTRADICTED",
+        "decisionGate": {
+          "candidateValue": 37.31549455555555,
+          "comparatorId": "sol-medium",
+          "comparatorValue": 74.13706977777778,
+          "gain": 0.49666887742654364,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 0.3610754848343868,
+          "metric": "generation-duration-gain-fraction",
+          "minimumGain": 0.15,
+          "nominalLower95": 0.41143017885816385,
+          "nominalUpper95": 0.567272273163077,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "type": "economy",
+          "upper95": 0.6058298803032128
+        },
+        "familyId": "read-heavy-exploration-synthesis",
+        "observedRuns": 36,
+        "plannedRuns": 36,
+        "reasons": [
+          "absolute-quality-gate",
+          "noninferiority-gate",
+          "machine-quality-instability",
+          "ecosystem-quality-instability",
+          "absolute-quality-contradicted"
+        ],
+        "robustness": {
+          "ecosystems": [
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 36.47144333333333,
+              "comparatorPassRate": 0.3333333333333333,
+              "comparatorValue": 76.726945,
+              "fixtures": 1,
+              "gain": 0.5246592532345276,
+              "id": "dotnet",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 40.811259166666666,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 70.0554975,
+              "fixtures": 2,
+              "gain": 0.4174438748840994,
+              "id": "python",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 33.799652,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 66.56417166666667,
+              "fixtures": 1,
+              "gain": 0.49222455333390935,
+              "id": "react-typescript",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 35.99967683333333,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 80.7101535,
+              "fixtures": 2,
+              "gain": 0.5539634696230218,
+              "id": "repository-artifacts",
+              "observations": 6
+            }
+          ],
+          "fixtures": [
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 37.923534,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 63.19946000000001,
+              "fixtureId": "read-heavy-07",
+              "fixtures": 1,
+              "gain": 0.3999389551746172,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 32.18985733333333,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 53.96251800000001,
+              "fixtureId": "read-heavy-08",
+              "fixtures": 1,
+              "gain": 0.4034774779536173,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 36.47144333333333,
+              "comparatorPassRate": 0.3333333333333333,
+              "comparatorValue": 76.726945,
+              "fixtureId": "read-heavy-09",
+              "fixtures": 1,
+              "gain": 0.5246592532345276,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 33.799652,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 66.56417166666667,
+              "fixtureId": "read-heavy-10",
+              "fixtures": 1,
+              "gain": 0.49222455333390935,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 43.698984333333335,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 76.911535,
+              "fixtureId": "read-heavy-11",
+              "fixtures": 1,
+              "gain": 0.4318279522917683,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 39.809496333333335,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 107.457789,
+              "fixtureId": "read-heavy-12",
+              "fixtures": 1,
+              "gain": 0.6295336363813205,
+              "observations": 3
+            }
+          ],
+          "heterogeneity": {
+            "fixtureCandidateRateRange": 0.0,
+            "fixtureDecisionGainRange": 0.22959468120670334
+          },
+          "leaveOneFixtureOut": [
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 37.19388666666667,
+              "comparatorPassRate": 0.06666666666666667,
+              "comparatorValue": 76.32459173333335,
+              "fixtures": 5,
+              "gain": 0.5126880364245312,
+              "observations": 15,
+              "omittedFixtureId": "read-heavy-07"
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 38.340622,
+              "comparatorPassRate": 0.06666666666666667,
+              "comparatorValue": 78.17198013333335,
+              "fixtures": 5,
+              "gain": 0.5095349774355893,
+              "observations": 15,
+              "omittedFixtureId": "read-heavy-08"
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 37.484304800000004,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 73.61909473333336,
+              "fixtures": 5,
+              "gain": 0.4908344779873012,
+              "observations": 15,
+              "omittedFixtureId": "read-heavy-09"
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 38.01866306666667,
+              "comparatorPassRate": 0.06666666666666667,
+              "comparatorValue": 75.65164940000001,
+              "fixtures": 5,
+              "gain": 0.4974509694342941,
+              "observations": 15,
+              "omittedFixtureId": "read-heavy-10"
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 36.0387966,
+              "comparatorPassRate": 0.06666666666666667,
+              "comparatorValue": 73.58217673333334,
+              "fixtures": 5,
+              "gain": 0.5102238313687434,
+              "observations": 15,
+              "omittedFixtureId": "read-heavy-11"
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 36.8166942,
+              "comparatorPassRate": 0.06666666666666667,
+              "comparatorValue": 67.47292593333334,
+              "fixtures": 5,
+              "gain": 0.45434863405246795,
+              "observations": 15,
+              "omittedFixtureId": "read-heavy-12"
+            }
+          ],
+          "machines": [
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 35.21494516666667,
+              "comparatorPassRate": 0.16666666666666666,
+              "comparatorValue": 72.588255,
+              "fixtures": 6,
+              "gain": 0.5148671755965663,
+              "id": "machine-a",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 36.60537983333334,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 69.6775525,
+              "fixtures": 6,
+              "gain": 0.47464601553946184,
+              "id": "machine-b",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 0.0,
+              "candidateValue": 40.12615866666667,
+              "comparatorPassRate": 0.0,
+              "comparatorValue": 80.14540183333334,
+              "fixtures": 6,
+              "gain": 0.49933299043017876,
+              "id": "machine-c",
+              "observations": 6
+            }
+          ],
+          "passed": false,
+          "reasons": [
+            "machine-quality-instability",
+            "ecosystem-quality-instability"
+          ],
+          "thresholds": {
+            "decisionGainBoundary": 0.09999999999999999,
+            "maximumDecisionGainShortfall": 0.05,
+            "maximumFixtureCandidateRateRange": 0.75,
+            "maximumFixtureDecisionGainRange": 0.75,
+            "maximumQualityFloorShortfall": 0.1,
+            "qualityBoundary": 0.7000000000000001
+          }
+        }
+      },
+      {
+        "absoluteQuality": {
+          "estimate": 0.9444444444444443,
+          "floor": 0.85,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 0.6666666666666666,
+          "nominalLower95": 0.8333333333333331,
+          "nominalUpper95": 1.0,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "upper95": 1.0
+        },
+        "candidateId": "astra-low",
+        "comparisons": [
+          {
+            "candidatePassRate": 0.9444444444444443,
+            "comparatorId": "sol-medium",
+            "comparatorPassRate": 1.0,
+            "difference": -0.05555555555555569,
+            "holmAdjustedContradictionP": 1.0,
+            "holmAdjustedNonInferiorityP": 1.0,
+            "lower95": -0.33333333333333337,
+            "nominalLower95": -0.16666666666666685,
+            "nominalUpper95": 0.0,
+            "nonInferiorityMargin": 0.05,
+            "rawContradictionP": 0.28414317136572687,
+            "rawNonInferiorityP": 0.7160567886422715,
+            "upper95": 0.0
+          }
+        ],
+        "decision": "INCONCLUSIVE",
+        "decisionGate": {
+          "candidateValue": 49.826518444444446,
+          "comparatorId": "sol-medium",
+          "comparatorValue": 73.49262733333333,
+          "gain": 0.3220201773648509,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 1.0,
+          "lower95": -0.8007213948188525,
+          "metric": "generation-duration-gain-fraction",
+          "minimumGain": 0.15,
+          "nominalLower95": -0.1924960290115178,
+          "nominalUpper95": 0.581390917573089,
+          "rawContradictionP": 0.5290941811637673,
+          "rawSupportP": 0.47110577884423116,
+          "type": "economy",
+          "upper95": 0.6135826887285867
+        },
+        "familyId": "coordination-integration",
+        "observedRuns": 36,
+        "plannedRuns": 36,
+        "reasons": [
+          "absolute-quality-gate",
+          "noninferiority-gate",
+          "economy-gain-gate",
+          "machine-gain-instability",
+          "ecosystem-gain-instability",
+          "fixture-gain-heterogeneity"
+        ],
+        "robustness": {
+          "ecosystems": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 32.407616000000004,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 84.36468033333334,
+              "fixtures": 1,
+              "gain": 0.6158627535604444,
+              "id": "dotnet",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 0.8333333333333334,
+              "candidateValue": 83.00382616666666,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 68.5927465,
+              "fixtures": 2,
+              "gain": -0.2100962623892988,
+              "id": "python",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.83751033333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 76.82090566666666,
+              "fixtures": 1,
+              "gain": 0.5985791879733848,
+              "id": "react-typescript",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 34.853165999999995,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 71.2923425,
+              "fixtures": 2,
+              "gain": 0.5111232878902809,
+              "id": "repository-artifacts",
+              "observations": 6
+            }
+          ],
+          "fixtures": [
+            {
+              "candidatePassRate": 0.6666666666666666,
+              "candidateValue": 133.74044133333334,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 71.76232800000001,
+              "fixtureId": "coordination-07",
+              "fixtures": 1,
+              "gain": -0.8636580649018706,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 34.370058,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 70.10776700000001,
+              "fixtureId": "coordination-08",
+              "fixtures": 1,
+              "gain": 0.5097539192768756,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 32.407616000000004,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 84.36468033333334,
+              "fixtureId": "coordination-09",
+              "fixtures": 1,
+              "gain": 0.6158627535604444,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 30.83751033333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 76.82090566666666,
+              "fixtureId": "coordination-10",
+              "fixtures": 1,
+              "gain": 0.5985791879733848,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 32.267211,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 65.423165,
+              "fixtureId": "coordination-11",
+              "fixtures": 1,
+              "gain": 0.5067922654001835,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 35.336274,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 72.476918,
+              "fixtureId": "coordination-12",
+              "fixtures": 1,
+              "gain": 0.5124478941005741,
+              "observations": 3
+            }
+          ],
+          "heterogeneity": {
+            "fixtureCandidateRateRange": 0.33333333333333337,
+            "fixtureDecisionGainRange": 1.479520818462315
+          },
+          "leaveOneFixtureOut": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 33.04373386666666,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 73.83868720000001,
+              "fixtures": 5,
+              "gain": 0.5524875221959978,
+              "observations": 15,
+              "omittedFixtureId": "coordination-07"
+            },
+            {
+              "candidatePassRate": 0.9333333333333333,
+              "candidateValue": 52.91781053333332,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 74.1695994,
+              "fixtures": 5,
+              "gain": 0.28652964339277087,
+              "observations": 15,
+              "omittedFixtureId": "coordination-08"
+            },
+            {
+              "candidatePassRate": 0.9333333333333333,
+              "candidateValue": 53.31029893333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 71.31821673333334,
+              "fixtures": 5,
+              "gain": 0.2525009545223712,
+              "observations": 15,
+              "omittedFixtureId": "coordination-09"
+            },
+            {
+              "candidatePassRate": 0.9333333333333333,
+              "candidateValue": 53.624320066666655,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 72.82697166666667,
+              "fixtures": 5,
+              "gain": 0.26367499788253834,
+              "observations": 15,
+              "omittedFixtureId": "coordination-10"
+            },
+            {
+              "candidatePassRate": 0.9333333333333333,
+              "candidateValue": 53.33837993333332,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 75.10651979999999,
+              "fixtures": 5,
+              "gain": 0.2898302294478924,
+              "observations": 15,
+              "omittedFixtureId": "coordination-11"
+            },
+            {
+              "candidatePassRate": 0.9333333333333333,
+              "candidateValue": 52.72456733333332,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 73.6957692,
+              "fixtures": 5,
+              "gain": 0.2845645292032135,
+              "observations": 15,
+              "omittedFixtureId": "coordination-12"
+            }
+          ],
+          "machines": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 32.490688,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 69.65463283333334,
+              "fixtures": 6,
+              "gain": 0.5335459153486266,
+              "id": "machine-a",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 33.41792,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 75.74195466666667,
+              "fixtures": 6,
+              "gain": 0.5587924797152493,
+              "id": "machine-b",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 0.8333333333333334,
+              "candidateValue": 83.57094733333332,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 75.0812945,
+              "fixtures": 6,
+              "gain": -0.11307280847872603,
+              "id": "machine-c",
+              "observations": 6
+            }
+          ],
+          "passed": false,
+          "reasons": [
+            "machine-gain-instability",
+            "ecosystem-gain-instability",
+            "fixture-gain-heterogeneity"
+          ],
+          "thresholds": {
+            "decisionGainBoundary": 0.09999999999999999,
+            "maximumDecisionGainShortfall": 0.05,
+            "maximumFixtureCandidateRateRange": 0.75,
+            "maximumFixtureDecisionGainRange": 0.75,
+            "maximumQualityFloorShortfall": 0.1,
+            "qualityBoundary": 0.75
+          }
+        }
+      },
+      {
+        "absoluteQuality": {
+          "estimate": 1.0,
+          "floor": 0.9,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 1.0,
+          "nominalLower95": 1.0,
+          "nominalUpper95": 1.0,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "upper95": 1.0
+        },
+        "candidateId": "astra-low",
+        "comparisons": [
+          {
+            "candidatePassRate": 1.0,
+            "comparatorId": "sol-medium",
+            "comparatorPassRate": 1.0,
+            "difference": 0.0,
+            "holmAdjustedContradictionP": 1.0,
+            "holmAdjustedNonInferiorityP": 0.0035992801439712055,
+            "lower95": 0.0,
+            "nominalLower95": 0.0,
+            "nominalUpper95": 0.0,
+            "nonInferiorityMargin": 0.05,
+            "rawContradictionP": 1.0,
+            "rawNonInferiorityP": 0.0001999600079984003,
+            "upper95": 0.0
+          }
+        ],
+        "decision": "SUPPORTED",
+        "decisionGate": {
+          "candidateValue": 48.831697999999996,
+          "comparatorId": "sol-medium",
+          "comparatorValue": 87.24552599999998,
+          "gain": 0.440295677740541,
+          "holmAdjustedContradictionP": 1.0,
+          "holmAdjustedSupportP": 0.0035992801439712055,
+          "lower95": 0.336496036526198,
+          "metric": "generation-duration-gain-fraction",
+          "minimumGain": 0.15,
+          "nominalLower95": 0.37764804842911315,
+          "nominalUpper95": 0.494998245466886,
+          "rawContradictionP": 1.0,
+          "rawSupportP": 0.0001999600079984003,
+          "type": "economy",
+          "upper95": 0.5272932408428128
+        },
+        "familyId": "ambiguous-cross-cutting-high-risk",
+        "observedRuns": 36,
+        "plannedRuns": 36,
+        "reasons": [],
+        "robustness": {
+          "ecosystems": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 46.95664633333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 99.36733499999998,
+              "fixtures": 1,
+              "gain": 0.5274438392321447,
+              "id": "dotnet",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 47.13014233333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 76.383681,
+              "fixtures": 2,
+              "gain": 0.38298152542120434,
+              "id": "python",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 53.367165666666665,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 106.37862966666667,
+              "fixtures": 1,
+              "gain": 0.4983281338188824,
+              "id": "react-typescript",
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 49.20304566666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 82.47991466666666,
+              "fixtures": 2,
+              "gain": 0.40345421227076594,
+              "id": "repository-artifacts",
+              "observations": 6
+            }
+          ],
+          "fixtures": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 47.83607466666666,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 83.218313,
+              "fixtureId": "high-risk-07",
+              "fixtures": 1,
+              "gain": 0.425173703453149,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 51.50317366666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 78.542575,
+              "fixtureId": "high-risk-08",
+              "fixtures": 1,
+              "gain": 0.3442642583762161,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 46.95664633333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 99.36733499999998,
+              "fixtureId": "high-risk-09",
+              "fixtures": 1,
+              "gain": 0.5274438392321447,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 53.367165666666665,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 106.37862966666667,
+              "fixtureId": "high-risk-10",
+              "fixtures": 1,
+              "gain": 0.4983281338188824,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 46.424209999999995,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 69.549049,
+              "fixtureId": "high-risk-11",
+              "fixtures": 1,
+              "gain": 0.3324968397483049,
+              "observations": 3
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 46.90291766666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 86.41725433333333,
+              "fixtureId": "high-risk-12",
+              "fixtures": 1,
+              "gain": 0.45725054529330234,
+              "observations": 3
+            }
+          ],
+          "heterogeneity": {
+            "fixtureCandidateRateRange": 0.0,
+            "fixtureDecisionGainRange": 0.19494699948383976
+          },
+          "leaveOneFixtureOut": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 49.03082266666666,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 88.05096860000002,
+              "fixtures": 5,
+              "gain": 0.44315407943545726,
+              "observations": 15,
+              "omittedFixtureId": "high-risk-07"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 48.29740286666666,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 88.9861162,
+              "fixtures": 5,
+              "gain": 0.457247883949489,
+              "observations": 15,
+              "omittedFixtureId": "high-risk-08"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 49.20670833333333,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 84.82116420000001,
+              "fixtures": 5,
+              "gain": 0.41987699889017416,
+              "observations": 15,
+              "omittedFixtureId": "high-risk-09"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 47.924604466666665,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 83.41890526666667,
+              "fixtures": 5,
+              "gain": 0.42549468476641783,
+              "observations": 15,
+              "omittedFixtureId": "high-risk-10"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 49.31319559999999,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 90.78482140000001,
+              "fixtures": 5,
+              "gain": 0.45681233008406863,
+              "observations": 15,
+              "omittedFixtureId": "high-risk-11"
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 49.21745406666667,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 87.41118033333332,
+              "fixtures": 5,
+              "gain": 0.43694326196052846,
+              "observations": 15,
+              "omittedFixtureId": "high-risk-12"
+            }
+          ],
+          "machines": [
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 48.176876,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 84.1605055,
+              "fixtures": 6,
+              "gain": 0.4275595694942683,
+              "id": "machine-a",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 48.5094105,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 81.61502183333334,
+              "fixtures": 6,
+              "gain": 0.4056313481228806,
+              "id": "machine-b",
+              "observations": 6
+            },
+            {
+              "candidatePassRate": 1.0,
+              "candidateValue": 49.8088075,
+              "comparatorPassRate": 1.0,
+              "comparatorValue": 95.96105066666667,
+              "fixtures": 6,
+              "gain": 0.48094766414117907,
+              "id": "machine-c",
+              "observations": 6
+            }
+          ],
+          "passed": true,
+          "reasons": [],
+          "thresholds": {
+            "decisionGainBoundary": 0.09999999999999999,
+            "maximumDecisionGainShortfall": 0.05,
+            "maximumFixtureCandidateRateRange": 0.75,
+            "maximumFixtureDecisionGainRange": 0.75,
+            "maximumQualityFloorShortfall": 0.1,
+            "qualityBoundary": 0.8
+          }
+        }
+      }
+    ],
+    "multiplicity": {
+      "contradictionHypotheses": 18,
+      "familywiseAlpha": 0.05,
+      "method": "holm-centered-bootstrap",
+      "simultaneousBoundsMethod": "bonferroni-percentile",
+      "simultaneousTailAlpha": 0.002777777777777778,
+      "supportHypotheses": 18
+    },
+    "planHash": "35ca058a0fb932bfa2e3c6ae3194176672f97bf8b631576de70379d1102aef62",
+    "protocolHash": "31ab8da0a7f805cbe052b130c6a527596281e1c0d324ca1b0bcbc84e6f301bc4",
+    "protocolId": "astra-low-vs-sol-medium-v2-isolated",
+    "recordKind": "routing-analysis",
+    "schemaVersion": 2
+  },
+  "costBasis": "uncached-standard-short-context-proxy-not-invoice",
+  "families": [
+    {
+      "familyId": "mechanical-repository-work",
+      "treatments": [
+        {
+          "generationP50Seconds": 50.394318,
+          "generationP95Seconds": 61.943079,
+          "passRate": 1.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": 52.04544805555555,
+          "treatmentId": "sol-medium",
+          "uncachedStandardCostProxyUsd": 6.029512,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.33497288888888893,
+          "verifiedSuccesses": 18
+        },
+        {
+          "generationP50Seconds": 27.921459,
+          "generationP95Seconds": 32.913106,
+          "passRate": 1.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": 30.18316938888889,
+          "treatmentId": "astra-low",
+          "uncachedStandardCostProxyUsd": 10.525540000000001,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.5847522222222223,
+          "verifiedSuccesses": 18
+        }
+      ]
+    },
+    {
+      "familyId": "bounded-mapping-and-patch",
+      "treatments": [
+        {
+          "generationP50Seconds": 52.1180365,
+          "generationP95Seconds": 67.92855499999996,
+          "passRate": 1.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": 54.98477422222223,
+          "treatmentId": "sol-medium",
+          "uncachedStandardCostProxyUsd": 5.722848000000001,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.31793600000000005,
+          "verifiedSuccesses": 18
+        },
+        {
+          "generationP50Seconds": 30.240613500000002,
+          "generationP95Seconds": 32.840350199999996,
+          "passRate": 1.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": 31.966257833333334,
+          "treatmentId": "astra-low",
+          "uncachedStandardCostProxyUsd": 11.070789999999997,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.6150438888888887,
+          "verifiedSuccesses": 18
+        }
+      ]
+    },
+    {
+      "familyId": "isolated-implementation-debugging",
+      "treatments": [
+        {
+          "generationP50Seconds": 99.66073549999999,
+          "generationP95Seconds": 139.1106299,
+          "passRate": 0.8333333333333334,
+          "samples": 18,
+          "totalSecondsPerSuccess": 121.55284246666666,
+          "treatmentId": "sol-medium",
+          "uncachedStandardCostProxyUsd": 7.554647999999999,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.5036432,
+          "verifiedSuccesses": 15
+        },
+        {
+          "generationP50Seconds": 59.583228500000004,
+          "generationP95Seconds": 70.36523719999998,
+          "passRate": 0.8333333333333334,
+          "samples": 18,
+          "totalSecondsPerSuccess": 74.15504266666667,
+          "treatmentId": "astra-low",
+          "uncachedStandardCostProxyUsd": 13.81923,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.9212819999999999,
+          "verifiedSuccesses": 15
+        }
+      ]
+    },
+    {
+      "familyId": "read-heavy-exploration-synthesis",
+      "treatments": [
+        {
+          "generationP50Seconds": 67.62677400000001,
+          "generationP95Seconds": 112.45336659999994,
+          "passRate": 0.05555555555555555,
+          "samples": 18,
+          "totalSecondsPerSuccess": 1357.065804,
+          "treatmentId": "sol-medium",
+          "uncachedStandardCostProxyUsd": 7.526056000000001,
+          "uncachedStandardCostProxyUsdPerSuccess": 7.526056000000001,
+          "verifiedSuccesses": 1
+        },
+        {
+          "generationP50Seconds": 35.938131999999996,
+          "generationP95Seconds": 46.92003139999999,
+          "passRate": 0.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": null,
+          "treatmentId": "astra-low",
+          "uncachedStandardCostProxyUsd": 12.190359999999998,
+          "uncachedStandardCostProxyUsdPerSuccess": null,
+          "verifiedSuccesses": 0
+        }
+      ]
+    },
+    {
+      "familyId": "coordination-integration",
+      "treatments": [
+        {
+          "generationP50Seconds": 71.3189055,
+          "generationP95Seconds": 88.58626469999997,
+          "passRate": 1.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": 74.79767266666668,
+          "treatmentId": "sol-medium",
+          "uncachedStandardCostProxyUsd": 6.498487999999999,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.3610271111111111,
+          "verifiedSuccesses": 18
+        },
+        {
+          "generationP50Seconds": 33.263709,
+          "generationP95Seconds": 81.39731934999958,
+          "passRate": 0.9444444444444444,
+          "samples": 18,
+          "totalSecondsPerSuccess": 54.10437770588236,
+          "treatmentId": "astra-low",
+          "uncachedStandardCostProxyUsd": 11.7203,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.6894294117647058,
+          "verifiedSuccesses": 17
+        }
+      ]
+    },
+    {
+      "familyId": "ambiguous-cross-cutting-high-risk",
+      "treatments": [
+        {
+          "generationP50Seconds": 86.999106,
+          "generationP95Seconds": 109.65745899999996,
+          "passRate": 1.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": 88.55093927777777,
+          "treatmentId": "sol-medium",
+          "uncachedStandardCostProxyUsd": 6.954292,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.38634955555555556,
+          "verifiedSuccesses": 18
+        },
+        {
+          "generationP50Seconds": 47.79488,
+          "generationP95Seconds": 55.7238296,
+          "passRate": 1.0,
+          "samples": 18,
+          "totalSecondsPerSuccess": 50.12187888888889,
+          "treatmentId": "astra-low",
+          "uncachedStandardCostProxyUsd": 12.784939999999999,
+          "uncachedStandardCostProxyUsdPerSuccess": 0.7102744444444444,
+          "verifiedSuccesses": 18
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Cost proxies exclude cache discounts/writes, long-context surcharges, service-tier differences, tool fees and infrastructure replacements.",
+    "Codex subscription credits cannot be inferred from API prices.",
+    "Cost-per-success ratios are descriptive; they are not a retry-policy simulation or confidence bound.",
+    "Worker evidence does not establish a live coordinator default or broad security/concurrency capability.",
+    "SUPPORTED in the embedded analysis means quality and generation-latency support, not monetary savings or policy promotion."
+  ],
+  "planHash": "35ca058a0fb932bfa2e3c6ae3194176672f97bf8b631576de70379d1102aef62",
+  "policyPromotionAllowed": false,
+  "pricingHash": "cc25bc1606aa30ca65fb85ca16681caaba7bdaaffcb93ab6d681e2f063093eef",
+  "protocolHash": "31ab8da0a7f805cbe052b130c6a527596281e1c0d324ca1b0bcbc84e6f301bc4",
+  "recordKind": "astra-comparison-report",
+  "schemaVersion": 1
+}

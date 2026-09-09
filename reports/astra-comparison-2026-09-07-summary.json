@@ -1,0 +1,40 @@
+{
+  "recordKind": "astra-comparison-summary",
+  "date": "2026-09-07",
+  "protocol": "protocols/astra-comparison-v2.json",
+  "jobs": 216,
+  "models": {
+    "sol-medium": {
+      "samples": 108,
+      "successes": 88,
+      "inputTokens": 9157131,
+      "cachedInputTokens": 7649280,
+      "outputTokens": 182866,
+      "totalTokens": 9339997,
+      "meanGenerationSeconds": 72.98535007407408,
+      "medianGenerationSeconds": 68.08432250000001,
+      "totalSecondsPerSuccess": 91.44519837499995,
+      "uncachedStandardProxyUsd": 40.285844,
+      "cacheDiscountScenarioUsd": 12.748436,
+      "uncachedStandardProxyUsdPerSuccess": 0.4577936818181818,
+      "cacheDiscountScenarioUsdPerSuccess": 0.1448685909090909
+    },
+    "astra-low": {
+      "samples": 108,
+      "successes": 86,
+      "inputTokens": 6793531,
+      "cachedInputTokens": 5717632,
+      "outputTokens": 83517,
+      "totalTokens": 6877048,
+      "meanGenerationSeconds": 42.40103772222222,
+      "medianGenerationSeconds": 34.11972900000001,
+      "totalSecondsPerSuccess": 55.23281062790697,
+      "uncachedStandardProxyUsd": 72.11116,
+      "cacheDiscountScenarioUsd": 20.652472,
+      "uncachedStandardProxyUsdPerSuccess": 0.8385018604651162,
+      "cacheDiscountScenarioUsdPerSuccess": 0.24014502325581394
+    }
+  },
+  "costBasis": "Dated Standard API proxies, not actual subscription credits or invoices.",
+  "policyPromotionAllowed": false
+}

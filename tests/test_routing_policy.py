@@ -372,13 +372,8 @@ class RoutingPolicyTests(unittest.TestCase):
         self.assertIn(routing_policy.FAST_MODE_TEXT, block)
         self.assertNotIn("<!--", current)
         self.assertNotIn(routing_policy.ROUTING_PLACEHOLDER, current)
-        self.assertNotIn("](", current)
-        for governance_term in ("provisional", "hypothesis", "evidence-backed"):
-            self.assertNotIn(governance_term, current.lower())
-        self.assertIsNone(re.search(
-            r"\b[\w./-]+\.(?:json|md|ya?ml|toml|py)\b", current,
-            flags=re.IGNORECASE,
-        ))
+        for reference in re.findall(r'\]\(([^)]+)\)', current):
+            self.assertTrue((routing_policy.DEFAULT_SKILL.parent / reference).is_file())
         for route in self.policy["defaults"]:
             self.assertIn(f"`{route['id']}`", block)
             self.assertIn(f"`{route['selectedConfigurationId']}`", block)

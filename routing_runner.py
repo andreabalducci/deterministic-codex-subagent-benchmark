@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent
 RUN_ROOT = ROOT / "runs" / "routing"
 RESULT_SCHEMA = ROOT / "schemas" / "routing-result.schema.json"
 DEFAULT_RUNTIME_MANIFEST = ROOT / "protocols" / "routing-runtime-v1.json"
-ROUTING_GENERATOR_IMAGE = "codex-routing-generator:0.147.0-dotnet10-node22-python3.12"
+ROUTING_GENERATOR_IMAGE = "codex-routing-generator:0.153.4-dotnet10-node22-python3.12"
 ROUTING_GENERATOR_DOCKERFILE = "docker/routing-generator.Dockerfile"
 MAX_GENERATOR_OUTPUT_BYTES = 16 * 1024 * 1024
 PROMPT = (
@@ -180,7 +180,9 @@ def load_runtime_manifest(path: Path = DEFAULT_RUNTIME_MANIFEST) -> dict[str, An
         "fastMode", "ephemeral", "ignoreUserConfig", "ignoreRules",
         "advertisedCapabilities", "observability",
     }
-    if set(manifest) != expected or manifest["schemaVersion"] != 1 \
+    if manifest.get("schemaVersion") == 2:
+        expected.add("disabledFeatures")
+    if set(manifest) != expected or manifest["schemaVersion"] not in {1, 2} \
             or manifest["recordKind"] != "routing-runtime-controls":
         raise ValueError("unsupported routing runtime manifest")
     if manifest["serviceTier"] not in {"priority", "default"} \
@@ -197,7 +199,18 @@ def load_runtime_manifest(path: Path = DEFAULT_RUNTIME_MANIFEST) -> dict[str, An
         "model": False, "serviceTier": False, "usage": True,
     }:
         raise ValueError("runtime telemetry contract is invalid")
+    if manifest["schemaVersion"] == 2 and manifest["disabledFeatures"] != [
+        "apps", "plugins", "remote_plugin", "hooks", "browser_use",
+        "browser_use_external", "computer_use", "image_generation", "skill_search",
+        "workspace_dependencies",
+    ]:
+        raise ValueError("isolated worker feature exclusions are invalid")
     return manifest
+
+
+def feature_exclusion_arguments(runtime_manifest: dict[str, Any]) -> list[str]:
+    return [argument for feature in runtime_manifest.get("disabledFeatures", [])
+            for argument in ("--disable", feature)]
 
 
 class DockerCodexGenerator:
@@ -238,6 +251,7 @@ class DockerCodexGenerator:
             "--config", f'service_tier="{self.runtime_manifest["serviceTier"]}"',
             "--config", f'features.fast_mode={str(self.runtime_manifest["fastMode"]).lower()}',
             "--config", "features.multi_agent=false",
+            *feature_exclusion_arguments(self.runtime_manifest),
         ]
         command = [
             *envelope, ROUTING_GENERATOR_IMAGE,

@@ -83,7 +83,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Build the pinned generator image
-        run: docker build --file docker/generator.Dockerfile --tag codex-bench-generator:0.147.0 .
+        run: docker build --file docker/generator.Dockerfile --tag codex-bench-generator:0.153.4 .
       - name: Probe the generator container without a credential or a model request
         run: python harness.py check-generator --output runs/generator-check.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -94,7 +94,7 @@ jobs:
       - name: Check model and effort CLI flag compatibility with the pinned Codex CLI
         run: >-
           python -c "import json,subprocess; matrix=json.load(open('matrix.json'))['configurations'];
-          [subprocess.check_call(['docker','run','--rm','codex-bench-generator:0.147.0','codex','exec','--model',row['model'],'--config',f'''model_reasoning_effort=\"{row['reasoningEffort']}\"''','--help']) for row in matrix]"
+          [subprocess.check_call(['docker','run','--rm','codex-bench-generator:0.153.4','codex','exec','--model',row['model'],'--config',f'''model_reasoning_effort=\"{row['reasoningEffort']}\"''','--help']) for row in matrix]"
 
   native-matrix:
     if: github.event_name == 'workflow_dispatch'

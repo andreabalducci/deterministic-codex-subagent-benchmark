@@ -249,10 +249,10 @@
       "scopedClaim": "machine-verified compatibility, implementation, rollback, and acceptance state transitions"
     }
   ],
-  "protocolHash": "46f990247b9aa10922a1b5c81d96e66b46965c9c82e040a192048cae370b45b3",
+  "protocolHash": "48c0982de758904899c8dca46049d95f70520b1c6f30b4bcdc9108069c67a601",
   "protocolId": "routing-operational-v1-narrow-six-family",
   "recordKind": "construct-readiness",
-  "reportHash": "d4803575ea2841e93ad1af415d5fe78aac1aad9f1c1402a1452ee296ae71c489",
+  "reportHash": "ebf9c607db58b8dfc4047e363a4b5bb4b15fc53c1387c7c8af1965286a9247b9",
   "schemaVersion": 1,
   "sourceArtifacts": {
     "dockerCalibration": {

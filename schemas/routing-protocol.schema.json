@@ -21,12 +21,12 @@
       "type": "object", "additionalProperties": false,
       "required": ["objective", "costOrder", "gate", "stageDecision", "requireMachineAndEcosystemStability"],
       "properties": {
-        "objective": {"const": "lowest-cost-machine-verified-sufficient"},
+        "objective": {"enum": ["lowest-cost-machine-verified-sufficient", "paired-model-comparison"]},
         "costOrder": {
-          "const": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]
+          "oneOf": [{"const": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]}, {"const": []}]
         },
-        "gate": {"const": "fixed-complete-stage-v1"},
-        "stageDecision": {"const": "accept-or-escalate"},
+        "gate": {"enum": ["fixed-complete-stage-v1", "complete-cohort-v1"]},
+        "stageDecision": {"enum": ["accept-or-escalate", "compare-only"]},
         "requireMachineAndEcosystemStability": {"const": true}
       }
     },
@@ -45,7 +45,7 @@
       "items": {"type": "string", "minLength": 1}
     },
     "matrix": {
-      "type": "array", "minItems": 6, "maxItems": 6,
+      "type": "array", "minItems": 2, "maxItems": 6,
       "items": {"$ref": "#/$defs/treatment"}
     },
     "families": {
@@ -53,6 +53,17 @@
       "items": {"$ref": "#/$defs/family"}
     }
   },
+  "allOf": [{
+    "if": {"properties": {"selection": {"properties": {"objective": {"const": "paired-model-comparison"}}}}},
+    "then": {"properties": {
+      "matrix": {"minItems": 2, "maxItems": 2},
+      "selection": {"properties": {"costOrder": {"const": []}, "gate": {"const": "complete-cohort-v1"}, "stageDecision": {"const": "compare-only"}}}
+    }},
+    "else": {"properties": {
+      "matrix": {"minItems": 6, "maxItems": 6},
+      "selection": {"properties": {"costOrder": {"minItems": 6}, "gate": {"const": "fixed-complete-stage-v1"}, "stageDecision": {"const": "accept-or-escalate"}}}
+    }}
+  }],
   "$defs": {
     "treatment": {
       "type": "object",
