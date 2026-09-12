@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 import routing_comparison_evidence as evidence
 import routing_campaign as routing
 import routing_runner
+import routing_policy
 
 
 def rehash(snapshot):
@@ -21,6 +22,32 @@ def rehash(snapshot):
 class ComparisonEvidenceTests(unittest.TestCase):
     def setUp(self):
         self.snapshot = routing.load_json(evidence.DEFAULT_SNAPSHOT)
+
+    def test_publisher_writes_and_checks_routing_reference_with_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan = root / 'plan.json'
+            plan.write_text('{}')
+            snapshot_path = root / 'references/comparison-evidence.json'
+            skill = root / 'SKILL.md'
+            reference = root / 'references/model-routing.md'
+            args = ['routing_comparison_evidence.py', '--run-root', tmp,
+                    '--plan', str(plan), '--output', str(snapshot_path), '--skill', str(skill)]
+            with mock.patch.object(evidence, 'collect', return_value=self.snapshot), \
+                    mock.patch.object(sys, 'argv', args), mock.patch('builtins.print'):
+                evidence.main()
+                self.assertEqual(self.snapshot, json.loads(snapshot_path.read_text()))
+                self.assertEqual(routing_policy.render_routing_reference(
+                    routing_policy.load_json(routing_policy.DEFAULT_ARTIFACT),
+                    comparison=self.snapshot), reference.read_text())
+                args.append('--check')
+                evidence.main()
+                before = skill.read_bytes()
+                reference.write_text('stale reference')
+                with self.assertRaisesRegex(ValueError, 'out of date'):
+                    evidence.main()
+                self.assertEqual(before, skill.read_bytes())
+                self.assertEqual('stale reference', reference.read_text())
 
     def test_current_evidence_yields_scoped_choices_and_abstains(self):
         choices = {r['familyId']: r for r in evidence.recommendations(self.snapshot)}

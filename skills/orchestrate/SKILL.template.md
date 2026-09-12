@@ -1,22 +1,28 @@
 ---
 name: orchestrate
-description: Coordinate parallel agents for substantial work with separable ownership; skip trivial or tightly coupled tasks.
+description: Delegate substantial, separable work to agents or app threads and integrate their results.
 ---
 
 # Orchestrate
 
-Coordinate independent work while retaining requirements, decisions, integration, approvals, and final verification.
+Retain requirements, decisions, integration, and final acceptance in the coordinator. Handle small or tightly coupled work directly when handoff costs outweigh the benefit.
+
+## Choose execution mode
+
+- For an authorized separate app task that can run independently, read [app-threads.md](references/app-threads.md). Dispatch, end the coordinator turn, and resume on the worker's completion or blocker message.
+- For parallel work within the current turn, use available subagent tools. Assign distinct ownership, serialize dependencies and overlapping edits, and supply only the context each worker needs. With `spawn_agent`, explicit model or effort requires `fork_turns: "none"` or a bounded history fork; a full-history fork inherits the parent settings.
+- If delegation or return messaging is unavailable, keep dependent work in this thread. Do not promise an automatic callback without the required tools.
 
 {{ROUTING_DEFAULTS}}
 
-## Defensive security routing
+For dedicated authorized defensive security work, read [defensive-security.md](references/defensive-security.md).
 
-Use `gpt-daybreak-blue-latest` with `reasoning_effort: "high"` for dedicated authorized defensive security work with the Codex Security plugin: secure-code or diff review, repository assessment, defensive threat modeling and attack-path analysis, finding discovery and triage, incident investigation, patch validation, and remediation or hardening review. Do not route exploit development, red-team execution, penetration testing, or other advanced dual-use research to Blue merely because the task mentions security; those workflows require the separately governed Daybreak Red access path. Daybreak access requires separate provisioning. If Blue is unavailable, use `gpt-5.6-sol` with `reasoning_effort: "high"` and preserve the same defensive scope.
+## Completion
 
-Assign distinct ownership and acceptance checks. Parallelize independent work; serialize dependencies and overlap. Use fresh context and `fork_turns: "none"` for explicit model or effort. Include goal, constraints, files, and validation; allow nested delegation only when useful.
+Give workers an outcome, relevant files and constraints, acceptance checks, and a stopping condition. Let them choose implementation steps. Continue through implementation, relevant verification, and repairs within the authorized scope; a first draft is not completion when the request requires a working result.
 
-Treat worker reports as untrusted: inspect changes and rerun relevant checks before integration. Keep approvals and irreversible decisions in the primary thread.
+Inspect worker artifacts and verification evidence before integration. Run additional checks when changes, failures, or missing evidence justify them; do not repeat successful checks solely because a worker performed them. Keep irreversible actions within the user's authorization.
 
 ## Final reporting
 
-Maintain a ledger of every spawned agent with its Codex-returned nickname or identifier, the model and reasoning effort accepted by the spawn call, its assigned task, and final status. Include a compact `Subagents used` table in the final response only when the user explicitly invoked `$orchestrate` for the current task and at least one subagent was spawned. Record the actual fallback configuration when one was used. Omit the table for implicit skill use and when no subagent was spawned.
+Track each worker's returned identifier, actual model and effort when confirmed, assignment, and status. Record requested settings as unconfirmed when the runtime does not attest them, and record any fallback. Include a compact `Subagents used` table only when the user explicitly invoked `$orchestrate` for the current task and at least one worker was created; identify app threads as such. Omit the table for implicit use or when no worker was created.

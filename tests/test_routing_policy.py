@@ -46,17 +46,19 @@ class RoutingPolicyTests(unittest.TestCase):
             item["claimStrength"] for item in self.policy["defaults"]
         })
 
-    def test_static_security_and_opt_in_reporting_rules_survive_rendering(self):
+    def test_entrypoint_preserves_static_instructions_and_resolves_references(self):
         template = routing_policy.DEFAULT_TEMPLATE.read_text(encoding="utf-8")
         rendered = routing_policy.render_skill(template, self.policy)
-        self.assertIn("`gpt-daybreak-blue-latest`", rendered)
-        self.assertIn("with the Codex Security plugin", rendered)
-        self.assertIn(
-            "only when the user explicitly invoked `$orchestrate` for the current task",
-            rendered,
-        )
-        static_suffix = template.split("Assign distinct ownership", 1)[1]
-        self.assertEqual(static_suffix, rendered.split("Assign distinct ownership", 1)[1])
+        prefix, suffix = template.split(routing_policy.ROUTING_PLACEHOLDER)
+        self.assertTrue(rendered.startswith(prefix))
+        self.assertTrue(rendered.endswith(suffix))
+        reference = routing_policy.render_routing_reference(self.policy)
+        self.assertEqual(reference, (routing_policy.DEFAULT_SKILL.parent /
+                                    "references/model-routing.md").read_text())
+        for base, document in ((routing_policy.DEFAULT_SKILL.parent, rendered),
+                               (routing_policy.DEFAULT_SKILL.parent / "references", reference)):
+            for target in re.findall(r'\]\(([^)]+)\)', document):
+                self.assertTrue((base / target).is_file(), target)
 
     def test_schema_rejects_additional_properties_at_every_level(self):
         for mutate in (
@@ -394,9 +396,12 @@ class RoutingPolicyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             skill = Path(temporary) / "SKILL.md"
             current = routing_policy.DEFAULT_SKILL.read_text(encoding="utf-8")
+            (skill.parent / "references").mkdir()
+            (skill.parent / "references/model-routing.md").write_text(
+                routing_policy.render_routing_reference(self.policy))
             skill.write_text(
                 current.replace(
-                    "Delegate only when parallelism materially helps.",
+                    "# Orchestrate",
                     "Delegate regardless of benefit.",
                 ),
                 encoding="utf-8",
@@ -411,6 +416,21 @@ class RoutingPolicyTests(unittest.TestCase):
             )
         self.assertEqual(1, failed.returncode)
         self.assertIn("out of date", failed.stderr)
+
+    def test_check_detects_missing_or_changed_routing_reference(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            skill = Path(temporary) / "SKILL.md"
+            skill.write_text(routing_policy.DEFAULT_SKILL.read_text())
+            reference = skill.parent / "references/model-routing.md"
+            command = [sys.executable, str(ROOT / "routing_policy.py"),
+                       "--check", "--skill", str(skill)]
+            for contents in (None, "stale routing", routing_policy.render_routing_reference(self.policy)):
+                if contents is not None:
+                    reference.parent.mkdir(exist_ok=True)
+                    reference.write_text(contents)
+                result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+                self.assertEqual(0 if contents == routing_policy.render_routing_reference(self.policy)
+                                 else 1, result.returncode, result.stderr)
 
 
 if __name__ == "__main__":

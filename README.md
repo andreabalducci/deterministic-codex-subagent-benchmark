@@ -253,15 +253,15 @@ unresolved infrastructure failures, recomputes the preregistered analysis and
 cost proxies, verifies transcripts, usage, attempts and fixture hashes, and
 replays candidates using Docker. It then writes the portable aggregate/hash
 snapshot at `skills/orchestrate/references/comparison-evidence.json` and
-regenerates `skills/orchestrate/SKILL.md`. It makes no model requests. Both
-outputs are computed and validated before either is replaced; an interrupted
+regenerates `skills/orchestrate/SKILL.md` and `references/model-routing.md`. It makes no model requests. All
+outputs are computed and validated before any is replaced; an interrupted
 write is detected by the synchronization check.
 
 To reuse a trusted previous replay when Docker is unavailable, append
 `--reuse-replay-audit runs/astra-v2/replay-audit.json`. Every record, transcript,
 attempt and candidate must still match; the snapshot explicitly records that
 this is reuse of prior replay, not a fresh evaluator run. This is the basis of
-the currently bundled snapshot. Add `--check` to recollect and compare both
+the currently bundled snapshot. Add `--check` to recollect and compare all
 outputs without writing. Protocol, pricing, snapshot and skill paths can be
 selected explicitly through the command options.
 
@@ -281,16 +281,18 @@ continues to require the existing sequential evidence and readiness gates.
 
 ## Bundled orchestration skill
 
-The repository includes the exact [`orchestrate`](skills/orchestrate/SKILL.md) routing policy used to design and audit this benchmark. `SKILL.md` contains routing instructions, scoped comparison recommendations, explicit evidence status and a hash linking the bundled `references/comparison-evidence.json` snapshot. Install the entire skill directory, including that reference. `SKILL.template.md` contains the maintenance placeholder plus the static Daybreak Blue defensive-security boundary and final-reporting rule, and `routing_policy.py --check` reproduces the bundled file byte-for-byte from the template, `routing-policy.json` and `references/comparison-evidence.json`. The final `Subagents used` table is opt-in: it appears only when the user explicitly invokes `$orchestrate` for that task and at least one subagent was spawned.
+The repository includes the installable [`orchestrate`](skills/orchestrate/SKILL.md) skill. Its entrypoint routes to conditional references for model selection, asynchronous app threads, and defensive security. Install the entire directory. `SKILL.template.md` holds the shared workflow; `routing_policy.py --write` generates both `SKILL.md` and `references/model-routing.md`, and `--check` verifies both against the template, `routing-policy.json`, and the hash-bound `references/comparison-evidence.json`. The final `Subagents used` table is opt-in when the user explicitly invokes `$orchestrate` and creates workers.
 
-Install it for Codex:
+The app-thread mode supports an Astra coordinator planning an independent task, dispatching it with `create_thread`, ending its turn, and resuming when the worker calls `send_message_to_thread`. The brief includes the origin ID, artifact delivery, completion criteria, and a blocker callback. It requires available app tools and authorization to create a separate task; ordinary subagents remain an alternative. No callback performance or subscription savings have been measured by this benchmark.
+
+Following [OpenAI's guidance on skills and prompts for GPT-6 Astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra), the skill uses a narrow description, conditional references, outcome-based briefs, explicit completion, and verification driven by missing evidence. This editorial update does not change benchmark protocols, measured recommendations, or provisional policy status.
 
 ```bash
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills/orchestrate"
 cp -R skills/orchestrate/. "${CODEX_HOME:-$HOME/.codex}/skills/orchestrate/"
 ```
 
-Restart Codex after installation, then invoke it explicitly with `$orchestrate` or allow implicit selection for substantial multi-agent work. The skill includes UI metadata and has no external tool dependencies.
+Restart Codex after installation, then invoke it explicitly with `$orchestrate` or allow implicit selection for substantial multi-agent work. The skill includes UI metadata. App-thread mode requires the app thread tools; other modes use the available subagent tools.
 
 This is an expanded adaptation of Eric Provencher's original [`orchestrate` skill](https://github.com/provencher/codex-skills/tree/main/orchestrate), distributed under its included MIT license. The routing profile adds model-specific hypotheses, Fast mode clarification, context-isolation rules, coordinator-side verification, and a manual Daybreak Blue rule for authorized defensive security review with the Codex Security plugin. Its six benchmarked routing rows are provisional until a published campaign substantiates them; the Daybreak rule is a separate manual safety boundary.
 

@@ -364,26 +364,36 @@ def generated_block(policy: dict[str, Any]) -> str:
     cost_order = " → ".join(f"`{item}`" for item in policy["configurationCostOrder"])
     return f"""## Routing defaults
 
-Delegate only when parallelism materially helps.
+Delegate when independent execution or model specialization justifies the handoff cost.
 
 | Route | Use when | Default | Evidence status |
 | --- | --- | --- | --- |
 {rows}
 
-Coordinator: `{coordinator['model']}` / `{coordinator['reasoningEffort']}` at session start ({coordinator['claimStrength']}); spawning cannot change the parent model.
+Benchmark coordinator default: `{coordinator['model']}` / `{coordinator['reasoningEffort']}` ({coordinator['claimStrength']}). Preserve the user's current coordinator, including Astra; creating a worker does not change the parent model.
 
 - Classify first. Break ties by safety rank, specificity, then precedence; uncertainty routes upward in risk.
 - Cost order: {cost_order}. Use the selected configuration; if unavailable, try only later entries. If none is available, keep the work with the coordinator.
 - {FAST_MODE_TEXT}"""
 
 
+def render_routing_reference(policy: dict[str, Any], *, comparison=None) -> str:
+    if comparison is None:
+        comparison = load_json(routing_comparison_evidence.DEFAULT_SNAPSHOT)
+    measured = routing_comparison_evidence.render_guidance(
+        comparison, evidence_link="comparison-evidence.json") + '\n' if comparison else ''
+    return "# Model routing\n\n" + measured + generated_block(policy) + "\n"
+
+
 def render_skill(template_text: str, policy: dict[str, Any], *, comparison=None) -> str:
     if template_text.count(ROUTING_PLACEHOLDER) != 1:
         raise ValueError("SKILL.template.md must contain exactly one routing placeholder")
-    if comparison is None:
-        comparison = load_json(routing_comparison_evidence.DEFAULT_SNAPSHOT)
-    measured = routing_comparison_evidence.render_guidance(comparison) + '\n' if comparison else ''
-    return template_text.replace(ROUTING_PLACEHOLDER, measured + generated_block(policy))
+    # Validate evidence even though its full tables are disclosed separately.
+    render_routing_reference(policy, comparison=comparison)
+    return template_text.replace(ROUTING_PLACEHOLDER,
+        "When choosing a worker model, read [model-routing.md](references/model-routing.md). "
+        "Respect explicit user choices; measured recommendations apply only to their tested scope. "
+        "Other defaults remain hypotheses.")
 
 
 def parse_evidence_paths(values: list[str]) -> dict[str, Path]:
@@ -423,13 +433,16 @@ def main() -> int:
     )
     current = args.skill.read_text(encoding="utf-8") if args.skill.is_file() else ""
     rendered = render_skill(args.template.read_text(encoding="utf-8"), policy)
+    reference = args.skill.parent / "references" / "model-routing.md"
+    routing_text = render_routing_reference(policy)
     if args.check:
-        if rendered != current:
-            print("SKILL.md routing block is out of date", file=sys.stderr)
+        if rendered != current or not reference.is_file() or reference.read_text(encoding="utf-8") != routing_text:
+            print("Generated skill or routing reference is out of date", file=sys.stderr)
             return 1
         print(f"Routing policy is synchronized ({canonical_sha256(policy)})")
         return 0
     if args.write:
+        harness.atomic_write(reference, routing_text.encode("utf-8"), replace=True)
         harness.atomic_write(args.skill, rendered.encode("utf-8"), replace=True)
         print(args.skill)
         return 0

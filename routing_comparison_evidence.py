@@ -155,7 +155,7 @@ def recommendations(snapshot):
     return output
 
 
-def render_guidance(snapshot):
+def render_guidance(snapshot, *, evidence_link="references/comparison-evidence.json"):
     choices = recommendations(snapshot)
     matrix = {t['id']: t for t in snapshot['protocol']['matrix']}
 
@@ -182,7 +182,7 @@ def render_guidance(snapshot):
         'Inconclusive or contradicted latency claims provide no latency recommendation. '
         'Insufficient evidence does not prove that an untested fallback is better. '
         'Exact source-record, JSON integration and rollback-state tests do not establish broad code-analysis, security, concurrency or live-coordinator capability.',
-        f"Evidence: [comparison-evidence.json](references/comparison-evidence.json), content SHA-256 `{snapshot['contentHash']}`. "
+        f"Evidence: [comparison-evidence.json]({evidence_link}), content SHA-256 `{snapshot['contentHash']}`. "
         f"Replay basis: {snapshot['replayBasis']}. The snapshot records local artifact replay commitments; rechecking private originals requires the collection command. "
         'It does not authorize cheapest-sufficient policy promotion.', ''])
     return '\n'.join(lines)
@@ -210,17 +210,20 @@ def main():
     if args.check:
         if routing.load_json(args.output) != snapshot:
             raise ValueError('Collected evidence is out of date')
-    # Validate and render everything before replacing either output.
+    # Validate and render everything before replacing any output.
     import routing_policy
     policy = routing_policy.load_json(routing_policy.DEFAULT_ARTIFACT)
     routing_policy.validate_policy(policy, routing_policy.load_matrix())
     rendered = routing_policy.render_skill(
         routing_policy.DEFAULT_TEMPLATE.read_text(), policy, comparison=snapshot)
+    reference = args.skill.parent / 'references/model-routing.md'
+    routing_text = routing_policy.render_routing_reference(policy, comparison=snapshot)
     if args.check:
-        if args.skill.read_text() != rendered:
+        if args.skill.read_text() != rendered or not reference.is_file() or reference.read_text() != routing_text:
             raise ValueError('Generated comparison skill is out of date')
     else:
         harness.atomic_write(args.output, (routing.canonical_json(snapshot) + '\n').encode(), replace=True)
+        harness.atomic_write(reference, routing_text.encode(), replace=True)
         harness.atomic_write(args.skill, rendered.encode(), replace=True)
     print('Comparison evidence and skill are synchronized')
 
