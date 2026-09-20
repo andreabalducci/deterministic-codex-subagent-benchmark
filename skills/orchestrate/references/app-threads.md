@@ -1,6 +1,6 @@
 # Asynchronous app threads
 
-Use this mode for substantial independent work when separate task creation is authorized and `create_thread` and `send_message_to_thread` are available. A worker thread is a separate app task, not a `spawn_agent` child. The coordinator can remain on Astra while the worker uses the user's chosen model. Follow the current tool contracts for model overrides; if they require an explicit model choice and none was supplied, omit the override rather than treating a routing recommendation as authorization.
+Use this mode for substantial independent work when the user explicitly requests a new separate app task and `create_thread` and `send_message_to_thread` are available. Invoking `$orchestrate` or requesting subagents alone does not authorize `create_thread`; use in-turn subagents for that scope. A worker thread is a separate app task, not a `spawn_agent` child. The coordinator can remain on Astra while the worker uses the user's chosen model. Follow the current tool contracts for model overrides; if they require an explicit model choice and none was supplied, omit the override rather than treating a routing recommendation as authorization.
 
 ## Dispatch and yield
 
