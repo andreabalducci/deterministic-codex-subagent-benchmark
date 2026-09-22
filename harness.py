@@ -1270,9 +1270,8 @@ def load_matrix() -> list[dict[str, str]]:
     if not isinstance(document, dict) or set(document) != {"configurations"}:
         raise ValueError("Matrix must contain only configurations")
     configurations = document["configurations"]
-    if not isinstance(configurations, list) or len(configurations) < 2 \
-            or len(configurations) % 2 != 0:
-        raise ValueError("Matrix must contain an even number of configurations")
+    if not isinstance(configurations, list) or len(configurations) < 2:
+        raise ValueError("Matrix must contain at least two configurations")
     expected_keys = {"id", "model", "reasoningEffort"}
     for configuration in configurations:
         if not isinstance(configuration, dict) or set(configuration) != expected_keys:
@@ -1306,22 +1305,27 @@ def seeded_order(values: list[Any], seed: str) -> list[Any]:
 def williams_rows(configs: list[dict[str, str]], seed: str) -> list[list[dict[str, str]]]:
     permuted = seeded_order(configs, f"{seed}:configuration")
     count = len(permuted)
-    if count % 2 != 0:
-        raise ValueError("Williams design currently requires an even configuration count")
     indices = [0]
     for offset in range(1, count // 2 + 1):
         indices.append(offset)
         if count - offset != offset:
             indices.append(count - offset)
     base = indices[:count]
-    return [[permuted[(index + row) % count] for index in base] for row in range(count)]
+    sequences = [base]
+    if count % 2:
+        sequences.append(list(reversed(base)))
+    return [
+        [permuted[(index + row) % count] for index in sequence]
+        for sequence in sequences
+        for row in range(count)
+    ]
 
 
 def schedule_jobs(trials: int, seed: str, machines: list[str]) -> list[dict[str, Any]]:
     configs = load_matrix()
     if not machines or len(set(machines)) != len(machines):
         raise ValueError("Machine labels must be non-empty and unique")
-    balance_block = len(configs) * len(machines)
+    balance_block = len(williams_rows(configs, seed)) * len(machines)
     if trials <= 0 or trials % balance_block != 0:
         raise ValueError(
             f"Trials must be a positive multiple of {balance_block} "
@@ -1383,7 +1387,7 @@ def validate_plan(plan: dict[str, Any]) -> None:
     ) or len(machines) != len(set(machines)):
         raise ValueError("Plan machines must be non-empty, unique strings")
     trials = plan.get("trials")
-    balance_block = config_count * len(machines)
+    balance_block = len(williams_rows(configs, plan["seed"])) * len(machines)
     if not isinstance(trials, int) or isinstance(trials, bool) or trials <= 0 \
             or trials % balance_block != 0:
         raise ValueError(
@@ -1439,6 +1443,7 @@ def validate_plan(plan: dict[str, Any]) -> None:
         trial_blocks.append(block)
 
     cycles_per_machine = trials // balance_block
+    odd_design_multiplier = 2 if config_count % 2 else 1
     trials_per_machine = trials // len(machines)
     for machine in machines:
         machine_blocks = [block for block in trial_blocks if block[0]["machineId"] == machine]
@@ -1454,13 +1459,15 @@ def validate_plan(plan: dict[str, Any]) -> None:
                 key = (previous["id"], current["id"])
                 predecessor_counts[key] = predecessor_counts.get(key, 0) + 1
         if any(
-            position_counts.get((configuration["id"], position), 0) != cycles_per_machine
+            position_counts.get((configuration["id"], position), 0)
+            != cycles_per_machine * odd_design_multiplier
             for configuration in configs
             for position in range(config_count)
         ):
             raise ValueError("Plan is not balanced by treatment, position, and machine")
         if any(
-            predecessor_counts.get((left["id"], right["id"]), 0) != cycles_per_machine
+            predecessor_counts.get((left["id"], right["id"]), 0)
+            != cycles_per_machine * odd_design_multiplier
             for left in configs
             for right in configs
             if left["id"] != right["id"]

@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "recordKind": "routing-protocol",
-  "protocolId": "routing-v1-narrow-six-family",
-  "runtimeManifestHash": "2b8e74bcf92bfac0c38835cb6e3f6774e0a2af012ee198816003dbd776df49a1",
-  "seed": "routing-v1-plan-20260818",
-  "bootstrapSeed": "routing-v1-bootstrap-20260818",
+  "protocolId": "routing-v3-single-host-broad-extended",
+  "runtimeManifestHash": "a3290a50d2cfd26eae9b5cb4d719c390c54ba1d6ad6a67f92229d4e5038681ca",
+  "seed": "routing-v3-plan-20260922",
+  "bootstrapSeed": "routing-v3-bootstrap-20260922",
   "bootstrapSamples": 5000,
   "familywiseAlpha": 0.05,
   "selection": {
     "objective": "lowest-cost-machine-verified-sufficient",
-    "costOrder": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"],
+    "costOrder": ["luna-low", "luna-medium", "luna-high", "sol-medium", "sol-high"],
     "gate": "fixed-complete-stage-v1",
     "stageDecision": "accept-or-escalate",
     "requireMachineAndEcosystemStability": true
@@ -20,15 +20,14 @@
     "maximumFixtureCandidateRateRange": 0.75,
     "maximumFixtureDecisionGainRange": 0.75
   },
-  "replicatesPerFixture": 9,
-  "machines": ["machine-a", "machine-b", "machine-c"],
+  "replicatesPerFixture": 15,
+  "machines": ["machine-a"],
   "matrix": [
-    {"id": "luna-low", "model": "gpt-5.6-luna", "reasoningEffort": "low"},
-    {"id": "luna-medium", "model": "gpt-5.6-luna", "reasoningEffort": "medium"},
-    {"id": "luna-high", "model": "gpt-5.6-luna", "reasoningEffort": "high"},
-    {"id": "terra-medium", "model": "gpt-5.6-terra", "reasoningEffort": "medium"},
-    {"id": "sol-medium", "model": "gpt-5.6-sol", "reasoningEffort": "medium"},
-    {"id": "sol-high", "model": "gpt-5.6-sol", "reasoningEffort": "high"}
+    {"id": "luna-low", "model": "gpt-6-luna", "reasoningEffort": "low"},
+    {"id": "luna-medium", "model": "gpt-6-luna", "reasoningEffort": "medium"},
+    {"id": "luna-high", "model": "gpt-6-luna", "reasoningEffort": "high"},
+    {"id": "sol-medium", "model": "gpt-6-sol", "reasoningEffort": "medium"},
+    {"id": "sol-high", "model": "gpt-6-sol", "reasoningEffort": "high"}
   ],
   "families": [
     {
@@ -86,7 +85,7 @@
       "id": "read-heavy-exploration-synthesis",
       "catalogFamilyId": "read-heavy-analysis",
       "label": "Structured defect localization with exact source evidence",
-      "candidateId": "terra-medium",
+      "candidateId": "sol-medium",
       "heldOutFixtureIds": [
         "read-heavy-01", "read-heavy-02", "read-heavy-03", "read-heavy-04",
         "read-heavy-05", "read-heavy-06", "read-heavy-07", "read-heavy-08",
@@ -113,7 +112,7 @@
       "absoluteQualityFloor": 0.85,
       "nonInferiorityMargin": 0.1,
       "recommendationType": "capability",
-      "decisionComparatorId": "terra-medium",
+      "decisionComparatorId": "luna-high",
       "minimumDecisionGain": 0.1
     },
     {

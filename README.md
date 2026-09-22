@@ -1,8 +1,8 @@
 # Deterministic Codex subagent benchmark
 
-This repository defines machine-verifiable benchmark protocols for routing Codex subagent work to the lowest sufficient model/effort configuration across multiple worker task families, plus a separate live-coordinator experiment. It retains an immutable .NET concurrency fixture for evaluator regression testing, separates stochastic generation from reproducible evaluation, and balances execution order across machines.
+This repository defines machine-verifiable benchmark protocols for routing Codex subagent work across .NET and React/TypeScript SPA development tasks, plus a separate live-coordinator experiment. It retains an immutable .NET concurrency fixture for evaluator regression testing, separates stochastic generation from reproducible evaluation, and balances model execution order on one host.
 
-The policy-facing worker protocol is sequential: classify the task family first, then test configurations in a frozen ordinal cost order and stop at the first one that meets its fixed machine-verifiable gate. The six-configuration complete-treatment analysis remains available as a comparative, extended experiment; the matrix is intentionally not factorial, so neither workflow estimates independent causal effects of model choice or reasoning effort.
+The bundled skill can be used now with provisional GPT-6 defaults adapted from [OpenAI's model-selection guidance](https://developers.openai.com/api/docs/guides/model-selection): correctness first, cost and then time only for comparable quality ties. These are task-class hypotheses, not measured winners for .NET/SPA. The optional [`protocols/routing-quality-v1.json`](protocols/routing-quality-v1.json) campaign defines a complete comparison on one physical host (`machine-a`), with independent runs isolated in containers; [`routing_quality.py`](routing_quality.py) can rank a completed cohort. No route has been promoted. The matrix is intentionally not factorial and cannot isolate the causal effect of model choice from reasoning effort. The older cheapest-sufficient sequential workflow is documented below as optional legacy.
 
 ## Evidence status
 
@@ -13,11 +13,11 @@ uncached API cost proxy per success was 83.2% higher than SOL Medium's. Strict
 end-to-end successes were 86/108 versus 88/108. See the
 [measured results and limitations](docs/ASTRA_RESULTS.md). The earlier v1 attempt
 is quarantined because of account-linked integration startup. The existing
-six-stage routing policy and coordinator default remain provisional. The skill also
-contains scoped cost/latency guidance generated from the collected comparison
-evidence; see the collection command below.
+worker routing policy and coordinator default remain provisional. That older
+comparison is retained as an audit archive, not as an override for GPT-6
+defaults; see the collection command below.
 
-The worker and coordinator protocols, 84 routing fixtures, runners, sequential state machine, analysis, and evidence publisher are implemented, but no policy-facing sequential campaign has been run or published from this repository. Consequently, no cheapest-sufficient routing row has been promoted; the generated comparison guidance makes narrower claims. Authenticated capability preflights must be regenerated and hash-bound on each campaign machine; they prove advertised support for the requested model/effort pairs and common priority/Fast tier, not model quality. All task outputs are machine-verifiable: behavioral implementations run sealed tests, mapping and state tasks use semantic JSON contracts, and read-heavy tasks emit exact source-bound path/line/excerpt records. The pinned Docker calibration covers every reference, negative mutant, semantic-equivalence positive, and independently mutable JSON state. The paid campaign and policy promotion remain pending until terminal, replayable sequential evidence exists.
+The worker and coordinator protocols, 84 routing fixtures, runners, analysis, and evidence publishers exist, but no current quality-first worker campaign has been published from this repository. No worker routing row has been promoted. The new `routing-quality-v1.json` declares `quality-first-complete-cohort`; its ranking script requires all planned v2 results and rejects unresolved infrastructure failures. `routing-operational-v1.json` and the optional broad `routing-v1.json` still encode the earlier cheapest-sufficient objective. A fresh authenticated capability preflight is bound to `machine-a` and proves advertised model/effort and priority/Fast support, not model quality. Task outputs remain machine-verifiable through sealed behavioral tests, semantic JSON contracts, or exact source-bound records.
 
 Keep these states distinct:
 
@@ -25,33 +25,24 @@ Keep these states distinct:
 - **Campaign evidence:** independently generated, planned jobs and their immutable result records are needed to compare configurations. The ASTRA comparison aggregates and hash commitments are available; private run artifacts are retained locally.
 - **Published evidence:** a reviewable archive of a frozen campaign, its provenance, aggregate analysis, and the mapping disclosure. None exists yet.
 
-## Current handoff state
+## Optional measurement path
 
 The repository implementation is complete through campaign execution and
 evidence publication. The
 checked-in routing policy and bundled skill remain deliberately `provisional`.
-The sequential protocol revision invalidated all earlier preflight reports by
+Protocol revisions invalidate earlier preflight reports by
 design. All preflight reports, credentials, plans,
 transcripts, and generated candidates are private run artifacts and are not
 committed.
 
-Promotion is currently waiting for external evidence, not another code change:
+The skill does not require a new benchmark campaign before use. If an evidence-backed or optimality claim is needed later, the optional measurement path is:
 
-1. Three physical hosts must produce fresh `machine-a`, `machine-b`, and
-   `machine-c` preflights bound to the current sequential protocol hash. Logical labels on
-   the same host are not substitutes.
-2. The passing machine-verifiable construct-readiness report and three preflight reports
-   freeze the immutable 648-job maximum envelope and its sequential manifest.
-3. Each host runs only the currently authorized jobs. Terminal sequential state is
-   replayed, analyzed, and published before any routing row is promoted.
-4. `routing_policy.py` validates evidence-backed selections against their replayable
-   bundles and construct-readiness gates before rendering. Comparative guidance is
-   generated separately and cannot promote a cheapest-sufficient selection. The
-   repository skill can then be copied to the local installation and hash-checked.
+1. Obtain a fresh `machine-a` preflight and passing construct-readiness report bound to the current protocol.
+2. Freeze the complete operational comparison: six families × six fixtures (three .NET and three React/TypeScript SPA per family) × five independent generations × five configurations = 900 runs on one host, isolated in containers.
+3. Rank verified correctness first, then the API-price cost proxy, then time among remaining ties. The proxy uses [`protocols/routing-pricing-2026-09-22.json`](protocols/routing-pricing-2026-09-22.json), based on official GPT-6 Luna/Sol Standard API prices; it is not a Codex invoice or Fast-mode price.
+4. Replay and publish evidence before promoting any routing row. The wider `routing-v1.json` profile is optional: six families × twelve fixtures × fifteen generations × five configurations = 5,400 runs.
 
-Until all four steps are complete, the table in the skill is an explicit
-working hypothesis. Model catalog availability—including Fast/`priority`
-support—does not establish comparative quality.
+Until a complete current cohort and verified evidence exist, the table in the skill remains an explicit working hypothesis based on vendor guidance and task-level judgment. The ten-run host-CLI pilot is archived locally under `runs/host-cli-pilot-2026-09-22/`; it sampled only two fixtures and does not promote a route. Model catalog availability—including Fast/`priority` support—does not establish comparative quality.
 
 The repository now separates the legacy single-fixture evaluator from the
 multi-family routing experiment. The latter is governed by
@@ -61,7 +52,7 @@ decision thresholds, and evidence-to-skill provenance. Passing harness tests or
 ranking configurations in a smoke run cannot promote a routing claim.
 
 The worker and live-coordinator estimands are deliberately separate. The same
-experiment contract defines a frozen 648-job coordinator protocol, fixed worker
+experiment contract defines a frozen 300-job coordinator protocol, fixed worker
 policy, trace requirements, and the rule that worker-authored planning
 artifacts are not coordinator evidence.
 
@@ -70,7 +61,7 @@ artifacts are not coordinator evidence.
 - The fixture, prompt, candidate, harness, schema, SDK, Dockerfiles, lockfile, and container identities are hashed in the result provenance.
 - The .NET SDK and both base images are digest-pinned; the Codex CLI is lockfile-pinned.
 - Concurrency tests use explicit gates rather than sleeps or timing assertions. Time-dependent behavior uses a manual `TimeProvider`.
-- A seeded Williams design balances order position and first-order carryover for all six configurations. Machine blocks are deterministically interleaved.
+- A seeded Williams design balances order position and first-order carryover for all five configurations on `machine-a`.
 - Run IDs are HMAC-derived with a local secret key. Automated scoring is treatment-agnostic, but the private execution plan necessarily contains the requested model mapping; do not describe that plan as blinded.
 - Each independently generated artifact is tested once publicly and repeatedly against the hidden suite. Repetitions test runtime stability; they are not additional model samples.
 - First timeouts are rerun at twice the limit. Confirmed candidate-execution timeouts are candidate failures; build, launcher, and timeout-then-success anomalies are infrastructure failures that must be replaced before official aggregation.
@@ -93,15 +84,15 @@ schemas/         result contract
 skills/          bundled, installable orchestration skill
   orchestrate/SKILL.template.md  maintained source template; not installed as instructions
 harness.py       planning, generation, evaluation, and aggregation
-routing_campaign.py  immutable six-family maximum envelope and comparative analysis
-routing_sequential.py deterministic cheapest-sufficient state machine and terminal analysis
+routing_campaign.py  immutable five-treatment, six-family maximum envelope and comparative analysis
+routing_sequential.py legacy cheapest-sufficient state machine and terminal analysis
 routing_tasks.py     v2 task materialization and sealed evaluation
 routing_runner.py    one-job Codex generation and provenance capture
 routing_campaign_driver.py per-machine execution, sequential transitions, and audited infra retry
 routing_preflight.py authenticated model/effort/Fast capability check
 construct_readiness.py construct-validity report and paid-campaign gate
 routing_evidence.py  canonical evidence publisher and replay verifier
-routing_sequential_evidence.py terminal cheapest-sufficient bundle publisher and replay verifier
+routing_sequential_evidence.py legacy sequential bundle publisher and replay verifier
 coordinator_campaign.py  deterministic live-coordinator plan
 coordinator_runner.py    traced live delegation and integration runner
 coordinator_analysis.py  preregistered complete-cohort coordinator analysis
@@ -111,7 +102,7 @@ coordinator_evidence.py  dedicated coordinator bundle publisher and replay verif
 The routing runner executes exactly one opaque job and never overwrites a
 sample. The protocol transitively freezes `protocols/routing-runtime-v1.json`:
 the worker session is ephemeral, ignores personal configuration and rules,
-disables multi-agent delegation, and requests the same service tier for all six
+disables multi-agent delegation, and requests the same service tier for all five
 treatments. The runner rejects a substituted manifest, CLI-version drift, and
 any model/service-tier mismatch when those fields are observable. The original Codex 0.147.0 runtime did not emit model or tier in `exec --json`; those runs are labeled
 `cli-request-and-success`, while the separate authenticated `model/list`
@@ -126,30 +117,63 @@ campaign authorization. Generate the authorization artifact:
 
 ```bash
 python3 construct_readiness.py report \
+  --protocol protocols/routing-quality-v1.json \
   --docker-calibration runs/routing-docker-calibration-current.json \
   --output runs/routing-construct-readiness.json
 python3 construct_readiness.py check \
+  --protocol protocols/routing-quality-v1.json \
   --report runs/routing-construct-readiness.json
 ```
 
 The command must report `campaignEligible: true`; do not bypass it.
 
-Run the authenticated preflight independently on each physical host and collect
-the three reports without editing them:
+Run the authenticated preflight on the local host:
 
 ```bash
 python3 routing_preflight.py \
+  --protocol protocols/routing-quality-v1.json \
   --machine-id machine-a \
   --auth-file /secure/path/benchmark-auth.json \
   --output runs/routing-preflight-machine-a.json
 ```
 
-Repeat only on the hosts assigned `machine-b` and `machine-c`. The planner
-validates the reverse protocol binding, common capability digest, image/runtime
+The planner validates the reverse protocol binding, capability digest, image/runtime
 identity, requested model/effort pairs, and Fast/`priority` availability.
 
+For the main complete cohort, pass the quality-first protocol explicitly because the scripts still default to the legacy operational protocol:
+
+```bash
+python3 routing_campaign.py validate --protocol protocols/routing-quality-v1.json
+python3 routing_campaign.py plan \
+  --protocol protocols/routing-quality-v1.json \
+  --id-key-file runs/routing-id-key \
+  --construct-readiness runs/routing-construct-readiness.json \
+  --preflight runs/routing-preflight-machine-a.json \
+  --output runs/routing-plan.json
+```
+
+After the complete 900-run cohort has resolved, produce its comparative analysis:
+
+```bash
+python3 routing_campaign.py analyze runs/routing/results/*.json \
+  --protocol protocols/routing-quality-v1.json \
+  --plan runs/routing-plan.json \
+  --output runs/routing-analysis.json
+python3 routing_quality.py runs/routing/results/*.json \
+  --protocol protocols/routing-quality-v1.json \
+  --plan runs/routing-plan.json \
+  --pricing protocols/routing-pricing-2026-09-22.json \
+  --output runs/routing-quality-report.json
+```
+
+The report includes overall and .NET/SPA-specific rows. A row is left unselected if every configuration misses its quality floor or a quality tie lacks cost telemetry. The report is descriptive; the complete-cohort evidence publication command is in [Routing evidence bundles](docs/ROUTING_EVIDENCE.md).
+
+### Legacy sequential procedure
+
+The following commands document the optional cheapest-sufficient implementation using `protocols/routing-operational-v1.json`. Its terminal-state gate does not implement the desired quality-first rule and cannot promote a quality-first route. The run counts describe its arithmetic only: best 180, hypothesis ladder 600, maximum 900. Use a preflight and readiness report bound to this legacy protocol, separate from the main comparison artifacts.
+
 After producing a private HMAC-keyed routing plan, derive the sequential
-manifest and initial state once. The manifest covers the immutable 648-job
+manifest and initial state once. The manifest covers the immutable 900-job
 maximum envelope but authorizes only the cheapest stage for each classified
 family. The ordinal cost order is an operator-frozen protocol field; it is not
 a monetary price claim. Use the machine driver with a dedicated credential,
@@ -175,8 +199,8 @@ python3 routing_campaign_driver.py sequential-advance \
   --sequential-state runs/routing-sequential-state.json
 ```
 
-Run `run-machine` on each physical host for the currently authorized stage,
-then run `sequential-advance` once against the shared result root. A passing
+Run `run-machine` on the local host for the currently authorized stage,
+then run `sequential-advance` once against the result root. A passing
 fixed gate accepts that configuration for the family; otherwise the state
 authorizes exactly the next, costlier stage. There is no optional operator
 choice. Inspect progress with `routing_campaign_driver.py status`. The driver stops immediately on an
@@ -196,7 +220,7 @@ The old result, transcript, metadata, and workspace move into a numbered
 Nothing is silently overwritten. `routing_runner.py` remains available for one
 explicit job and is what the driver invokes.
 
-When every family is terminal, produce the replayable policy-facing analysis:
+When every family is terminal in the legacy workflow, produce its replayable sequential analysis:
 
 ```bash
 python3 routing_campaign_driver.py sequential-analyze \
@@ -207,7 +231,7 @@ python3 routing_campaign_driver.py sequential-analyze \
 ```
 
 Publish only a terminal state. The sequential publisher packages the exact
-executed prefix, candidate workspaces, evaluator inputs, three preflights,
+executed prefix, candidate workspaces, evaluator inputs, the preflight,
 state chain, analysis, and provenance; `verify` independently replays every
 candidate evaluation and every transition before accepting the bundle:
 
@@ -216,8 +240,6 @@ python3 routing_sequential_evidence.py publish runs/routing/results/*.json \
   --protocol protocols/routing-operational-v1.json \
   --runtime-manifest protocols/routing-runtime-v1.json \
   --preflight runs/routing-preflight-machine-a.json \
-  --preflight runs/routing-preflight-machine-b.json \
-  --preflight runs/routing-preflight-machine-c.json \
   --plan runs/routing-plan.json \
   --matrix matrix.json --catalog fixtures/catalog.json \
   --sequential-manifest runs/routing-sequential-manifest.json \
@@ -277,11 +299,11 @@ skill synchronization in CI without private artifacts. It does not replay
 private originals; use the collection command's `--check` for that. The snapshot
 is a trusted local collection record with hash commitments, not a signed or
 self-contained candidate-replay bundle. Cheapest-sufficient policy promotion
-continues to require the existing sequential evidence and readiness gates.
+is a legacy path requiring sequential evidence and readiness gates; it does not establish the requested quality-first routing decision.
 
 ## Bundled orchestration skill
 
-The repository includes the installable [`orchestrate`](skills/orchestrate/SKILL.md) skill. Its entrypoint routes to conditional references for model selection, asynchronous app threads, and defensive security. Install the entire directory. `SKILL.template.md` holds the shared workflow; `routing_policy.py --write` generates both `SKILL.md` and `references/model-routing.md`, and `--check` verifies both against the template, `routing-policy.json`, and the hash-bound `references/comparison-evidence.json`. The final `Subagents used` table is opt-in when the user explicitly invokes `$orchestrate` and creates workers.
+The repository includes the installable [`orchestrate`](skills/orchestrate/SKILL.md) skill. Its entrypoint routes to conditional references for model selection, asynchronous app threads, and defensive security. Install the entire directory. `SKILL.template.md` holds the shared workflow; `routing_policy.py --write` generates both `SKILL.md` and `references/model-routing.md`, and `--check` verifies both against the template, `routing-policy.json`, and the hash-bound historical `references/comparison-evidence.json`. The GPT-6 policy points to OpenAI's model-selection guide and keeps older comparisons archival. The final `Subagents used` table is opt-in when the user explicitly invokes `$orchestrate` and creates workers.
 
 The app-thread mode supports an Astra coordinator planning an independent task, dispatching it with `create_thread`, ending its turn, and resuming when the worker calls `send_message_to_thread`. The brief includes the origin ID, artifact delivery, completion criteria, and a blocker callback. It requires available app tools and authorization to create a separate task; ordinary subagents remain an alternative. No callback performance or subscription savings have been measured by this benchmark.
 
@@ -294,7 +316,7 @@ cp -R skills/orchestrate/. "${CODEX_HOME:-$HOME/.codex}/skills/orchestrate/"
 
 Restart Codex after installation, then invoke it explicitly with `$orchestrate` or allow implicit selection for substantial multi-agent work. The skill includes UI metadata. App-thread mode requires the app thread tools; other modes use the available subagent tools.
 
-This is an expanded adaptation of Eric Provencher's original [`orchestrate` skill](https://github.com/provencher/codex-skills/tree/main/orchestrate), distributed under its included MIT license. The routing profile adds model-specific hypotheses, Fast mode clarification, context-isolation rules, coordinator-side verification, and a manual Daybreak Blue rule for authorized defensive security review with the Codex Security plugin. Its six benchmarked routing rows are provisional until a published campaign substantiates them; the Daybreak rule is a separate manual safety boundary.
+This is an expanded adaptation of Eric Provencher's original [`orchestrate` skill](https://github.com/provencher/codex-skills/tree/main/orchestrate), distributed under its included MIT license. The routing profile adds GPT-6 guidance-based hypotheses, Fast mode clarification, context-isolation rules, coordinator-side verification, and a manual Daybreak Blue rule for authorized defensive security review with the Codex Security plugin. Its six routing rows are provisional until a published campaign substantiates them; the Daybreak rule is a separate manual safety boundary.
 
 ## Prerequisites
 
@@ -316,7 +338,7 @@ chmod 600 /secure/path/benchmark-auth.json
 
 Copying limits filesystem blast radius, not credential scope: the copy holds the same live tokens, and deleting it afterwards does not revoke them. Model-generated code in the generator container can read the mounted file, and Codex's own `workspace-write` sandbox restricts writes but not reads, so host-side generation is no safer. Rotate the login after a campaign if that matters. Neither `codex app-server` nor `codex exec-server` changes this, because the agent's tool execution runs wherever the credential lives; only a local model provider removes the credential entirely.
 
-## Quick start
+## Historical single-fixture harness quick start
 
 Start with the generation-free checks. These validate the fixture and evaluator without making model requests:
 
@@ -342,7 +364,7 @@ Use `--repeat 20` for the full trusted-fixture calibration described below. The 
 The evaluation watchdog defaults to 90 seconds per attempt so a cold SDK publish on a slower host
 is not mislabeled; override `--timeout` only as a preregistered environment setting.
 
-Running a benchmark campaign makes paid Codex model requests. Before starting, choose the campaign size and machine labels, prepare a dedicated short-lived credential, and freeze those choices. This example creates the documented 90-sample-per-configuration plan across three machines:
+The following single-fixture harness example is historical and separate from the current worker routing protocol. Running it makes paid Codex model requests. This example creates the documented 90-sample-per-configuration plan across three machines:
 
 ```bash
 python3 harness.py plan \
@@ -422,7 +444,7 @@ python3 routing_preflight.py \
   --output runs/routing-preflight-machine-a.json
 ```
 
-Run this once on every preregistered campaign machine, after the protocol is
+Run this on `machine-a` for the current routing campaign, after the protocol is
 frozen and before generating the plan. Each report reverse-binds the protocol,
 runtime manifest, treatment matrix, and machine ID. The planner refuses missing,
 duplicate, drifted, or capability-inconsistent machine reports. A preflight
@@ -443,7 +465,7 @@ gh workflow run verify.yml -f repeat=20
 python3 harness.py power --baseline-rate 0.60 --target-rate 0.85
 ```
 
-With three machines, 90 trials produce 540 independent generations and five complete balance cycles per machine.
+In this historical single-fixture example, three machines and 90 trials produce 540 independent generations and five complete balance cycles per machine.
 
 ```bash
 python3 harness.py plan \
@@ -532,7 +554,7 @@ python3 harness.py publish \
 
 The command refuses incomplete or unresolved cohorts. It emits the frozen plan, fixture manifest, matrix, deblinded mapping, intent-to-treat aggregate, structured behavior outcomes, repository provenance, queue/replacement audit records, hashes of the source results, and sanitized per-run evidence. Missing later behaviors are explicit `NOT_RUN`; duplicate or contradictory behavior markers are `AMBIGUOUS`. The output is checked against the strict nested contract in `schemas/evidence-bundle.schema.json`. Captured stdout and stderr—including hidden assertion text—are replaced by byte counts and SHA-256 hashes. The bundle contains no credential or generation transcript; archive it immutably alongside the trusted calibration reports, publish its digest, and update routing rows only where that evidence supports the conclusion.
 
-## Sequential routing campaign required for policy claims
+## Main quality-first worker comparison and optional legacy sequential workflow
 
 The repository now contains 84 unique v2 fixtures: two development and twelve
 confirmatory fixtures for each of six families. Calibration checks 392 outcomes:
@@ -544,33 +566,16 @@ semantic JSON contracts; no prose is scored. Implementation fixtures execute
 requires an observable live delegation trace plus acceptance of the integrated
 multi-file state. These facts establish evaluator readiness, not a routing winner.
 
-The operational plan is an immutable maximum envelope of 648 independent
-generations: six preregistered fixtures per family, three fresh generations per
-fixture, six ordered configurations, and six families. The sequential policy
-does not run that envelope blindly. It classifies a task family, runs the
-currently authorized configuration, and advances only when the fixed complete
-stage gate rejects it. The gate requires the family's overall pass-rate floor
-and the frozen machine and ecosystem boundary; every outcome is produced by the
-sealed evaluator, with no human judge or discretionary selection.
+The main quality-first operational comparison is a complete cohort of 900 independent generations: six fixtures per family (three .NET and three React/TypeScript SPA), five fresh generations per fixture, five configurations, and six families on one physical host. Its separate `routing-quality-v1.json` protocol declares `quality-first-complete-cohort`. The `routing_quality.py` report ranks verified correctness, API-price cost proxy, then time, separately for each family and ecosystem. The older sequential policy uses `routing-operational-v1.json` and authorizes stages in ordinal cost order.
 
-The frozen ordinal order is an operational ordering from cheapest to costliest,
-not a statement of current monetary token prices. It yields these deterministic
-execution bounds: 108 generations when every family accepts the first stage,
-378 generations for the current six-stage routing hypothesis ladder, and 648
-generations if every family exhausts all stages. The remaining six fixtures per
-family are reserved. The complete-treatment `routing_campaign.py` analysis is
-still the comparative/extended workflow, including the 3,888-generation
-publication-grade profile; it is not the evidence source for promoting the
-cheapest-sufficient policy. Generate the immutable envelope with a private HMAC
-key:
+For the optional legacy sequential implementation, the frozen ordinal order runs from cheapest to costliest and yields 180 generations at best, 600 for the existing hypothesis ladder, and 900 at maximum. These are legacy prefix counts, not the main quality-first comparison. The remaining six fixtures per family are reserved. The optional broad `routing-v1.json` profile covers twelve fixtures and fifteen generations per fixture across five configurations and six families, or 5,400 runs; it includes ecosystems beyond the operational .NET/SPA scope. The following legacy plan example requires a separate preflight and readiness report bound to `routing-operational-v1.json`:
 
 ```bash
 python3 routing_campaign.py plan \
+  --protocol protocols/routing-operational-v1.json \
   --id-key-file runs/routing-id-key \
   --construct-readiness runs/routing-construct-readiness.json \
   --preflight runs/routing-preflight-machine-a.json \
-  --preflight runs/routing-preflight-machine-b.json \
-  --preflight runs/routing-preflight-machine-c.json \
   --output runs/routing-plan.json
 ```
 
@@ -578,7 +583,7 @@ Each job result carries the assigned machine's preflight report hash and common
 capability digest. `routing_runner.py` requires that exact report at execution,
 and the evidence bundle packages and revalidates every report against the plan.
 
-For policy promotion, initialize, run, advance, and analyze the bound sequential
+For the legacy sequential policy, initialize, run, advance, and analyze the bound sequential
 state. Each command is deterministic over its inputs, and `sequential-advance`
 rejects incomplete stages or any `INFRA_FAILURE`. An infrastructure failure
 pauses the stage; after correction, `retry-infra` archives the failed attempt
@@ -586,15 +591,9 @@ and reruns the same immutable run ID before a transition is possible. The state
 chain and terminal analysis are replayed from hashed results, so no operator can
 skip a stage or choose a preferred model.
 
-Only terminal, replayable sequential evidence published through the routing
-evidence path can promote a policy row from `hypothesis` to `evidence-backed`.
-The generated skill is therefore intentionally provisional until that campaign
-(and the separate live-coordinator campaign for coordinator claims) produces a
-verified bundle with supported terminal selections. A complete six-treatment
-`routing_campaign.py` cohort remains valuable comparative evidence but cannot
-substitute for policy-facing sequential evidence.
+The generated skill remains provisional. Legacy terminal sequential evidence can substantiate only the older cheapest-sufficient selection. A quality-first worker route needs a complete cohort and verified campaign evidence before promotion; coordinator claims need their separate live-coordinator campaign. The complete five-treatment `routing_campaign.py` cohort provides comparative measurements, and `routing_quality.py` produces descriptive recommendations.
 
-| Task class | Required sequential evidence |
+| Task class | Optional legacy sequential evidence |
 | --- | --- |
 | Mechanical repository work | Start at `luna-low`; accept the first configuration whose exact repository outcomes pass the frozen gate. |
 | Bounded mapping and patch | Start at `luna-low`; evaluate mapping scope and sealed contract acceptance at each authorized stage. |
@@ -606,7 +605,7 @@ substitute for policy-facing sequential evidence.
 ## Interpretation and threat model
 
 - Preregister fixture version, matrix, trial count, seed, machine labels, exclusion rules, and primary metric before generation.
-- For policy selection, apply only the frozen sequential floor and machine/ecosystem boundary. Comparative effect sizes, Holm adjustments, and power calculations belong to the separate complete-treatment experiment and cannot override a sequential transition.
+- For the optional legacy sequential selection, apply only its frozen floor and machine/ecosystem boundary. The main quality-first route requires the separate complete-cohort ranking report and verified evidence.
 - Keep the model mapping sealed until executable and policy scoring is final.
 - The legacy regex policy scan is only a heuristic security guard and cannot support a security claim. Policy-facing routing outcomes use the sealed machine-verifiable evaluators; claims requiring adversarial security assurance are outside this benchmark's scope rather than delegated to a human scoring step.
 - Behavior markers reject duplicates and contradictions but are not an authenticated channel. Because candidate code runs in the hidden-test process, a deliberately malicious candidate can forge console output; adversarial scoring requires an out-of-process runner with a protected result channel.

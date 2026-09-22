@@ -2,14 +2,25 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/codex-benchmark/routing-policy.schema.json",
   "type": "object",
-  "required": ["schemaVersion", "policyId", "policyVersion", "status", "configurationCostOrder", "evidenceBundles", "defaults", "coordinatorDefaults", "decisionRules", "fastMode"],
+  "required": ["schemaVersion", "policyId", "policyVersion", "status", "configurationCostOrder", "evidenceBundles", "guidance", "defaults", "coordinatorDefaults", "decisionRules", "fastMode"],
   "properties": {
     "schemaVersion": { "const": 2 },
     "policyId": { "const": "orchestrate-routing" },
     "policyVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
     "status": { "enum": ["provisional", "mixed", "evidence-backed"] },
+    "guidance": {
+      "type": "object",
+      "required": ["appliesFrom", "sourceUrl", "status", "decisionPriority"],
+      "properties": {
+        "appliesFrom": { "const": "gpt-6" },
+        "sourceUrl": { "const": "https://developers.openai.com/api/docs/guides/model-selection" },
+        "status": { "const": "vendor-guidance-adapted-as-hypothesis" },
+        "decisionPriority": { "const": ["verified-correctness", "cost-on-quality-tie", "time-on-quality-and-cost-tie"] }
+      },
+      "additionalProperties": false
+    },
     "configurationCostOrder": {
-      "const": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]
+      "const": ["luna-low", "luna-medium", "luna-high", "sol-medium", "sol-high"]
     },
     "evidenceBundles": {
       "type": "array",

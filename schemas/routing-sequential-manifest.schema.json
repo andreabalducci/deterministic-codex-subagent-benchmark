@@ -7,13 +7,13 @@
   "properties": {
     "schemaVersion": {"const": 1}, "recordKind": {"const": "routing-sequential-manifest"},
     "protocolHash": {"$ref": "#/$defs/hash"}, "planHash": {"$ref": "#/$defs/hash"},
-    "matrixOrder": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"type": "string"}},
+    "matrixOrder": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"type": "string"}},
     "potentialJobs": {"type": "integer", "minimum": 1}, "manifestHash": {"$ref": "#/$defs/hash"},
     "families": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/family"}}
   },
   "$defs": {
     "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "family": {"type": "object", "additionalProperties": false, "required": ["familyId", "stages"], "properties": {"familyId": {"type": "string"}, "stages": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/$defs/stage"}}}},
+    "family": {"type": "object", "additionalProperties": false, "required": ["familyId", "stages"], "properties": {"familyId": {"type": "string"}, "stages": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/stage"}}}},
     "stage": {"type": "object", "additionalProperties": false, "required": ["stageIndex", "stageId", "familyId", "treatmentId", "runIds"], "properties": {"stageIndex": {"type": "integer", "minimum": 0}, "stageId": {"type": "string"}, "familyId": {"type": "string"}, "treatmentId": {"type": "string"}, "runIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[0-9a-f]{16}$"}}}}
   }
 }

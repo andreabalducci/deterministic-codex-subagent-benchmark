@@ -27,7 +27,7 @@ class RoutingCampaignTests(unittest.TestCase):
         protocol = copy.deepcopy(self.frozen_protocol)
         protocol["protocolId"] = "routing-v1-synthetic"
         protocol["bootstrapSamples"] = 1000
-        protocol["replicatesPerFixture"] = 3
+        protocol["replicatesPerFixture"] = 5
         protocol["machines"] = ["synthetic-machine"]
         for family in protocol["families"]:
             family["heldOutFixtureIds"] = [
@@ -106,18 +106,18 @@ class RoutingCampaignTests(unittest.TestCase):
             })
         return values
 
-    def test_frozen_protocol_is_strict_and_has_3888_jobs(self):
+    def test_frozen_protocol_is_strict_and_has_5400_jobs(self):
         protocol = routing.validate_protocol(copy.deepcopy(self.frozen_protocol))
         plan = self.plan(protocol)
-        self.assertEqual(3888, len(plan["jobs"]))
+        self.assertEqual(5400, len(plan["jobs"]))
         self.assertEqual(6, len(protocol["families"]))
         self.assertTrue(all(len(family["heldOutFixtureIds"]) == 12 for family in protocol["families"]))
 
-    def test_operational_protocol_is_default_and_has_648_jobs(self):
+    def test_operational_protocol_is_default_and_has_900_jobs(self):
         protocol = routing.validate_protocol(copy.deepcopy(self.operational_protocol))
         plan = self.plan(protocol)
         self.assertEqual(routing.DEFAULT_PROTOCOL.name, "routing-operational-v1.json")
-        self.assertEqual(648, len(plan["jobs"]))
+        self.assertEqual(900, len(plan["jobs"]))
         self.assertEqual(
             [item["id"] for item in self.operational_protocol["matrix"]],
             self.operational_protocol["selection"]["costOrder"],
@@ -126,7 +126,7 @@ class RoutingCampaignTests(unittest.TestCase):
             "lowest-cost-machine-verified-sufficient",
             self.operational_protocol["selection"]["objective"],
         )
-        self.assertEqual(3, protocol["replicatesPerFixture"])
+        self.assertEqual(5, protocol["replicatesPerFixture"])
         self.assertTrue(all(len(family["heldOutFixtureIds"]) == 6 for family in protocol["families"]))
         routing.validate_protocol_sources(
             protocol,
@@ -170,8 +170,9 @@ class RoutingCampaignTests(unittest.TestCase):
             [job["runId"] for job in other_key["jobs"]],
         )
         family_id = protocol["families"][0]["id"]
+        order_positions = len(protocol["matrix"])
         counts = {
-            treatment["id"]: [0] * 6 for treatment in protocol["matrix"]
+            treatment["id"]: [0] * order_positions for treatment in protocol["matrix"]
         }
         for job in first["jobs"]:
             if job["familyId"] == family_id:
@@ -196,14 +197,14 @@ class RoutingCampaignTests(unittest.TestCase):
         second = routing.analyze(protocol, plan, list(reversed(results)))
         self.assertEqual(first, second)
         self.assertTrue(all(item["decision"] == "SUPPORTED" for item in first["families"]))
-        self.assertEqual(42, first["multiplicity"]["supportHypotheses"])
-        self.assertEqual(42, first["multiplicity"]["contradictionHypotheses"])
+        self.assertEqual(36, first["multiplicity"]["supportHypotheses"])
+        self.assertEqual(36, first["multiplicity"]["contradictionHypotheses"])
         self.assertTrue(all(item["robustness"]["passed"] for item in first["families"]))
         self.assertTrue(all(len(item["robustness"]["machines"]) == 1 for item in first["families"]))
         self.assertTrue(all(len(item["robustness"]["ecosystems"]) == 4 for item in first["families"]))
         self.assertTrue(all(len(item["robustness"]["leaveOneFixtureOut"]) == 6 for item in first["families"]))
         self.assertEqual(
-            protocol["familywiseAlpha"] / 42,
+            protocol["familywiseAlpha"] / 36,
             first["multiplicity"]["simultaneousTailAlpha"],
         )
         routing.validate_analysis(first, protocol, plan)
@@ -240,7 +241,7 @@ class RoutingCampaignTests(unittest.TestCase):
                 family["decisionGate"]["lower95"],
                 family["decisionGate"]["nominalLower95"],
             )
-        self.assertEqual(42, len(raw_support))
+        self.assertEqual(36, len(raw_support))
         self.assertEqual(routing.holm_adjust(raw_support), adjusted_support)
 
     def test_equal_quality_does_not_support_capability_routes(self):

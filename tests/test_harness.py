@@ -71,23 +71,23 @@ class HarnessTests(unittest.TestCase):
         }
 
     def test_plan_is_balanced_by_position_over_complete_cycle(self):
-        plan = harness.make_plan(6, "fixed-seed", ["machine-a"], self.id_key)
+        plan = harness.make_plan(10, "fixed-seed", ["machine-a"], self.id_key)
         jobs = plan["jobs"]
         for configuration in harness.load_matrix():
             positions = sorted(
                 job["orderPosition"] for job in jobs if job["id"] == configuration["id"]
             )
-            self.assertEqual(list(range(6)), positions)
+            self.assertEqual(sorted(list(range(5)) * 2), positions)
 
     def test_run_ids_are_opaque_and_reproducible(self):
-        first = harness.make_plan(6, "same", ["machine-a"], self.id_key)
-        second = harness.make_plan(6, "same", ["machine-a"], self.id_key)
+        first = harness.make_plan(10, "same", ["machine-a"], self.id_key)
+        second = harness.make_plan(10, "same", ["machine-a"], self.id_key)
         self.assertEqual(first, second)
         for job in first["jobs"]:
             self.assertEqual(16, len(job["runId"]))
             self.assertNotIn(job["id"], job["runId"])
 
-        different_key = harness.make_plan(6, "same", ["machine-a"], b"z" * 32)
+        different_key = harness.make_plan(10, "same", ["machine-a"], b"z" * 32)
         self.assertNotEqual(
             [job["runId"] for job in first["jobs"]],
             [job["runId"] for job in different_key["jobs"]],
@@ -95,7 +95,7 @@ class HarnessTests(unittest.TestCase):
 
     def test_every_machine_gets_every_order_position(self):
         machines = ["machine-a", "machine-b", "machine-c"]
-        plan = harness.make_plan(18, "balanced", machines, self.id_key)
+        plan = harness.make_plan(30, "balanced", machines, self.id_key)
         for machine in machines:
             for configuration in harness.load_matrix():
                 positions = sorted(
@@ -103,17 +103,17 @@ class HarnessTests(unittest.TestCase):
                     for job in plan["jobs"]
                     if job["machineId"] == machine and job["id"] == configuration["id"]
                 )
-                self.assertEqual(list(range(6)), positions)
+                self.assertEqual(sorted(list(range(5)) * 2), positions)
 
-        first_three = [job["machineId"] for job in plan["jobs"][::6]][:3]
+        first_three = [job["machineId"] for job in plan["jobs"][::5]][:3]
         self.assertEqual(3, len(set(first_three)))
 
     def test_duplicate_machine_labels_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "unique"):
-            harness.make_plan(12, "duplicate", ["same", "same"], self.id_key)
+            harness.make_plan(20, "duplicate", ["same", "same"], self.id_key)
 
     def test_plan_validation_rejects_seed_matrix_and_order_tampering(self):
-        plan = harness.make_plan(6, "bound-seed", ["machine-a"], self.id_key)
+        plan = harness.make_plan(10, "bound-seed", ["machine-a"], self.id_key)
         mutations = []
         changed_seed = json.loads(json.dumps(plan))
         changed_seed["seed"] = "different-seed"
@@ -141,9 +141,9 @@ class HarnessTests(unittest.TestCase):
         rows = harness.williams_rows(harness.load_matrix(), "carryover")
         pairs = []
         for row in rows:
-            pairs.extend((row[index]["id"], row[index + 1]["id"]) for index in range(5))
-        self.assertEqual(30, len(pairs))
-        self.assertEqual(30, len(set(pairs)))
+            pairs.extend((row[index]["id"], row[index + 1]["id"]) for index in range(4))
+        self.assertEqual(40, len(pairs))
+        self.assertEqual(20, len(set(pairs)))
 
     def test_multiplicity_adjusted_power_requires_90_samples_for_60_vs_85(self):
         self.assertEqual(
@@ -352,7 +352,7 @@ class HarnessTests(unittest.TestCase):
     def test_aggregate_rejects_duplicate_run_ids(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            plan = harness.make_plan(6, "aggregate", ["machine-a"], self.id_key)
+            plan = harness.make_plan(10, "aggregate", ["machine-a"], self.id_key)
             plan_path = root / "plan.json"
             harness.save_json(plan_path, plan)
             job = plan["jobs"][0]
@@ -367,7 +367,7 @@ class HarnessTests(unittest.TestCase):
     def test_external_evaluation_validates_but_aggregate_rejects_it(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            plan = harness.make_plan(6, "external", ["machine-a"], self.id_key)
+            plan = harness.make_plan(10, "external", ["machine-a"], self.id_key)
             plan_path = root / "plan.json"
             harness.save_json(plan_path, plan)
             job = plan["jobs"][0]
@@ -456,7 +456,7 @@ class HarnessTests(unittest.TestCase):
     def test_incomplete_aggregate_uses_intent_to_treat_denominator(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            plan = harness.make_plan(6, "itt", ["machine-a"], self.id_key)
+            plan = harness.make_plan(10, "itt", ["machine-a"], self.id_key)
             plan_path = root / "plan.json"
             harness.save_json(plan_path, plan)
             job = plan["jobs"][0]
@@ -484,13 +484,13 @@ class HarnessTests(unittest.TestCase):
             harness.save_json(result_path, result)
             summary = harness.aggregate([result_path], plan_path, allow_incomplete=True)
             group = summary["groups"][f"{job['model']}:{job['reasoningEffort']}"]
-            self.assertEqual(6, group["plannedRuns"])
-            self.assertEqual(1 / 6, group["passRate"])
+            self.assertEqual(10, group["plannedRuns"])
+            self.assertEqual(1 / 10, group["passRate"])
 
     def test_generation_only_failure_does_not_contaminate_evaluation_latency(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            plan = harness.make_plan(6, "duration", ["machine-a"], self.id_key)
+            plan = harness.make_plan(10, "duration", ["machine-a"], self.id_key)
             plan_path = root / "plan.json"
             harness.save_json(plan_path, plan)
             jobs = [job for job in plan["jobs"] if job["id"] == "luna-low"][:2]
@@ -508,14 +508,14 @@ class HarnessTests(unittest.TestCase):
                 harness.save_json(path, result)
                 paths.append(path)
             summary = harness.aggregate(paths, plan_path, allow_incomplete=True)
-            group = summary["groups"]["gpt-5.6-luna:low"]
+            group = summary["groups"]["gpt-6-luna:low"]
             self.assertEqual(1.0, group["medianEvaluationSeconds"])
             self.assertEqual(3.0, group["medianGenerationSeconds"])
 
     def test_aggregate_rejects_stale_provenance_and_per_machine_image_drift(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            plan = harness.make_plan(6, "environment", ["machine-a"], self.id_key)
+            plan = harness.make_plan(10, "environment", ["machine-a"], self.id_key)
             plan_path = root / "plan.json"
             harness.save_json(plan_path, plan)
             first = self.campaign_result(plan["jobs"][0], plan_path)
@@ -539,7 +539,7 @@ class HarnessTests(unittest.TestCase):
     def test_publish_bundle_redacts_hidden_output_and_includes_audit_hashes(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            plan = harness.make_plan(6, "publish", ["machine-a"], self.id_key)
+            plan = harness.make_plan(10, "publish", ["machine-a"], self.id_key)
             plan_path = root / "plan.json"
             harness.save_json(plan_path, plan)
             paths = []
@@ -612,7 +612,7 @@ class HarnessTests(unittest.TestCase):
     def test_publish_rejects_incomplete_cohort(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            plan = harness.make_plan(6, "publish-incomplete", ["machine-a"], self.id_key)
+            plan = harness.make_plan(10, "publish-incomplete", ["machine-a"], self.id_key)
             plan_path = root / "plan.json"
             harness.save_json(plan_path, plan)
             result = self.campaign_result(plan["jobs"][0], plan_path)
@@ -941,7 +941,7 @@ class HarnessTests(unittest.TestCase):
     def stage_campaign(self, root, *, seed="queue"):
         """On-disk state a run-job invocation expects, laid out as RUNS beneath ROOT."""
         runs = root / "runs"
-        plan = harness.make_plan(6, seed, ["machine-a"], self.id_key)
+        plan = harness.make_plan(10, seed, ["machine-a"], self.id_key)
         plan_path = runs / "plan.json"
         harness.save_json(plan_path, plan)
         for name in ("results", "generations", "workspaces"):

@@ -1,8 +1,10 @@
 # Routing evidence bundles
 
+The main worker evidence path uses `protocols/routing-quality-v1.json`: a complete 900-run cohort across six .NET/React-TypeScript SPA families, six fixtures per family, five generations, and five configurations on `machine-a`. `routing_quality.py` ranks verified correctness, then the proxy from `protocols/routing-pricing-2026-09-22.json`, then time for remaining ties. The proxy uses official GPT-6 Luna/Sol Standard API prices; it is not a Codex invoice or Fast-mode price. No route has been promoted.
+
 `routing_evidence.py` publishes the complete public input to a routing decision as a portable,
 deterministic directory. A valid bundle includes the frozen protocol and runtime controls, plan, treatment matrix,
-one reverse-bound capability preflight report per campaign machine,
+the reverse-bound `machine-a` capability preflight report,
 task catalog and every catalog manifest, allow-listed candidate files, sealed evaluator inputs, a
 sanitized result cohort, replayed analysis, execution provenance, and a SHA-256 audit inventory.
 
@@ -26,11 +28,10 @@ content-addressed by a registry digest or immutable image ID, and `analysisImple
 the runner and evaluator identified by provenance can be retrieved from the recorded commit.
 
 ```sh
-python3 routing_evidence.py publish runs/routing/*.json \
+python3 routing_evidence.py publish runs/routing/results/*.json \
+  --protocol protocols/routing-quality-v1.json \
   --plan runs/routing-plan.json \
   --preflight runs/routing-preflight-machine-a.json \
-  --preflight runs/routing-preflight-machine-b.json \
-  --preflight runs/routing-preflight-machine-c.json \
   --analysis runs/routing-analysis.json \
   --provenance runs/routing-provenance.json \
   --candidate-root runs/routing/workspaces \
@@ -48,7 +49,7 @@ python3 routing_evidence.py verify runs/published/routing-v1
 
 Verification first reconstructs each allow-listed candidate and fixture, re-runs its sealed evaluator
 in the pinned evaluator image where required, and rejects any status or candidate-hash mismatch. It
-then re-runs `routing_campaign.analyze` and compares its canonical output with the packaged analysis.
+then re-runs `routing_campaign.analyze` and compares its canonical output with the packaged comparative analysis. The separate quality-first ranking report can be regenerated from the same complete result cohort; promotion integration remains pending.
 It reports both the byte digest of `bundle.json` and the canonical JSON object digest.
 `evidenceBundles[].canonicalSha256` in a routing policy must pin the latter, matching
 `routing_policy.canonical_sha256` and remaining independent of the file's trailing newline.
@@ -63,13 +64,11 @@ from being cited without its protocol, cohort, fixture manifests, provenance, an
 The bundle, policy metadata, evidence reference, and route also carry an explicit `estimand`.
 Worker-artifact evidence cannot therefore promote a live-coordinator route.
 
-The repository policy remains provisional until the required real campaign is complete and a route
-has a `SUPPORTED` decision in such a verified bundle.
+The repository policy remains provisional until the complete quality-first campaign, ranking report, and verified evidence support a route. The older `routing-operational-v1.json` sequential publisher and its cheapest-sufficient decisions are optional legacy evidence; they do not promote a quality-first route.
 Promotion is also fail-closed on construct validity. Pass the hash-bound report
 to `routing_policy.py --construct-readiness <report>`; each evidence-backed
 worker route must name a family whose report entry is individually eligible.
-A strong scoped family may therefore be promoted without pretending that an
-ineligible broad family has become valid.
+Once the quality-first ranking and evidence path are complete, a strong scoped family could be promoted without treating an ineligible broad family as valid.
 
 ## Live-coordinator evidence
 
@@ -78,7 +77,7 @@ Live coordination is a different estimand and therefore uses
 `live-coordinator-with-frozen-workers`: the coordinator treatment varies while the
 protocol-bound Luna-high leaf policy, worker count, concurrency, prompts, and spawn depth remain
 fixed. A coordinator bundle contains the protocol, balanced plan, bound catalog and twelve fixture
-manifests, the complete resolved 648-result cohort, clean-revision provenance, the preregistered
+manifests, the complete resolved 300-result cohort, clean-revision provenance, the preregistered
 analysis, and a canonical SHA-256 audit inventory. Verification revalidates every result and
 recomputes `coordinator_analysis.analyze` from the packaged cohort.
 

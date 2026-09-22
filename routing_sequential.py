@@ -60,7 +60,7 @@ def _stages_by_family(manifest: dict[str, Any]) -> dict[str, list[dict[str, Any]
 
 
 def make_manifest(plan: dict[str, Any], protocol: dict[str, Any]) -> dict[str, Any]:
-    """Derive one deterministic six-stage ladder from the frozen matrix order."""
+    """Derive one deterministic stage ladder from the frozen matrix order."""
     routing_campaign.validate_plan(plan, protocol)
     matrix_order = [item["id"] for item in protocol["matrix"]]
     families = []

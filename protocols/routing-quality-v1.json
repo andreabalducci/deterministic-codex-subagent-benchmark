@@ -1,17 +1,23 @@
 {
   "schemaVersion": 1,
   "recordKind": "routing-protocol",
-  "protocolId": "routing-operational-v3-single-host-dotnet-spa",
+  "protocolId": "routing-quality-v1-single-host-dotnet-spa",
   "runtimeManifestHash": "a3290a50d2cfd26eae9b5cb4d719c390c54ba1d6ad6a67f92229d4e5038681ca",
-  "seed": "routing-operational-v3-plan-20260922",
-  "bootstrapSeed": "routing-operational-v3-bootstrap-20260922",
+  "seed": "routing-quality-v1-plan-20260922",
+  "bootstrapSeed": "routing-quality-v1-bootstrap-20260922",
   "bootstrapSamples": 5000,
   "familywiseAlpha": 0.05,
   "selection": {
-    "objective": "lowest-cost-machine-verified-sufficient",
-    "costOrder": ["luna-low", "luna-medium", "luna-high", "sol-medium", "sol-high"],
-    "gate": "fixed-complete-stage-v1",
-    "stageDecision": "accept-or-escalate",
+    "objective": "quality-first-complete-cohort",
+    "costOrder": [
+      "luna-low",
+      "luna-medium",
+      "luna-high",
+      "sol-medium",
+      "sol-high"
+    ],
+    "gate": "complete-cohort-v1",
+    "stageDecision": "rank-quality-cost-time",
     "requireMachineAndEcosystemStability": true
   },
   "robustness": {
@@ -21,13 +27,35 @@
     "maximumFixtureDecisionGainRange": 0.75
   },
   "replicatesPerFixture": 5,
-  "machines": ["machine-a"],
+  "machines": [
+    "machine-a"
+  ],
   "matrix": [
-    {"id": "luna-low", "model": "gpt-6-luna", "reasoningEffort": "low"},
-    {"id": "luna-medium", "model": "gpt-6-luna", "reasoningEffort": "medium"},
-    {"id": "luna-high", "model": "gpt-6-luna", "reasoningEffort": "high"},
-    {"id": "sol-medium", "model": "gpt-6-sol", "reasoningEffort": "medium"},
-    {"id": "sol-high", "model": "gpt-6-sol", "reasoningEffort": "high"}
+    {
+      "id": "luna-low",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "luna-medium",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "luna-high",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "sol-medium",
+      "model": "gpt-6-sol",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "sol-high",
+      "model": "gpt-6-sol",
+      "reasoningEffort": "high"
+    }
   ],
   "families": [
     {
@@ -36,10 +64,21 @@
       "label": "Exact mechanical repository operations",
       "candidateId": "luna-low",
       "heldOutFixtureIds": [
-        "mechanical-01", "mechanical-02", "mechanical-05", "mechanical-06",
-        "mechanical-09", "mechanical-10"
+        "mechanical-01",
+        "mechanical-02",
+        "mechanical-05",
+        "mechanical-06",
+        "mechanical-09",
+        "mechanical-10"
       ],
-      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "dotnet", "react-typescript", "dotnet", "react-typescript"],
+      "heldOutFixtureEcosystems": [
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript"
+      ],
       "absoluteQualityFloor": 0.8,
       "nonInferiorityMargin": 0.1,
       "recommendationType": "economy",
@@ -52,10 +91,21 @@
       "label": "Bounded code mapping and low-risk patches",
       "candidateId": "luna-medium",
       "heldOutFixtureIds": [
-        "bounded-patch-01", "bounded-patch-02", "bounded-patch-05", "bounded-patch-06",
-        "bounded-patch-09", "bounded-patch-10"
+        "bounded-patch-01",
+        "bounded-patch-02",
+        "bounded-patch-05",
+        "bounded-patch-06",
+        "bounded-patch-09",
+        "bounded-patch-10"
       ],
-      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "dotnet", "react-typescript", "dotnet", "react-typescript"],
+      "heldOutFixtureEcosystems": [
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript"
+      ],
       "absoluteQualityFloor": 0.85,
       "nonInferiorityMargin": 0.1,
       "recommendationType": "capability",
@@ -68,10 +118,21 @@
       "label": "Isolated implementation and deterministic debugging",
       "candidateId": "luna-high",
       "heldOutFixtureIds": [
-        "isolated-debug-01", "isolated-debug-02", "isolated-debug-05", "isolated-debug-06",
-        "isolated-debug-09", "isolated-debug-10"
+        "isolated-debug-01",
+        "isolated-debug-02",
+        "isolated-debug-05",
+        "isolated-debug-06",
+        "isolated-debug-09",
+        "isolated-debug-10"
       ],
-      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "dotnet", "react-typescript", "dotnet", "react-typescript"],
+      "heldOutFixtureEcosystems": [
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript"
+      ],
       "absoluteQualityFloor": 0.85,
       "nonInferiorityMargin": 0.1,
       "recommendationType": "capability",
@@ -84,10 +145,21 @@
       "label": "Structured defect localization with exact source evidence",
       "candidateId": "sol-medium",
       "heldOutFixtureIds": [
-        "read-heavy-01", "read-heavy-02", "read-heavy-05", "read-heavy-06",
-        "read-heavy-09", "read-heavy-10"
+        "read-heavy-01",
+        "read-heavy-02",
+        "read-heavy-05",
+        "read-heavy-06",
+        "read-heavy-09",
+        "read-heavy-10"
       ],
-      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "dotnet", "react-typescript", "dotnet", "react-typescript"],
+      "heldOutFixtureEcosystems": [
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript"
+      ],
       "absoluteQualityFloor": 0.8,
       "nonInferiorityMargin": 0.1,
       "recommendationType": "capability",
@@ -100,10 +172,21 @@
       "label": "Multi-file contract, producer, consumer, and acceptance state integration",
       "candidateId": "sol-medium",
       "heldOutFixtureIds": [
-        "coordination-01", "coordination-02", "coordination-05", "coordination-06",
-        "coordination-09", "coordination-10"
+        "coordination-01",
+        "coordination-02",
+        "coordination-05",
+        "coordination-06",
+        "coordination-09",
+        "coordination-10"
       ],
-      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "dotnet", "react-typescript", "dotnet", "react-typescript"],
+      "heldOutFixtureEcosystems": [
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript"
+      ],
       "absoluteQualityFloor": 0.85,
       "nonInferiorityMargin": 0.1,
       "recommendationType": "capability",
@@ -116,10 +199,21 @@
       "label": "Compatibility, implementation, rollback, and acceptance state transitions",
       "candidateId": "sol-high",
       "heldOutFixtureIds": [
-        "high-risk-01", "high-risk-02", "high-risk-05", "high-risk-06",
-        "high-risk-09", "high-risk-10"
+        "high-risk-01",
+        "high-risk-02",
+        "high-risk-05",
+        "high-risk-06",
+        "high-risk-09",
+        "high-risk-10"
       ],
-      "heldOutFixtureEcosystems": ["dotnet", "react-typescript", "dotnet", "react-typescript", "dotnet", "react-typescript"],
+      "heldOutFixtureEcosystems": [
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript",
+        "dotnet",
+        "react-typescript"
+      ],
       "absoluteQualityFloor": 0.9,
       "nonInferiorityMargin": 0.1,
       "recommendationType": "capability",

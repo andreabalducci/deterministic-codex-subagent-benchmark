@@ -118,8 +118,10 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         raise ValidationError("Replicates per fixture must be divisible by machine count")
 
     matrix = protocol["matrix"]
-    paired = isinstance(protocol["selection"], dict) and protocol["selection"].get("objective") == "paired-model-comparison"
-    treatment_count = 2 if paired else 6
+    objective = protocol["selection"].get("objective") if isinstance(protocol["selection"], dict) else None
+    paired = objective == "paired-model-comparison"
+    quality_first = objective == "quality-first-complete-cohort"
+    treatment_count = 2 if paired else len(matrix) if isinstance(matrix, list) else 0
     if not isinstance(matrix, list) or len(matrix) != treatment_count:
         raise ValidationError(f"$.matrix must contain exactly {treatment_count} treatments")
     treatment_keys = {"id", "model", "reasoningEffort"}
@@ -140,9 +142,14 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         "objective", "costOrder", "gate", "stageDecision",
         "requireMachineAndEcosystemStability",
     }, "$.selection")
-    if selection["objective"] != ("paired-model-comparison" if paired else "lowest-cost-machine-verified-sufficient") \
-            or selection["gate"] != ("complete-cohort-v1" if paired else "fixed-complete-stage-v1") \
-            or selection["stageDecision"] != ("compare-only" if paired else "accept-or-escalate") \
+    if selection["objective"] not in {
+            "paired-model-comparison", "lowest-cost-machine-verified-sufficient",
+            "quality-first-complete-cohort",
+    } \
+            or selection["gate"] != ("complete-cohort-v1" if paired or quality_first else "fixed-complete-stage-v1") \
+            or selection["stageDecision"] != (
+                "compare-only" if paired else "rank-quality-cost-time" if quality_first else "accept-or-escalate"
+            ) \
             or selection["requireMachineAndEcosystemStability"] is not True:
         raise ValidationError("Unsupported sequential selection contract")
     if selection["costOrder"] != ([] if paired else treatment_ids):
@@ -190,8 +197,8 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         if not isinstance(ecosystems, list) or len(ecosystems) != len(fixtures) \
                 or any(not isinstance(item, str) or not item.strip() for item in ecosystems):
             raise ValidationError(f"Family {family['id']} fixture ecosystems must align with fixtures")
-        if len(set(ecosystems)) < 3:
-            raise ValidationError(f"Family {family['id']} needs at least three ecosystems")
+        if len(set(ecosystems)) < 2:
+            raise ValidationError(f"Family {family['id']} needs at least two ecosystems")
         blocks_per_machine = len(fixtures) * protocol["replicatesPerFixture"] // len(machines)
         if blocks_per_machine % len(matrix):
             raise ValidationError(
@@ -202,8 +209,8 @@ def validate_protocol(protocol: Any) -> dict[str, Any]:
         all_fixtures.extend(fixtures)
     if len(family_ids) != len(set(family_ids)):
         raise ValidationError("Family IDs must be unique")
-    if not paired and (set(candidate_ids) != set(treatment_ids) or len(candidate_ids) != len(set(candidate_ids))):
-        raise ValidationError("The six narrowed families must preregister each treatment exactly once")
+    if not paired and set(candidate_ids) != set(treatment_ids):
+        raise ValidationError("The six narrowed families must cover every treatment at least once")
     if len(all_fixtures) != len(set(all_fixtures)):
         raise ValidationError("Fixture IDs must be globally unique")
 
@@ -251,15 +258,20 @@ def validate_protocol_sources(
 def williams_rows(treatments: list[dict[str, str]], seed: str) -> list[list[dict[str, str]]]:
     permuted = seeded_order(treatments, f"{seed}:treatments")
     count = len(permuted)
-    if count % 2:
-        raise ValidationError("Williams design requires an even number of treatments")
     indices = [0]
     for offset in range(1, count // 2 + 1):
         indices.append(offset)
         if count - offset != offset:
             indices.append(count - offset)
     base = indices[:count]
-    return [[permuted[(index + row) % count] for index in base] for row in range(count)]
+    sequences = [base]
+    if count % 2:
+        sequences.append(list(reversed(base)))
+    return [
+        [permuted[(index + row) % count] for index in sequence]
+        for sequence in sequences
+        for row in range(count)
+    ]
 
 
 def _scheduled_jobs(protocol: dict[str, Any]) -> list[dict[str, Any]]:

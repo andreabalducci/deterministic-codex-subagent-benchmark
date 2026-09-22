@@ -1,0 +1,17 @@
+{
+  "asOf": "2026-09-22",
+  "currency": "USD",
+  "basis": "Uncached Standard API short-context proxy per million tokens; not a Codex invoice or Fast-mode price",
+  "models": {
+    "gpt-6-luna": {
+      "inputPerMillion": 0.1,
+      "outputPerMillion": 0.5,
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+    },
+    "gpt-6-sol": {
+      "inputPerMillion": 2,
+      "outputPerMillion": 10,
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-sol"
+    }
+  }
+}

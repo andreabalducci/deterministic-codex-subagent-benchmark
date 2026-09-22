@@ -5,21 +5,20 @@
 The [completed isolated v2 ASTRA comparison](ASTRA_RESULTS.md) and its
 [preregistered strategy](ASTRA_STRATEGY.md) introduce a complete two-treatment
 comparison, not another ordinal stage. Its 216-job protocol requires both ASTRA
-Low and SOL Medium in every block. The six-treatment sequential rules below
-continue to govern the original policy experiment only.
+Low and SOL Medium in every block. The five-treatment sequential rules below
+describe the older policy experiment only.
 
 
 This document defines the evidence required before the bundled `orchestrate`
-skill may describe a model/reasoning pair as an evidence-backed default. The
-policy objective is *lowest-cost machine-verified sufficient*: classify the
-task family first, then accept the first configuration in the frozen ordinal
-cost order that passes its fixed complete-stage gate. The legacy `async-cache-v1`
-campaign remains a valid evaluator benchmark, but one coding fixture cannot
-establish task-family routing.
+skill may describe a model/reasoning pair as an evidence-backed default. The main worker path is the separate `protocols/routing-quality-v1.json` quality-first protocol: six families of .NET and React/TypeScript SPA tasks, six fixtures per family (three of each ecosystem), five independent generations per fixture, and five configurations on one physical host (`machine-a`). The complete comparison is 900 runs, each isolated in a container. Rank by verified correctness, then API-price cost proxy, then time for any remaining tie. The proxy uses `protocols/routing-pricing-2026-09-22.json`, based on official GPT-6 Luna/Sol Standard API prices; it is not a Codex invoice or Fast-mode price. `routing_quality.py` produces the descriptive routing table from a complete cohort; no policy has been promoted. The legacy `async-cache-v1` campaign remains a valid evaluator benchmark, but one coding fixture cannot establish task-family routing.
 
 ## Claims and estimands
 
-The policy-facing worker workflow is a deterministic sequential experiment.
+The 900-run quality-first comparison is a complete five-configuration cohort, not a prefix of the sequential ladder. The optional wider `protocols/routing-v1.json` profile covers twelve fixtures per family and fifteen replicates: 6 × 12 × 15 × 5 = 5,400 runs. Its broader fixtures include ecosystems beyond .NET/SPA; its checked-in selection field still encodes the legacy cheapest-sufficient objective, so do not treat it as an implemented quality-first rule.
+
+### Optional legacy sequential workflow
+
+The existing, legacy worker workflow is a deterministic cheapest-sufficient sequential experiment.
 `routing_sequential.py` derives its stages only from the frozen matrix order in
 the protocol and `routing_campaign_driver.py` executes only the currently
 authorized stage. A configuration is accepted only when it meets the family's
@@ -27,16 +26,15 @@ fixed overall-quality floor and its machine and ecosystem boundary. Otherwise
 the next configuration is authorized. No human judge, score override, optional
 stopping rule, or operator model choice participates in the transition.
 
-The ordinal cost order is frozen by the benchmark operator. It is a routing
+That legacy ordinal cost order is frozen by the benchmark operator. It is a routing
 order, not a claim about monetary model prices, token rates, subscription
 credits, or latency. Results can support a specific pair such as
-`gpt-5.6-luna` plus `high`; they must not be interpreted as independent causal
+`gpt-6-luna` plus `high`; they must not be interpreted as independent causal
 effects of model family or reasoning effort.
 
-The existing complete-treatment matrix remains a separate comparative and
-extended analysis. It estimates model/effort configurations under the same
-envelope, but it is not sufficient to promote a cheapest-sufficient policy:
-promotion consumes terminal, replayable sequential evidence.
+The five-treatment complete comparison estimates model/effort configurations under the same operational envelope. `protocols/routing-operational-v1.json` and `protocols/routing-v1.json` still declare `lowest-cost-machine-verified-sufficient`; that field and the current sequential state machine are legacy relative to the requested quality-first criterion. Comparative results alone do not define the pending quality-first selection rule or promote a route.
+
+### Worker and coordinator estimands
 
 Two experiments are required:
 
@@ -54,9 +52,9 @@ coordinator and worker choices can interact.
 
 The separate coordinator estimand is implemented by
 `protocols/coordinator-v1.json`, `coordinator_campaign.py`, and
-`coordinator_runner.py`. Its deterministic plan contains 648 generations: six
-coordinator treatments × twelve held-out coordination fixtures × nine fresh
-replicates, balanced over three machines. Every job carries the same canonical
+`coordinator_runner.py`. Its deterministic plan contains 300 generations: five
+coordinator treatments × twelve held-out coordination fixtures × five fresh
+replicates on `machine-a`, with isolated container runs. Every job carries the same canonical
 worker-policy hash. That policy fixes three `gpt-5.6-luna`/`high` leaf workers,
 their exact prompts, fresh contexts, spawn depth, and concurrency. Multi-agent
 support is enabled only in this experiment.
@@ -83,13 +81,13 @@ python3 coordinator_campaign.py plan --id-key-file /secure/coordinator-id.key --
 The checked-in tests use a fake runtime and incur no model usage. Generating the
 confirmatory plan does not authorize running it.
 
-`coordinator_analysis.py` accepts only a complete, resolved 648-result cohort.
+`coordinator_analysis.py` accepts only a complete, resolved 300-result cohort.
 Its primary outcome is the conjunction of trace compliance and sealed
 integration acceptance. It applies the same paired hierarchical bootstrap,
 Holm adjustment, and simultaneous-bound discipline to the preregistered
-`sol-medium` coordinator claim, including noninferiority against all five
-alternatives, a capability contrast against `terra-medium`, and machine,
-ecosystem, and leave-one-fixture-out stability.
+`sol-medium` coordinator claim, including noninferiority against all four
+alternatives, a capability contrast against `luna-high`, and ecosystem and
+leave-one-fixture-out stability on the single host. Cross-host robustness is not measured.
 
 Coordinator analysis is intentionally a distinct record kind and estimand. The
 current worker routing evidence publisher and policy validator must not consume
@@ -106,12 +104,7 @@ tier, but it must use the same supported tier for every compared treatment and
 record the tier actually returned by the runtime. Worker runs disable spawning;
 the separate coordinator experiment enables it under a frozen worker policy.
 
-After the protocol is frozen, every registered worker machine must produce its
-own authenticated model-list preflight. The report reverse-binds the protocol,
-runtime manifest, matrix, and machine ID. A sequential protocol-hash revision
-invalidates all prior reports, so `machine-a`, `machine-b`, and `machine-c` must
-each regenerate their preflight before a new plan is created. Only then may the
-planner create the schedule: it commits each report hash and a common normalized capability digest.
+After the protocol is frozen, `machine-a` must produce an authenticated model-list preflight using `--protocol protocols/routing-quality-v1.json` for the main worker path. The report reverse-binds the protocol, runtime manifest, matrix, and machine ID. A protocol-hash revision invalidates the prior report. Only then may the planner create the schedule: it commits the report hash and normalized capability digest.
 The runner rejects a job unless the supplied report matches its assigned-machine
 binding, and every v2 result repeats both digests. Publication includes all
 reports and verifies the complete chain. This ordering prevents a capability
@@ -137,9 +130,9 @@ coverage. Otherwise the generated skill must use the narrower family wording.
 Each family requires:
 
 - two development/calibration fixtures excluded from confirmatory analysis;
-- at least eight sealed confirmatory fixtures for exploratory evidence;
-- twelve sealed confirmatory fixtures for an evidence-backed routing claim;
-- fixtures from at least three ecosystems or an explicit ecosystem scope;
+- six sealed confirmatory fixtures for the operational .NET/SPA comparison;
+- twelve sealed confirmatory fixtures for the optional broad extended comparison;
+- fixtures from both .NET and React/TypeScript SPA in the operational scope;
 - no shared code ancestry that would make fixtures pseudoreplicates;
 - a frozen reference, negative/mutant corpus, deterministic evaluator contract, and manifest.
 
@@ -158,7 +151,7 @@ to authorize paid generations. `construct_readiness.py` emits a deterministic,
 hash-bound report for the frozen protocol and catalog. Promotion requires all
 of the following for every claimed family:
 
-- at least six preregistered confirmatory fixtures, three ecosystems, and six distinct task surfaces;
+- at least six preregistered confirmatory fixtures and six distinct task surfaces in the operational .NET/SPA scope;
 - maximum pairwise prompt trigram Jaccard similarity no greater than 0.85;
 - every critical evaluator criterion killed by at least one committed negative mutant;
 - at least one evaluator-accepted equivalent positive for every confirmatory fixture;
@@ -172,22 +165,47 @@ python3 construct_readiness.py calibrate-docker \
   --output runs/routing-docker-calibration.json
 
 python3 construct_readiness.py report \
+  --protocol protocols/routing-quality-v1.json \
   --docker-calibration runs/routing-docker-calibration.json \
   --output runs/routing-construct-readiness.json
+python3 construct_readiness.py check \
+  --protocol protocols/routing-quality-v1.json \
+  --report runs/routing-construct-readiness.json
 ```
 
 The command exits non-zero while any family is ineligible but still writes the
-full reasons. The planner then requires the passing report:
+full reasons. The main quality-first plan requires the passing report. The scripts still default to the legacy operational protocol, so specify the new protocol for validation, planning, and comparative analysis:
 
 ```bash
+python3 routing_preflight.py \
+  --protocol protocols/routing-quality-v1.json \
+  --machine-id machine-a \
+  --auth-file /secure/path/benchmark-auth.json \
+  --output runs/routing-preflight-machine-a.json
+python3 routing_campaign.py validate --protocol protocols/routing-quality-v1.json
 python3 routing_campaign.py plan \
+  --protocol protocols/routing-quality-v1.json \
   --construct-readiness runs/routing-construct-readiness.json \
   --preflight runs/routing-preflight-machine-a.json \
-  --preflight runs/routing-preflight-machine-b.json \
-  --preflight runs/routing-preflight-machine-c.json \
   --id-key-file /secure/routing-id.key \
   --output runs/routing-plan.json
 ```
+
+After all 900 runs have resolved, produce the comparative analysis:
+
+```bash
+python3 routing_campaign.py analyze runs/routing/results/*.json \
+  --protocol protocols/routing-quality-v1.json \
+  --plan runs/routing-plan.json \
+  --output runs/routing-analysis.json
+python3 routing_quality.py runs/routing/results/*.json \
+  --protocol protocols/routing-quality-v1.json \
+  --plan runs/routing-plan.json \
+  --pricing protocols/routing-pricing-2026-09-22.json \
+  --output runs/routing-quality-report.json
+```
+
+Publish the complete comparative bundle with `routing_evidence.py publish --protocol protocols/routing-quality-v1.json` as shown in [Routing evidence bundles](ROUTING_EVIDENCE.md). The ranking report lists the best verified configuration per family and ecosystem, and leaves a row unselected when every configuration misses its quality floor or a quality tie lacks cost telemetry.
 
 Every worker-family fixture is machine-verifiable. Read-heavy answers are exact
 source-bound records; coordination and high-risk fixtures are multi-file state
@@ -195,9 +213,11 @@ transitions with frozen semantic JSON outcomes; implementation fixtures execute
 sealed behavior. The readiness report therefore depends only on reproducible
 machine evidence and never on reviewer agreement.
 
-## Sequential execution state
+## Optional legacy sequential execution state
 
-`routing_campaign.py plan` creates the immutable six-treatment maximum envelope;
+The commands below are historical examples for `protocols/routing-operational-v1.json`; they require their own protocol-bound plan, preflight, and readiness report. They must not consume the quality-first plan shown above.
+
+`routing_campaign.py plan` creates the immutable five-treatment maximum envelope;
 `routing_sequential.py` never edits it, creates new run IDs, or changes a
 treatment assignment. It derives one stage per family and configuration from
 that envelope. The first state authorizes the first (least-cost ordinal) stage
@@ -223,7 +243,7 @@ python3 routing_campaign_driver.py sequential-init \
   --sequential-manifest runs/routing-sequential-manifest.json \
   --sequential-state runs/routing-sequential-state.json
 
-# Run on each physical host, only for its currently authorized jobs.
+# Run on machine-a, only for its currently authorized jobs.
 python3 routing_campaign_driver.py run-machine \
   --plan runs/routing-plan.json --machine-id machine-a \
   --preflight runs/routing-preflight-machine-a.json \
@@ -254,8 +274,6 @@ python3 routing_sequential_evidence.py publish runs/routing/results/*.json \
   --protocol protocols/routing-operational-v1.json \
   --runtime-manifest protocols/routing-runtime-v1.json \
   --preflight runs/routing-preflight-machine-a.json \
-  --preflight runs/routing-preflight-machine-b.json \
-  --preflight runs/routing-preflight-machine-c.json \
   --plan runs/routing-plan.json \
   --matrix matrix.json --catalog fixtures/catalog.json \
   --sequential-manifest runs/routing-sequential-manifest.json \
@@ -270,23 +288,17 @@ python3 routing_sequential_evidence.py verify \
   runs/routing-sequential-evidence
 ```
 
-The 648 jobs are the immutable maximum envelope. Sequential execution needs
-108 jobs when all six families accept their first stage, 378 under the current
-hypothesis ladder, and 648 when every family reaches the final stage. These are
-fixed consequences of the registered stage order, not a post-hoc sample-size
-choice.
+For the optional legacy sequential procedure, 900 jobs are the immutable maximum envelope. Sequential execution needs 180 jobs when all six families accept their first stage, 600 under the current hypothesis ladder, and 900 when every family reaches the final stage. These are arithmetic consequences of the registered legacy stage order, not quality-first selection bounds.
 
-## Distributed execution and infrastructure retries
+## Single-host execution and infrastructure retries
 
-Run one persistent `routing_campaign_driver.py run-machine` process on each of
-the three preregistered physical hosts, using that host's exact preflight report.
+For the optional legacy procedure, run one persistent `routing_campaign_driver.py run-machine` process on `machine-a`, using its exact preflight report. Keep individual runs isolated in containers.
 The driver walks only its assigned jobs in plan order and safely skips validated
 existing results when resumed. A first `INFRA_FAILURE` pauses that machine.
 After the operator corrects the external cause, `retry-infra --run-id ...`
 archives every current artifact in a numbered immutable attempt directory with
 a SHA-256 inventory and then reruns the same planned unit. Candidate failures
-are outcomes and are never retried. Do not reuse three logical machine labels on
-one host: the machine robustness analysis assumes genuinely distinct hosts.
+are outcomes and are never retried. One host cannot establish cross-host robustness.
 
 ## Independent samples
 
@@ -294,17 +306,7 @@ An independent sample is a new model generation in a fresh ephemeral session
 and workspace. Re-running an evaluator against one generated artifact is a
 stability check, not another model sample.
 
-The default operational plan uses six fixtures per family and three fresh
-generations per fixture across three machines. Its 648 jobs are an immutable
-maximum envelope: six stages for each of six families, with every Williams
-order represented once per family on every machine. The policy-facing sequential
-run executes a prefix of that envelope only. It requires 108 jobs if every
-family accepts stage one, 378 jobs for the current hypothesis ladder, and at
-most 648 jobs if all families exhaust the ordered ladder. The six unused
-confirmatory fixtures per family are reserved. The complete-treatment extended
-protocol uses all twelve fixtures and nine generations, for 3,888 total, when
-comparative or publication-grade precision is required. Rank order alone is
-never a policy recommendation.
+The main operational quality-first comparison uses all five configurations on six fixtures per family and five fresh generations per fixture, for 900 complete-treatment runs on `machine-a`. The optional legacy sequential workflow uses the same 900-run maximum envelope but executes only an authorized prefix: best 180, current hypothesis ladder 600, maximum 900. The six other confirmatory fixtures per family are reserved for the optional broad `routing-v1.json` profile, which uses twelve fixtures and fifteen generations for 5,400 runs. A quality-first recommendation awaits the separate protocol's completed ranking rule and verified evidence.
 
 ## Primary and secondary metrics
 
@@ -318,7 +320,7 @@ Common secondary metrics are:
 - critical-error and unintended-change rates;
 - generation latency and evaluator latency;
 - input, output, and reasoning tokens when the runtime exposes them;
-- dated monetary or credit cost derived from recorded usage;
+- dated Standard API cost proxy derived from recorded usage and `protocols/routing-pricing-2026-09-22.json`; it is not a Codex invoice;
 - tool calls, retries, and infrastructure-failure rate;
 - actual model snapshot, service tier, machine, and container identity.
 
@@ -328,7 +330,7 @@ behaviors, regressions, and API compatibility for code; and final acceptance,
 conflicts, interventions, critical-path time, utilization, and trace compliance
 for coordination. Agent count never earns quality credit.
 
-## Preregistered cheapest-sufficient decision
+## Optional legacy cheapest-sufficient decision
 
 For a classified family, the decision is made at each complete stage without looking ahead to later configurations:
 
@@ -341,7 +343,7 @@ The fixed floors remain `0.80` for routine work, `0.85` for code, and `0.90` for
 
 The terminal state is accepted only if it replays from the hashes and resolved results of the immutable plan. The policy publication maps each family to its terminal `ACCEPT` treatment (or reports `EXHAUSTED`); it does not choose the highest observed score or rely on a human reviewer.
 
-The legacy complete-treatment analysis continues to report comparative estimates, noninferiority, robustness, and economy/capability contrasts across all six configurations. Those analyses are valuable extended evidence, but they do not replace the sequential terminal-state evidence required to promote the routing policy.
+The legacy complete-treatment analysis reports comparative estimates, noninferiority, robustness, and economy/capability contrasts across all five configurations. It does not implement the new quality-first ranking report. Sequential terminal-state evidence supports only the legacy objective.
 
 ## Blinding and stopping
 
@@ -350,9 +352,7 @@ The legacy complete-treatment analysis continues to report comparative estimates
 - Use HMAC-derived opaque run IDs and balanced treatment order per fixture.
 - Candidate evaluators receive only opaque run IDs and candidate artifacts; they do not receive model mapping, transcript, latency, or usage data. The private execution plan and final statistical analysis necessarily contain the treatment mapping.
 - Freeze scores and exclusions before revealing the treatment mapping.
-- Use a fixed sample size. One blinded sample-size re-estimation at 50% is
-  permitted from pooled outcome and infrastructure rates, up to the registered
-  ceiling.
+- Use the fixed 900-run complete cohort for the main quality-first protocol. A sample-size change requires a separately registered revision.
 - Pause after three consecutive infrastructure failures or a rolling rate above
   5%. Never replace a sampled candidate failure.
 - Retry an unsampled generation only when machine evidence proves no model turn

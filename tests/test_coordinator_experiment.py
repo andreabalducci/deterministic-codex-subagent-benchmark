@@ -67,13 +67,13 @@ class CoordinatorExperimentTests(unittest.TestCase):
     def test_complete_deterministic_balanced_plan(self):
         again = campaign.make_plan(self.protocol, b"0123456789abcdef")
         self.assertEqual(self.plan, again)
-        self.assertEqual(648, len(self.plan["jobs"]))
+        self.assertEqual(300, len(self.plan["jobs"]))
         self.assertEqual(1, len({job["workerPolicyHash"] for job in self.plan["jobs"]}))
         by_machine_treatment = {}
         for job in self.plan["jobs"]:
             key = (job["machineId"], job["coordinatorTreatmentId"])
             by_machine_treatment[key] = by_machine_treatment.get(key, 0) + 1
-        self.assertEqual({36}, set(by_machine_treatment.values()))
+        self.assertEqual({60}, set(by_machine_treatment.values()))
 
     def test_plan_rejects_worker_policy_tamper(self):
         changed = copy.deepcopy(self.protocol)
@@ -202,7 +202,7 @@ class CoordinatorExperimentTests(unittest.TestCase):
         analysis = coordinator_analysis.analyze(protocol, plan, results, catalog=self.catalog)
         self.assertEqual("SUPPORTED", analysis["decision"])
         self.assertEqual("trace-and-integration-success", analysis["primaryMetric"])
-        self.assertEqual(7, analysis["multiplicity"]["claimCount"])
+        self.assertEqual(6, analysis["multiplicity"]["claimCount"])
         self.assertTrue(analysis["stability"]["passed"])
         with self.assertRaises(campaign.ValidationError):
             coordinator_analysis.analyze(protocol, plan, results[:-1], catalog=self.catalog)
