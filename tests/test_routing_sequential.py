@@ -56,38 +56,38 @@ class SequentialTests(unittest.TestCase):
     def test_manifest_and_initial_state_are_deterministic(self):
         self.assertEqual(self.manifest, routing_sequential.make_manifest(self.plan, self.protocol))
         state = routing_sequential.make_initial_state(self.manifest, self.plan, self.protocol)
-        self.assertEqual(108, sum(len(item["runIds"]) for item in state["authorized"]))
+        self.assertEqual(180, sum(len(item["runIds"]) for item in state["authorized"]))
         self.assertEqual(state, routing_sequential.make_initial_state(self.manifest, self.plan, self.protocol))
 
-    def test_best_case_executes_108_jobs_and_stops_at_stage_zero(self):
+    def test_best_case_executes_180_jobs_and_stops_at_stage_zero(self):
         targets = {family["id"]: 0 for family in self.protocol["families"]}
         state, executed = self.execute(targets)
         analysis = routing_sequential.analyze_state(
             state, self.manifest, self.plan, self.protocol, executed
         )
         self.assertTrue(analysis["complete"])
-        self.assertEqual(108, analysis["executedJobs"])
-        self.assertEqual(540, analysis["savedJobs"])
+        self.assertEqual(180, analysis["executedJobs"])
+        self.assertEqual(720, analysis["savedJobs"])
         self.assertTrue(all(item["decision"] == "ACCEPT" for item in analysis["families"]))
-        self.assertEqual(108, len(executed))
+        self.assertEqual(180, len(executed))
 
-    def test_hypothesized_ladder_executes_378_jobs(self):
+    def test_hypothesized_ladder_executes_600_jobs(self):
         targets = {family["id"]: index for index, family in enumerate(self.protocol["families"])}
         state, executed = self.execute(targets)
         analysis = routing_sequential.analyze_state(
             state, self.manifest, self.plan, self.protocol, executed
         )
-        self.assertEqual(378, analysis["executedJobs"])
-        self.assertEqual(270, analysis["savedJobs"])
-        self.assertEqual(378, len(executed))
+        self.assertEqual(600, analysis["executedJobs"])
+        self.assertEqual(300, analysis["savedJobs"])
+        self.assertEqual(600, len(executed))
 
-    def test_worst_case_executes_all_648_jobs_and_exhausts(self):
+    def test_worst_case_executes_all_900_jobs_and_exhausts(self):
         targets = {family["id"]: 6 for family in self.protocol["families"]}
         state, executed = self.execute(targets)
         analysis = routing_sequential.analyze_state(
             state, self.manifest, self.plan, self.protocol, executed
         )
-        self.assertEqual(648, analysis["executedJobs"])
+        self.assertEqual(900, analysis["executedJobs"])
         self.assertEqual(0, analysis["savedJobs"])
         self.assertTrue(all(item["decision"] == "EXHAUSTED" for item in analysis["families"]))
 

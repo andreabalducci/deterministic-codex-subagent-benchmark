@@ -7,6 +7,7 @@ __pycache__/
 # Campaign plans, credentials, transcripts, candidates and local evidence are private.
 runs/astra*/
 runs/astra*.json
+runs/host-cli-pilot-*/
 runs/generations/
 runs/results/*.json
 runs/replacements/

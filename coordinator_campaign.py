@@ -90,14 +90,14 @@ def validate_protocol(value: Any, *, catalog: dict[str, Any] | None = None) -> d
     machines = protocol["machines"]
     fixtures = protocol["fixtureIds"]
     treatments = protocol["coordinatorTreatments"]
-    if not isinstance(machines, list) or len(machines) < 3 or len(set(machines)) != len(machines):
-        raise ValidationError("at least three unique machines are required")
+    if not isinstance(machines, list) or not machines or len(set(machines)) != len(machines):
+        raise ValidationError("at least one unique machine is required")
     if protocol["replicatesPerFixture"] % len(machines):
         raise ValidationError("replicates must divide evenly across machines")
     if not isinstance(fixtures, list) or len(fixtures) != 12 or len(set(fixtures)) != 12:
         raise ValidationError("exactly twelve unique coordination fixtures are required")
-    if not isinstance(treatments, list) or len(treatments) < 2 or len(treatments) % 2:
-        raise ValidationError("an even treatment matrix is required for Williams balance")
+    if not isinstance(treatments, list) or len(treatments) < 2:
+        raise ValidationError("at least two coordinator treatments are required")
     ids = []
     for index, treatment in enumerate(treatments):
         _exact(treatment, TREATMENT_KEYS, f"$protocol.coordinatorTreatments[{index}]")
@@ -168,7 +168,14 @@ def _williams(treatments: list[dict[str, str]], seed: str) -> list[list[dict[str
         base.append(offset)
         if count - offset != offset:
             base.append(count - offset)
-    return [[permuted[(index + row) % count] for index in base[:count]] for row in range(count)]
+    sequences = [base[:count]]
+    if count % 2:
+        sequences.append(list(reversed(base[:count])))
+    return [
+        [permuted[(index + row) % count] for index in sequence]
+        for sequence in sequences
+        for row in range(count)
+    ]
 
 
 def make_plan(protocol: dict[str, Any], id_key: bytes) -> dict[str, Any]:

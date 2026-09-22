@@ -249,10 +249,10 @@
       "scopedClaim": "machine-verified compatibility, implementation, rollback, and acceptance state transitions"
     }
   ],
-  "protocolHash": "32d0d08f9527854912e0ba152c7ae3438e695268c5977f0e69c06ea9a1bcd549",
-  "protocolId": "routing-operational-v3-single-host-dotnet-spa",
+  "protocolHash": "ca5bfc6af0f69eced8732bdd4be44e8b545df24e589e1e8fd466843626361728",
+  "protocolId": "routing-quality-v1-single-host-dotnet-spa",
   "recordKind": "construct-readiness",
-  "reportHash": "2c535cfd943a281db31b45fe7b556b799202bced18750dba083c4a8d64515f0d",
+  "reportHash": "2d49eb77c61f4b7bd0ecdbaadb04d69420a69c63e187b2e6eb779757b9968128",
   "schemaVersion": 1,
   "sourceArtifacts": {
     "dockerCalibration": {

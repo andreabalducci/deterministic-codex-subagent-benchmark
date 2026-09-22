@@ -27,7 +27,7 @@ class RoutingEvidenceTests(unittest.TestCase):
         protocol = copy.deepcopy(self.frozen)
         protocol["protocolId"] = "routing-evidence-synthetic"
         protocol["bootstrapSamples"] = 100
-        protocol["replicatesPerFixture"] = 3
+        protocol["replicatesPerFixture"] = 5
         protocol["machines"] = ["test-machine"]
         protocol.setdefault("robustness", {
             "maximumQualityFloorShortfall": 0.10,

@@ -61,7 +61,7 @@ class RoutingRunnerTests(unittest.TestCase):
         cls.protocol = copy.deepcopy(frozen)
         cls.protocol["protocolId"] = "routing-runner-test"
         cls.protocol["bootstrapSamples"] = 100
-        cls.protocol["replicatesPerFixture"] = 3
+        cls.protocol["replicatesPerFixture"] = 5
         cls.protocol["machines"] = ["machine-a"]
         for family in cls.protocol["families"]:
             prefix = family["catalogFamilyId"]

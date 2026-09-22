@@ -2,7 +2,7 @@
   "advertisedCapabilities": {
     "reasoningEfforts": ["low", "medium", "high"],
     "serviceTier": "priority",
-    "treatmentIds": ["luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"]
+    "treatmentIds": ["luna-low", "luna-medium", "luna-high", "sol-medium", "sol-high"]
   },
   "codexVersion": "codex-cli 0.153.4",
   "ephemeral": true,

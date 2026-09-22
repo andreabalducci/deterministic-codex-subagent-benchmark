@@ -13,7 +13,7 @@ Retain requirements, decisions, integration, and final acceptance in the coordin
 - For parallel work within the current turn, use available subagent tools. Assign distinct ownership, serialize dependencies and overlapping edits, and supply only the context each worker needs. With `spawn_agent`, explicit model or effort requires `fork_turns: "none"` or a bounded history fork; a full-history fork inherits the parent settings.
 - If delegation or return messaging is unavailable, keep dependent work in this thread. Do not promise an automatic callback without the required tools.
 
-When choosing a worker model, read [model-routing.md](references/model-routing.md). Respect explicit user choices; measured recommendations apply only to their tested scope. Other defaults remain hypotheses.
+When choosing a worker model, read [model-routing.md](references/model-routing.md). Respect explicit user choices. Starting with GPT-6, its defaults adapt OpenAI guidance as hypotheses; historical comparisons do not establish GPT-6 winners.
 
 For dedicated authorized defensive security work, read [defensive-security.md](references/defensive-security.md).
 

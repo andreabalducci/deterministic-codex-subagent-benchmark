@@ -25,7 +25,7 @@ DEFAULT_MATRIX = ROOT / "matrix.json"
 DEFAULT_SKILL = ROOT / "skills" / "orchestrate" / "SKILL.md"
 DEFAULT_TEMPLATE = ROOT / "skills" / "orchestrate" / "SKILL.template.md"
 EXPECTED_CONFIGURATION_COST_ORDER = [
-    "luna-low", "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high",
+    "luna-low", "luna-medium", "luna-high", "sol-medium", "sol-high",
 ]
 ROUTING_PLACEHOLDER = "{{ROUTING_DEFAULTS}}"
 FAST_MODE_TEXT = (
@@ -362,9 +362,11 @@ def generated_block(policy: dict[str, Any]) -> str:
     )
     coordinator = policy["coordinatorDefaults"][0]
     cost_order = " → ".join(f"`{item}`" for item in policy["configurationCostOrder"])
+    guidance = policy["guidance"]
     return f"""## Routing defaults
 
 Delegate when independent execution or model specialization justifies the handoff cost.
+Starting with GPT-6, these defaults adapt [OpenAI's model-selection guidance]({guidance['sourceUrl']}) to this skill's task classes. OpenAI describes Luna for scoped work and Sol for coding that needs more judgment; the exact class-to-effort mapping below is our **provisional hypothesis**, not an OpenAI-certified or locally benchmark-proven winner. Prefer verified correctness; compare cost, then time only when quality is tied on comparable work.
 
 | Route | Use when | Default | Evidence status |
 | --- | --- | --- | --- |
@@ -373,16 +375,22 @@ Delegate when independent execution or model specialization justifies the handof
 Benchmark coordinator default: `{coordinator['model']}` / `{coordinator['reasoningEffort']}` ({coordinator['claimStrength']}). Preserve the user's current coordinator, including Astra; creating a worker does not change the parent model.
 
 - Classify first. Break ties by safety rank, specificity, then precedence; uncertainty routes upward in risk.
-- Cost order: {cost_order}. Use the selected configuration; if unavailable, try only later entries. If none is available, keep the work with the coordinator.
+- Availability fallback order: {cost_order}. Use the selected configuration; if unavailable, try only later entries. If none is available, keep the work with the coordinator.
+- Check the task's acceptance criteria. A failed check is not an availability fallback: explicitly retry or reclassify at a stronger configuration and record the actual model, effort, outcome, time, and tokens when available. Do not describe this map as measured or optimal.
 - {FAST_MODE_TEXT}"""
 
 
 def render_routing_reference(policy: dict[str, Any], *, comparison=None) -> str:
     if comparison is None:
         comparison = load_json(routing_comparison_evidence.DEFAULT_SNAPSHOT)
-    measured = routing_comparison_evidence.render_guidance(
-        comparison, evidence_link="comparison-evidence.json") + '\n' if comparison else ''
-    return "# Model routing\n\n" + measured + generated_block(policy) + "\n"
+    if comparison:
+        routing_comparison_evidence.validate_snapshot(comparison)
+    archive = (
+        "\n\n## Historical comparison archive\n\n"
+        "[Pre-GPT-6 comparison evidence](comparison-evidence.json) is retained for audit, "
+        "but its scoped results do not override or validate the GPT-6 defaults above.\n"
+    ) if comparison else "\n"
+    return "# Model routing\n\n" + generated_block(policy) + archive
 
 
 def render_skill(template_text: str, policy: dict[str, Any], *, comparison=None) -> str:
@@ -392,8 +400,8 @@ def render_skill(template_text: str, policy: dict[str, Any], *, comparison=None)
     render_routing_reference(policy, comparison=comparison)
     return template_text.replace(ROUTING_PLACEHOLDER,
         "When choosing a worker model, read [model-routing.md](references/model-routing.md). "
-        "Respect explicit user choices; measured recommendations apply only to their tested scope. "
-        "Other defaults remain hypotheses.")
+        "Respect explicit user choices. Starting with GPT-6, its defaults adapt OpenAI guidance "
+        "as hypotheses; historical comparisons do not establish GPT-6 winners.")
 
 
 def parse_evidence_paths(values: list[str]) -> dict[str, Path]:

@@ -38,10 +38,18 @@ class RoutingPolicyTests(unittest.TestCase):
             item["selectedConfigurationId"]: (item["model"], item["reasoningEffort"])
             for item in self.policy["defaults"]
         }
-        self.assertEqual(expected, actual)
+        self.assertTrue(set(actual).issubset(expected))
+        self.assertEqual({key: expected[key] for key in actual}, actual)
+        self.assertEqual("luna-medium", next(
+            route["selectedConfigurationId"] for route in self.policy["defaults"]
+            if route["id"] == "isolated-implementation-debugging"
+        ))
         self.assertEqual(routing_policy.EXPECTED_CONFIGURATION_COST_ORDER,
                          self.policy["configurationCostOrder"])
         self.assertEqual("provisional", self.policy["status"])
+        self.assertEqual("gpt-6", self.policy["guidance"]["appliesFrom"])
+        self.assertEqual("vendor-guidance-adapted-as-hypothesis",
+                         self.policy["guidance"]["status"])
         self.assertEqual({"hypothesis"}, {
             item["claimStrength"] for item in self.policy["defaults"]
         })
@@ -58,12 +66,17 @@ class RoutingPolicyTests(unittest.TestCase):
         for base, document in ((routing_policy.DEFAULT_SKILL.parent, rendered),
                                (routing_policy.DEFAULT_SKILL.parent / "references", reference)):
             for target in re.findall(r'\]\(([^)]+)\)', document):
-                self.assertTrue((base / target).is_file(), target)
+                if not target.startswith("https://"):
+                    self.assertTrue((base / target).is_file(), target)
+        self.assertIn(self.policy["guidance"]["sourceUrl"], reference)
+        self.assertIn("Historical comparison archive", reference)
+        self.assertNotIn("## Measured comparison guidance", reference)
 
     def test_schema_rejects_additional_properties_at_every_level(self):
         for mutate in (
             lambda value: value.update({"extra": True}),
             lambda value: value["fastMode"].update({"extra": True}),
+            lambda value: value["guidance"].update({"extra": True}),
             lambda value: value["defaults"][0].update({"extra": True}),
         ):
             policy = copy.deepcopy(self.policy)
@@ -158,10 +171,10 @@ class RoutingPolicyTests(unittest.TestCase):
     def test_multiple_task_routes_may_select_the_same_configuration(self):
         policy = copy.deepcopy(self.policy)
         policy["defaults"][1]["selectedConfigurationId"] = "luna-low"
-        policy["defaults"][1]["model"] = "gpt-5.6-luna"
+        policy["defaults"][1]["model"] = "gpt-6-luna"
         policy["defaults"][1]["reasoningEffort"] = "low"
         policy["defaults"][1]["availabilityFallbackConfigurationIds"] = [
-            "luna-medium", "luna-high", "terra-medium", "sol-medium", "sol-high"
+            "luna-medium", "luna-high", "sol-medium", "sol-high"
         ]
         self.validate(policy)
         selected = routing_policy.resolve_route(policy, ["bounded-mapping-and-patch"])
@@ -375,7 +388,8 @@ class RoutingPolicyTests(unittest.TestCase):
         self.assertNotIn("<!--", current)
         self.assertNotIn(routing_policy.ROUTING_PLACEHOLDER, current)
         for reference in re.findall(r'\]\(([^)]+)\)', current):
-            self.assertTrue((routing_policy.DEFAULT_SKILL.parent / reference).is_file())
+            if not reference.startswith("https://"):
+                self.assertTrue((routing_policy.DEFAULT_SKILL.parent / reference).is_file())
         for route in self.policy["defaults"]:
             self.assertIn(f"`{route['id']}`", block)
             self.assertIn(f"`{route['selectedConfigurationId']}`", block)

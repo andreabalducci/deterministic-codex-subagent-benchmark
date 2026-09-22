@@ -9,12 +9,12 @@
   "analysis": {
     "absoluteQualityFloor": 0.85,
     "candidateId": "sol-medium",
-    "decisionComparatorId": "terra-medium",
+    "decisionComparatorId": "luna-high",
     "minimumDecisionGain": 0.1,
     "nonInferiorityMargin": 0.1
   },
   "bootstrapSamples": 10000,
-  "bootstrapSeed": "coordinator-v1-bootstrap-seed",
+  "bootstrapSeed": "coordinator-v3-bootstrap-seed-20260922",
   "coordinatorTreatments": [
     {
       "id": "luna-low",
@@ -30,11 +30,6 @@
       "id": "luna-high",
       "model": "gpt-5.6-luna",
       "reasoningEffort": "high"
-    },
-    {
-      "id": "terra-medium",
-      "model": "gpt-5.6-terra",
-      "reasoningEffort": "medium"
     },
     {
       "id": "sol-medium",
@@ -73,15 +68,13 @@
     "coordination-12"
   ],
   "machines": [
-    "machine-a",
-    "machine-b",
-    "machine-c"
+    "machine-a"
   ],
-  "protocolId": "coordinator-v1-live-delegation",
+  "protocolId": "coordinator-v3-single-host-no-terra",
   "recordKind": "coordinator-protocol",
-  "replicatesPerFixture": 9,
+  "replicatesPerFixture": 5,
   "schemaVersion": 1,
-  "seed": "coordinator-v1-plan-seed",
+  "seed": "coordinator-v3-plan-seed-20260922",
   "sourceBinding": {
     "catalogHash": "4b6e4fcbe39e50234b8d400344b46baf1cb07f38e79fff313c7967a07055096e",
     "fixtureManifestHashes": {
