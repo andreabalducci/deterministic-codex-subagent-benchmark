@@ -366,7 +366,7 @@ def generated_block(policy: dict[str, Any]) -> str:
     return f"""## Routing defaults
 
 Delegate when independent execution or model specialization justifies the handoff cost.
-Starting with GPT-6, these defaults adapt [OpenAI's model-selection guidance]({guidance['sourceUrl']}) to this skill's task classes. OpenAI describes Luna for scoped work and Sol for coding that needs more judgment; the exact class-to-effort mapping below is our **provisional hypothesis**, not an OpenAI-certified or locally benchmark-proven winner. Prefer verified correctness; compare cost, then time only when quality is tied on comparable work.
+These defaults adapt [OpenAI's model-selection guidance]({guidance['sourceUrl']}) to this skill's task classes, with GPT-6.1 Sol replacing GPT-6 Sol in new selections. Read [model-choice.md](model-choice.md) for model roles, reasoning, and escalation beyond this benchmark's five configurations. The exact class-to-effort mapping below is our **provisional hypothesis**, not an OpenAI-certified or locally benchmark-proven winner. Prefer verified correctness; compare cost, then time only when quality is tied on comparable work. The configuration order is a provisional fallback sequence, not a measured cost-per-task ranking.
 
 | Route | Use when | Default | Evidence status |
 | --- | --- | --- | --- |
@@ -400,8 +400,9 @@ def render_skill(template_text: str, policy: dict[str, Any], *, comparison=None)
     render_routing_reference(policy, comparison=comparison)
     return template_text.replace(ROUTING_PLACEHOLDER,
         "When choosing a worker model, read [model-routing.md](references/model-routing.md). "
-        "Respect explicit user choices. Starting with GPT-6, its defaults adapt OpenAI guidance "
-        "as hypotheses; historical comparisons do not establish GPT-6 winners.")
+        "Respect explicit user choices and the current coordinator. Prefer GPT-6.1 Sol for "
+        "complex recurring work, Luna for bounded tasks, and Astra for the most demanding work. "
+        "Exact routes and efforts remain hypotheses; historical comparisons do not validate new models.")
 
 
 def parse_evidence_paths(values: list[str]) -> dict[str, Path]:

@@ -3,7 +3,7 @@
     { "id": "luna-low", "model": "gpt-6-luna", "reasoningEffort": "low" },
     { "id": "luna-medium", "model": "gpt-6-luna", "reasoningEffort": "medium" },
     { "id": "luna-high", "model": "gpt-6-luna", "reasoningEffort": "high" },
-    { "id": "sol-medium", "model": "gpt-6-sol", "reasoningEffort": "medium" },
-    { "id": "sol-high", "model": "gpt-6-sol", "reasoningEffort": "high" }
+    { "id": "sol-medium", "model": "gpt-6.1-sol", "reasoningEffort": "medium" },
+    { "id": "sol-high", "model": "gpt-6.1-sol", "reasoningEffort": "high" }
   ]
 }

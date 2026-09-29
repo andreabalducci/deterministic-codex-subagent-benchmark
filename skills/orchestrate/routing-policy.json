@@ -68,7 +68,7 @@
       "availabilityFallbackConfigurationIds": ["sol-high"],
       "estimand": "worker",
       "id": "read-heavy-exploration-synthesis",
-      "model": "gpt-6-sol",
+      "model": "gpt-6.1-sol",
       "precedence": 40,
       "reasoningEffort": "medium",
       "selectedConfigurationId": "sol-medium",
@@ -83,7 +83,7 @@
       "availabilityFallbackConfigurationIds": ["sol-high"],
       "estimand": "worker",
       "id": "coordination-integration",
-      "model": "gpt-6-sol",
+      "model": "gpt-6.1-sol",
       "precedence": 50,
       "reasoningEffort": "medium",
       "selectedConfigurationId": "sol-medium",
@@ -98,7 +98,7 @@
       "availabilityFallbackConfigurationIds": [],
       "estimand": "worker",
       "id": "ambiguous-cross-cutting-high-risk",
-      "model": "gpt-6-sol",
+      "model": "gpt-6.1-sol",
       "precedence": 60,
       "reasoningEffort": "high",
       "selectedConfigurationId": "sol-high",
@@ -115,7 +115,7 @@
       "estimand": "live-coordinator-with-frozen-workers",
       "evidenceRefs": [],
       "id": "live-coordinator-session",
-      "model": "gpt-6-sol",
+      "model": "gpt-6.1-sol",
       "reasoningEffort": "medium",
       "summary": "Session-starting hypothesis for the live coordinator while all leaf workers remain frozen to Luna high",
       "taskClass": "coordination-integration"
@@ -142,7 +142,7 @@
     "spawnAgentParameter": false
   },
   "policyId": "orchestrate-routing",
-  "policyVersion": "2.1.0",
+  "policyVersion": "2.2.0",
   "schemaVersion": 2,
   "status": "provisional"
 }

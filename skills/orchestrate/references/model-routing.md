@@ -3,18 +3,18 @@
 ## Routing defaults
 
 Delegate when independent execution or model specialization justifies the handoff cost.
-Starting with GPT-6, these defaults adapt [OpenAI's model-selection guidance](https://developers.openai.com/api/docs/guides/model-selection) to this skill's task classes. OpenAI describes Luna for scoped work and Sol for coding that needs more judgment; the exact class-to-effort mapping below is our **provisional hypothesis**, not an OpenAI-certified or locally benchmark-proven winner. Prefer verified correctness; compare cost, then time only when quality is tied on comparable work.
+These defaults adapt [OpenAI's model-selection guidance](https://developers.openai.com/api/docs/guides/model-selection) to this skill's task classes, with GPT-6.1 Sol replacing GPT-6 Sol in new selections. Read [model-choice.md](model-choice.md) for model roles, reasoning, and escalation beyond this benchmark's five configurations. The exact class-to-effort mapping below is our **provisional hypothesis**, not an OpenAI-certified or locally benchmark-proven winner. Prefer verified correctness; compare cost, then time only when quality is tied on comparable work. The configuration order is a provisional fallback sequence, not a measured cost-per-task ranking.
 
 | Route | Use when | Default | Evidence status |
 | --- | --- | --- | --- |
 | `mechanical-repository-work` | Tightly bounded, low-risk mechanical work with cheap deterministic verification | `luna-low`: `gpt-6-luna`, `reasoning_effort: "low"` | hypothesis |
 | `bounded-mapping-and-patch` | Bounded code mapping or a small low-risk patch with an explicit contract and strong checks | `luna-medium`: `gpt-6-luna`, `reasoning_effort: "medium"` | hypothesis |
 | `isolated-implementation-debugging` | Isolated, well-specified implementation or repair with deterministic acceptance tests | `luna-medium`: `gpt-6-luna`, `reasoning_effort: "medium"` | hypothesis |
-| `read-heavy-exploration-synthesis` | Structured defect localization with exact source-bound path, line, and excerpt evidence | `sol-medium`: `gpt-6-sol`, `reasoning_effort: "medium"` | hypothesis |
-| `coordination-integration` | Multi-file contract, producer, consumer, and acceptance-state integration | `sol-medium`: `gpt-6-sol`, `reasoning_effort: "medium"` | hypothesis |
-| `ambiguous-cross-cutting-high-risk` | Compatibility, implementation, rollback, and acceptance-state transitions under high risk | `sol-high`: `gpt-6-sol`, `reasoning_effort: "high"` | hypothesis |
+| `read-heavy-exploration-synthesis` | Structured defect localization with exact source-bound path, line, and excerpt evidence | `sol-medium`: `gpt-6.1-sol`, `reasoning_effort: "medium"` | hypothesis |
+| `coordination-integration` | Multi-file contract, producer, consumer, and acceptance-state integration | `sol-medium`: `gpt-6.1-sol`, `reasoning_effort: "medium"` | hypothesis |
+| `ambiguous-cross-cutting-high-risk` | Compatibility, implementation, rollback, and acceptance-state transitions under high risk | `sol-high`: `gpt-6.1-sol`, `reasoning_effort: "high"` | hypothesis |
 
-Benchmark coordinator default: `gpt-6-sol` / `medium` (hypothesis). Preserve the user's current coordinator, including Astra; creating a worker does not change the parent model.
+Benchmark coordinator default: `gpt-6.1-sol` / `medium` (hypothesis). Preserve the user's current coordinator, including Astra; creating a worker does not change the parent model.
 
 - Classify first. Break ties by safety rank, specificity, then precedence; uncertainty routes upward in risk.
 - Availability fallback order: `luna-low` → `luna-medium` → `luna-high` → `sol-medium` → `sol-high`. Use the selected configuration; if unavailable, try only later entries. If none is available, keep the work with the coordinator.
